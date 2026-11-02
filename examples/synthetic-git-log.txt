@@ -1,0 +1,25 @@
+commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+parents 
+date 2026-01-01T00:00:00Z
+subject Add synthetic math module
+A	docs/guide.md
+A	src/math.py
+
+commit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+parents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+date 2026-01-01T01:00:00Z
+subject Correct synthetic math result
+M	src/math.py
+
+commit cccccccccccccccccccccccccccccccccccccccc
+parents bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+date 2026-01-01T02:00:00Z
+subject Add synthetic edge case
+M	src/math.py
+M	tests/test_math.py
+
+commit dddddddddddddddddddddddddddddddddddddddd
+parents cccccccccccccccccccccccccccccccccccccccc
+date 2026-01-01T03:00:00Z
+subject Expand synthetic guide
+M	docs/guide.md

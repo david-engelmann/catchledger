@@ -8,7 +8,13 @@ Dashboards total runs and failures, and no tool anywhere computes which of a tea
 
 ## Status
 
-Seeded in October 2026. The build has not started. Part of the impatient programming portfolio, in the Gate Truth arc.
+- Slice 2 is built and proven on synthetic targets only
+- Slice 2 ingests a local workflow run export and a local Git history export or clone and builds the per check scorecard with fires and blocks and true catches and false blocks and flake rate and runtime and cost per catch
+- Slice 2 attributes a catch only when a later change in the flagged code is followed by a successful run on a descendant commit and counts a block followed by a bare retry against the check and leaves every other block unattributed
+- Slice 2 publishes the evidence pack format catchledger-pack/1 with one validated pack for each check and writes a deterministic JSON ledger and markdown report through the command line
+- Slice 2 is the Round 1 work increment, and Round 1 closed after audit and two-axis review and red team and owner approval, with the review fixes landed on the same branch
+- Closed rounds stand at 1 of 100
+- Seeded in October 2026. Part of the impatient programming portfolio, in the Gate Truth arc
 
 ## Licence
 
