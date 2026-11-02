@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "catchledger"
+version = "0.1.0"
+description = "A conservative per check scorecard joined from CI and Git history"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[project.scripts]
+catchledger = "catchledger.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["catchledger*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
