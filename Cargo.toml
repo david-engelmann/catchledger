@@ -1,0 +1,14 @@
+[package]
+name = "catchledger"
+version = "0.1.0"
+edition = "2021"
+description = "The scorecard every gate should carry, joined from CI logs to what happened next"
+license = "MIT"
+
+[lib]
+name = "catchledger"
+path = "src/lib.rs"
+
+[[bin]]
+name = "catchledger"
+path = "src/main.rs"

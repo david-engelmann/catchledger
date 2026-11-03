@@ -29,8 +29,21 @@ def _read_bytes(path, label):
 
 def _read_json(path, label):
     data = _read_bytes(path, label)
+
+    def reject_duplicate_keys(pairs):
+        seen = set()
+        for key, _value in pairs:
+            if key in seen:
+                raise CatchledgerError(
+                    f"the {label} carries the key {key} more than once"
+                )
+            seen.add(key)
+        return dict(pairs)
+
     try:
-        document = json.loads(data.decode("utf-8"))
+        document = json.loads(
+            data.decode("utf-8"), object_pairs_hook=reject_duplicate_keys
+        )
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise CatchledgerError(f"the {label} is not valid JSON") from exc
     return document, sha256_bytes(data)

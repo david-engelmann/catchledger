@@ -58,4 +58,4 @@ This annex is catchledger's alone. The canonical part above this repo's annex is
 
 Catchledger prices checks, secondbill prices work. This repo keeps the per-check scorecard and publishes the evidence pack format the verdict tools read.
 
-All ingestion fixtures are synthetic and tests never touch the network. The local gate is python -m pytest once the suite exists. The closed round count stands in the README and moves only at a closure.
+All ingestion fixtures are synthetic and tests never touch the network. The local gate is python -m pytest and cargo test once the crate exists. The closed round count stands in the README and moves only at a closure.
