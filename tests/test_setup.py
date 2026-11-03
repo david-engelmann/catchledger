@@ -18,7 +18,7 @@ def test_seed_files_present():
 
 def test_readme_records_the_closed_round_count():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "Closed rounds stand at 1 of 100" in readme
+    assert "Closed rounds stand at 2 of 100" in readme
 
 
 def test_agents_template_and_annex():
@@ -32,7 +32,7 @@ def test_agents_template_and_annex():
         "Catchledger prices checks, secondbill prices work.",
         "This repo keeps the per-check scorecard and publishes the evidence pack format the verdict tools read.",
         "All ingestion fixtures are synthetic and tests never touch the network.",
-        "The local gate is python -m pytest once the suite exists.",
+        "The local gate is python -m pytest and cargo test once the crate exists.",
         "The closed round count stands in the README and moves only at a closure.",
     ]
     positions = [annex.index(sentence) for sentence in sentences]
