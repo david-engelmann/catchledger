@@ -522,7 +522,7 @@ fn every_recorded_case_is_consumed() {
 use catchledger::render::render_canonical;
 use catchledger::{
     canonical_json_sha256, ci_repo_label, parse_ci_document, parse_git_log,
-    read_git_history_from_clone, sha256_bytes,
+    read_git_history_from_clone, sha256_bytes, CatchledgerError,
 };
 
 fn recordings2() -> JsonValue {
@@ -920,32 +920,43 @@ fn replay_clone(case: &JsonValue) -> PathBuf {
     }
 }
 
-fn check_clone(case: &JsonValue) -> Result<(), String> {
-    let name = name_of(case);
-    let dir = replay_clone(case);
-    let outcome = read_git_history_from_clone(&dir);
-    if std::fs::symlink_metadata(&dir)
-        .map(|meta| meta.file_type().is_symlink())
-        .unwrap_or(false)
-    {
-        // The path read was a link into a fixture area holding the
-        // built clone beside it, so clear the link and the area.
-        let area = dir.parent().map(|parent| parent.to_path_buf());
-        let _ = std::fs::remove_file(&dir);
-        if let Some(area) = area {
-            let _ = std::fs::remove_dir_all(&area);
-        }
-    } else {
-        let _ = std::fs::remove_dir_all(&dir);
-        let _ = std::fs::remove_file(&dir);
+/// Rerun the clone reading's stated git invocation against a built
+/// fixture and hash the translated output, so the digest the reading
+/// returns can be proven on the machine running the suite. The
+/// recorded clone digest was read under one git generation and the
+/// log text changes its UTC date spelling across the git 2.45
+/// boundary, so the recomputation is the portable pin and the
+/// recorded digest stands as the generating machine's answer.
+fn live_clone_digest(dir: &Path) -> Result<String, String> {
+    let output = std::process::Command::new("git")
+        .arg("-C")
+        .arg(dir)
+        .args(["log", "--reverse", "--topo-order", "-M", "--name-status"])
+        .arg("--pretty=format:commit %H%nparents %P%ndate %cI%nsubject %s")
+        .output()
+        .map_err(|_| "the verification git could not be started".to_string())?;
+    if !output.status.success() {
+        return Err("the verification git log reading failed".to_string());
     }
+    let text = String::from_utf8(output.stdout)
+        .map_err(|_| "the verification git log output was not UTF-8".to_string())?;
+    let translated = text.replace("\r\n", "\n").replace('\r', "\n");
+    Ok(sha256_bytes(translated.as_bytes()))
+}
+
+fn check_clone_outcome(
+    case: &JsonValue,
+    dir: &Path,
+    outcome: Result<(Vec<CommitRecord>, String), CatchledgerError>,
+) -> Result<(), String> {
+    let name = name_of(case);
     if let Some(expected) = expected_ok(case) {
         let (records, digest) =
             outcome.map_err(|error| format!("{name}: refused with {}", error.message()))?;
-        let expected_digest = text_of(expected, "digest");
-        if digest != expected_digest {
+        let recomputed = live_clone_digest(dir)?;
+        if digest != recomputed {
             return Err(format!(
-                "{name}: digest read as {digest} when {expected_digest} was recorded"
+                "{name}: digest read as {digest} when the live log text hashes to {recomputed}"
             ));
         }
         let expected_records = expected
@@ -981,6 +992,28 @@ fn check_clone(case: &JsonValue) -> Result<(), String> {
             }
         }
     }
+}
+
+fn check_clone(case: &JsonValue) -> Result<(), String> {
+    let dir = replay_clone(case);
+    let outcome = read_git_history_from_clone(&dir);
+    let result = check_clone_outcome(case, &dir, outcome);
+    if std::fs::symlink_metadata(&dir)
+        .map(|meta| meta.file_type().is_symlink())
+        .unwrap_or(false)
+    {
+        // The path read was a link into a fixture area holding the
+        // built clone beside it, so clear the link and the area.
+        let area = dir.parent().map(|parent| parent.to_path_buf());
+        let _ = std::fs::remove_file(&dir);
+        if let Some(area) = area {
+            let _ = std::fs::remove_dir_all(&area);
+        }
+    } else {
+        let _ = std::fs::remove_dir_all(&dir);
+        let _ = std::fs::remove_file(&dir);
+    }
+    result
 }
 
 #[test]
