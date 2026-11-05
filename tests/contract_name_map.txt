@@ -1,0 +1,68 @@
+# The disposition of every test name the contract carries, under
+# obligation PORT3-5. Each line gives the contract name, the
+# disposition kind, the file the disposition stands in, and the
+# Rust test or recorded section or recorded case that carries it.
+# Kinds are rust-test for a Rust test standing under its own name,
+# recording-section for a section of a recordings file, and
+# recording-case for one named case of a recordings file.
+test_a_document_nested_past_the_reader_bound_is_refused_by_the_command_line | rust-test | tests/cli.rs | test_a_document_nested_past_the_reader_bound_is_refused_by_the_command_line
+test_a_file_name_carrying_a_non_utf8_byte_is_read | rust-test | tests/cli.rs | test_a_file_name_carrying_a_non_utf8_byte_is_read
+test_a_repository_label_carrying_a_non_utf8_byte_is_refused | rust-test | tests/cli.rs | test_a_repository_label_carrying_a_non_utf8_byte_is_refused
+test_agents_template_and_annex | rust-test | tests/setup.rs | test_agents_template_and_annex
+test_bare_retry_takes_precedence_over_descendant_fix_evidence | recording-section | tests/conformance/port1_cases.json | ledger
+test_block_followed_by_bare_retry_counts_against_the_check | recording-section | tests/conformance/port1_cases.json | ledger
+test_block_followed_by_fix_outside_flagged_code_is_not_a_catch | recording-section | tests/conformance/port1_cases.json | ledger
+test_block_followed_by_flagged_fix_and_success_is_a_catch | recording-section | tests/conformance/port1_cases.json | ledger
+test_block_with_no_later_outcome_is_unattributed | recording-section | tests/conformance/port1_cases.json | ledger
+test_blocked_commit_without_changed_paths_still_earns_a_false_block | recording-section | tests/conformance/port1_cases.json | ledger
+test_blocked_merge_commit_earns_no_catch | recording-section | tests/conformance/port1_cases.json | ledger
+test_canaryfield_results_are_normalized_for_the_matching_check | recording-section | tests/conformance/port1_cases.json | canary
+test_canaryfield_results_are_null_without_an_exact_gate | recording-section | tests/conformance/port1_cases.json | canary
+test_canaryfield_rows_carry_exactly_the_stated_shape | recording-section | tests/conformance/port1_cases.json | canary
+test_catch_counts_sum_with_all_block_outcomes | recording-section | tests/conformance/port1_cases.json | ledger
+test_ci_envelope_and_bare_list_ingest_the_same_runs | recording-section | tests/conformance/port2_cases.json | ci
+test_cli_accepts_a_local_clone | recording-case | tests/conformance/cli_cases.json | the local clone is accepted
+test_cli_battery_matches_the_python_record | rust-test | tests/cli.rs | test_cli_battery_matches_the_python_record
+test_cli_writes_deterministic_outputs | recording-case | tests/conformance/cli_cases.json | deterministic outputs over the examples
+test_contract_has_no_forbidden_dashes | rust-test | tests/contract.rs | test_contract_has_no_forbidden_dashes
+test_cost_per_catch_is_null_without_a_catch | recording-section | tests/conformance/port1_cases.json | ledger
+test_cost_per_catch_uses_total_check_cost | recording-section | tests/conformance/port1_cases.json | ledger
+test_descendant_success_without_a_fix_ends_the_catch_search | recording-section | tests/conformance/port1_cases.json | ledger
+test_duplicate_keys_in_the_canaryfield_result_and_a_written_pack_are_refused | recording-section | tests/conformance/port1_cases.json | reader
+test_duplicate_keys_in_the_workflow_run_export_are_refused | recording-section | tests/conformance/port1_cases.json | reader
+test_duplicate_keys_refuse_at_any_depth_and_name_the_first_repeat | recording-section | tests/conformance/port1_cases.json | reader
+test_every_contract_name_is_disposed | rust-test | tests/contract.rs | test_every_contract_name_is_disposed
+test_evidence_pack_carries_the_complete_check_record | recording-case | tests/conformance/port1_cases.json | pack-agrees-style
+test_exact_duplicate_runs_count_once_and_conflicts_are_refused | recording-section | tests/conformance/port2_cases.json | ci
+test_false_block_rate_uses_blocks_as_the_denominator | recording-section | tests/conformance/port1_cases.json | ledger
+test_fix_committed_after_the_validating_run_started_earns_no_catch | recording-section | tests/conformance/port1_cases.json | ledger
+test_fix_under_a_name_the_flagged_set_does_not_carry_is_missed | recording-section | tests/conformance/port1_cases.json | ledger
+test_flagged_change_without_a_later_success_is_not_a_catch | recording-section | tests/conformance/port1_cases.json | ledger
+test_flake_is_counted_once_per_commit | recording-section | tests/conformance/port1_cases.json | ledger
+test_flake_rate_rounds_half_up_on_the_boundary | recording-section | tests/conformance/port1_cases.json | ledger
+test_git_log_export_parses_records_and_renames | recording-section | tests/conformance/port2_cases.json | gitlog
+test_git_log_export_reads_copy_lines_beside_renames | recording-section | tests/conformance/port2_cases.json | gitlog
+test_history_window_is_null_when_no_runs_stand | recording-section | tests/conformance/port1_cases.json | ledger
+test_in_progress_record_with_a_failure_conclusion_is_skipped_on_status | recording-section | tests/conformance/port2_cases.json | ci
+test_incomplete_and_malformed_runs_are_not_guessed | recording-section | tests/conformance/port2_cases.json | ci
+test_later_outcome_without_validating_success_is_named | recording-section | tests/conformance/port1_cases.json | ledger
+test_later_success_without_flagged_fix_is_unattributed | recording-section | tests/conformance/port1_cases.json | ledger
+test_ledger_and_packs_carry_the_history_window | recording-section | tests/conformance/port1_cases.json | ledger
+test_ledger_and_report_carry_no_local_paths | recording-case | tests/conformance/cli_cases.json | the outputs carry no local paths
+test_local_clone_and_export_produce_the_same_records | recording-section | tests/conformance/port2_cases.json | clone
+test_malformed_canaryfield_results_are_refused | recording-section | tests/conformance/port1_cases.json | canary
+test_malformed_git_history_is_refused | recording-section | tests/conformance/port2_cases.json | gitlog
+test_missing_blocked_commit_is_unattributed | recording-section | tests/conformance/port1_cases.json | ledger
+test_missing_inputs_are_refused | recording-case | tests/conformance/cli_cases.json | the three missing inputs are refused
+test_mutating_a_built_pack_moves_neither_ledger_nor_validation | recording-section | tests/conformance/port1_cases.json | ledger
+test_negative_runtime_contributes_zero | recording-section | tests/conformance/port1_cases.json | ledger
+test_pack_validation_refuses_a_tampered_history_window | recording-case | tests/conformance/port1_cases.json | pack-tampered-history-window
+test_pack_validation_refuses_a_tampered_scorecard | recording-case | tests/conformance/port1_cases.json | pack-tampered-scorecard
+test_pack_validation_refuses_tampered_evidence_and_metadata | recording-case | tests/conformance/port1_cases.json | pack-tampered-catch-record
+test_readme_records_the_closed_round_count | rust-test | tests/setup.rs | test_readme_records_the_closed_round_count
+test_reason_prefers_the_descendant_success_over_a_later_flagged_change | recording-section | tests/conformance/port1_cases.json | ledger
+test_rename_inside_the_interval_intersects_on_either_name | recording-section | tests/conformance/port1_cases.json | ledger
+test_runtime_falls_back_to_the_creation_timestamp_without_a_start | recording-section | tests/conformance/port1_cases.json | ledger
+test_scorecard_counts_fires_blocks_and_runtime | recording-section | tests/conformance/port1_cases.json | ledger
+test_seed_files_present | rust-test | tests/setup.rs | test_seed_files_present
+test_the_same_key_in_different_objects_is_accepted | recording-section | tests/conformance/port1_cases.json | reader

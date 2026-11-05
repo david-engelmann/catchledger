@@ -6,8 +6,9 @@
 //! attribution and evidence packs, the canaryfield substrate, and
 //! the deterministic JSON and markdown rendering. Port slice 2 adds
 //! workflow run ingestion, the repository label reading, Git log
-//! parsing and clone reading, and the digest helpers. The command
-//! line stays in the Python package, as the contract records.
+//! parsing and clone reading, and the digest helpers. Port
+//! slice 3 makes the binary the command line whole and retires
+//! the Python package, as the contract records.
 
 pub mod bigint;
 pub mod canary;
