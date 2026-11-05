@@ -1,0 +1,3403 @@
+{
+  "format": "catchledger port slice 2 conformance recordings",
+  "case_count": 161,
+  "cases": [
+    {
+      "kind": "ci",
+      "name": "envelope",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          },
+          {
+            "identifier": "2",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "success",
+            "created_at": "2026-01-01T01:09:55Z",
+            "started_at": "2026-01-01T01:10:00Z",
+            "updated_at": "2026-01-01T01:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": {
+        "repo": "synthetic-ledger-repo",
+        "workflow_runs": [
+          {
+            "id": 2,
+            "name": "unit checks",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "completed",
+            "conclusion": "success",
+            "created_at": "2026-01-01T01:09:55Z",
+            "run_started_at": "2026-01-01T01:10:00Z",
+            "updated_at": "2026-01-01T01:11:00Z"
+          },
+          {
+            "id": 1,
+            "name": "unit checks",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "status": "completed",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "run_started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "ci",
+      "name": "bare-list",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          },
+          {
+            "identifier": "2",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "success",
+            "created_at": "2026-01-01T01:09:55Z",
+            "started_at": "2026-01-01T01:10:00Z",
+            "updated_at": "2026-01-01T01:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 2,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-01-01T01:09:55Z",
+          "run_started_at": "2026-01-01T01:10:00Z",
+          "updated_at": "2026-01-01T01:11:00Z"
+        },
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "scalar-document",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the workflow run export must be a list or an object with workflow runs"
+        ]
+      },
+      "document": 42
+    },
+    {
+      "kind": "ci",
+      "name": "text-document",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the workflow run export must be a list or an object with workflow runs"
+        ]
+      },
+      "document": "runs"
+    },
+    {
+      "kind": "ci",
+      "name": "null-document",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the workflow run export must be a list or an object with workflow runs"
+        ]
+      },
+      "document": null
+    },
+    {
+      "kind": "ci",
+      "name": "bool-document",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the workflow run export must be a list or an object with workflow runs"
+        ]
+      },
+      "document": true
+    },
+    {
+      "kind": "ci",
+      "name": "dict-without-runs",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the workflow run export must be a list or an object with workflow runs"
+        ]
+      },
+      "document": {
+        "repo": "x"
+      }
+    },
+    {
+      "kind": "ci",
+      "name": "dict-runs-not-list",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the workflow run export must be a list or an object with workflow runs"
+        ]
+      },
+      "document": {
+        "workflow_runs": {
+          "a": 1
+        }
+      }
+    },
+    {
+      "kind": "ci",
+      "name": "non-dict-record",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "each workflow run record must be an object"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        7
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "list-record",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "each workflow run record must be an object"
+        ]
+      },
+      "document": [
+        [
+          "not",
+          "a",
+          "dict"
+        ]
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "empty-list",
+      "expect": {
+        "ok": []
+      },
+      "document": []
+    },
+    {
+      "kind": "ci",
+      "name": "empty-envelope",
+      "expect": {
+        "ok": []
+      },
+      "document": {
+        "workflow_runs": []
+      }
+    },
+    {
+      "kind": "ci",
+      "name": "status-in-progress",
+      "expect": {
+        "ok": []
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "in_progress",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-queued-no-conclusion",
+      "expect": {
+        "ok": []
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "queued",
+          "conclusion": null,
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "conclusion-missing",
+      "expect": {
+        "ok": []
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-missing",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-completed-upper",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "COMPLETED",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-completed-padded",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": " completed ",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-none",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": null,
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-int",
+      "expect": {
+        "ok": []
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": 123,
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-bool",
+      "expect": {
+        "ok": []
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": true,
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "status-list",
+      "expect": {
+        "ok": []
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": [
+            "completed"
+          ],
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-float",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs an identifier"
+        ]
+      },
+      "document": [
+        {
+          "id": 1.5,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-bool",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs an identifier"
+        ]
+      },
+      "document": [
+        {
+          "id": true,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-none",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs an identifier"
+        ]
+      },
+      "document": [
+        {
+          "id": null,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-missing",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs an identifier"
+        ]
+      },
+      "document": [
+        {
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-empty",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs an identifier"
+        ]
+      },
+      "document": [
+        {
+          "id": "",
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-blank",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs an identifier"
+        ]
+      },
+      "document": [
+        {
+          "id": "   ",
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-zero",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "0",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 0,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-negative",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "-5",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": -5,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-bigint",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1180591620717411303424",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1180591620717411303424,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-padded",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "42",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": " 42 ",
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "id-leading-zeros",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "007",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": "007",
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "name-blank",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs a nonempty check name"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "   ",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "name-padded-cased",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "Unit Checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "  Unit Checks ",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "name-int",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs a nonempty check name"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": 42,
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "head-sha-missing",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs a nonempty head commit"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "head-sha-upper",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "abcdef0123",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "ABCDEF0123",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "head-sha-blank",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs a nonempty head commit"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": " ",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "conclusion-upper",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "FAILURE",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "conclusion-blank",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a completed workflow run needs a nonempty conclusion"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "  ",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "created-missing",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "created_at must be an ISO 8601 timestamp"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "created-naive",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "created_at must carry a timezone offset"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:00:00",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "created-offset",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:05:00Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T01:05:00+01:00",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "created-half-hour-offset",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T05:39:55+05:30",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "created-fraction",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55.123456Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55.123456Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "started-missing",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:09:55Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 65
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "started-none",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:09:55Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 65
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": null,
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "started-invalid",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "run_started_at must be an ISO 8601 timestamp"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "not a time",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "updated-missing",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "updated_at must be an ISO 8601 timestamp"
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "started-after-updated",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T02:00:00Z",
+            "updated_at": "2026-01-01T01:00:00Z",
+            "duration_seconds": 0
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T02:00:00Z",
+          "updated_at": "2026-01-01T01:00:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "extra-fields",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 1,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z",
+          "extra": "ignored",
+          "html_url": "https://example.invalid/run"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "duplicate-exact",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "10",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "duplicate-same-instant-other-offset",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "10",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T01:09:55+01:00",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "duplicate-different-created",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "two completed workflow runs share an identifier and disagree"
+        ]
+      },
+      "document": [
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:05:00Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "duplicate-different-started",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "two completed workflow runs share an identifier and disagree"
+        ]
+      },
+      "document": [
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:11:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "duplicate-conflicting-conclusion",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "two completed workflow runs share an identifier and disagree"
+        ]
+      },
+      "document": [
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "duplicate-one-skipped",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "10",
+            "check": "unit checks",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "failure",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "failure",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": 10,
+          "name": "unit checks",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "in_progress",
+          "conclusion": "success",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "ci",
+      "name": "sort-order",
+      "expect": {
+        "ok": [
+          {
+            "identifier": "1",
+            "check": "alpha",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "success",
+            "created_at": "2026-01-01T03:09:55Z",
+            "started_at": "2026-01-01T03:10:00Z",
+            "updated_at": "2026-01-01T03:11:00Z",
+            "duration_seconds": 60
+          },
+          {
+            "identifier": "3",
+            "check": "beta",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "success",
+            "created_at": "2026-01-01T00:04:55Z",
+            "started_at": "2026-01-01T00:05:00Z",
+            "updated_at": "2026-01-01T00:06:00Z",
+            "duration_seconds": 60
+          },
+          {
+            "identifier": "10",
+            "check": "beta",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "success",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          },
+          {
+            "identifier": "2",
+            "check": "beta",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "conclusion": "success",
+            "created_at": "2026-01-01T00:09:55Z",
+            "started_at": "2026-01-01T00:10:00Z",
+            "updated_at": "2026-01-01T00:11:00Z",
+            "duration_seconds": 60
+          }
+        ]
+      },
+      "document": [
+        {
+          "id": "2",
+          "name": "beta",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": "10",
+          "name": "beta",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-01-01T00:09:55Z",
+          "run_started_at": "2026-01-01T00:10:00Z",
+          "updated_at": "2026-01-01T00:11:00Z"
+        },
+        {
+          "id": "1",
+          "name": "alpha",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-01-01T03:09:55Z",
+          "run_started_at": "2026-01-01T03:10:00Z",
+          "updated_at": "2026-01-01T03:11:00Z"
+        },
+        {
+          "id": "3",
+          "name": "beta",
+          "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "completed",
+          "conclusion": "success",
+          "created_at": "2026-01-01T00:04:55Z",
+          "run_started_at": "2026-01-01T00:05:00Z",
+          "updated_at": "2026-01-01T00:06:00Z"
+        }
+      ]
+    },
+    {
+      "kind": "label",
+      "name": "non-dict-list",
+      "expect": {
+        "ok": "unknown"
+      },
+      "document": [
+        1
+      ]
+    },
+    {
+      "kind": "label",
+      "name": "non-dict-text",
+      "expect": {
+        "ok": "unknown"
+      },
+      "document": "repo"
+    },
+    {
+      "kind": "label",
+      "name": "null",
+      "expect": {
+        "ok": "unknown"
+      },
+      "document": null
+    },
+    {
+      "kind": "label",
+      "name": "repo-padded",
+      "expect": {
+        "ok": "a/b"
+      },
+      "document": {
+        "repo": "  a/b "
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repo-blank-then-repository",
+      "expect": {
+        "ok": "c/d"
+      },
+      "document": {
+        "repo": "  ",
+        "repository": "c/d"
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repo-int-then-repository",
+      "expect": {
+        "ok": "c/d"
+      },
+      "document": {
+        "repo": 42,
+        "repository": "c/d"
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repository-padded",
+      "expect": {
+        "ok": "c/d"
+      },
+      "document": {
+        "repository": " c/d "
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repository-full-name",
+      "expect": {
+        "ok": "e/f"
+      },
+      "document": {
+        "repository": {
+          "full_name": " e/f "
+        }
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repository-full-name-blank",
+      "expect": {
+        "ok": "unknown"
+      },
+      "document": {
+        "repository": {
+          "full_name": " "
+        }
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repository-dict-no-name",
+      "expect": {
+        "ok": "unknown"
+      },
+      "document": {
+        "repository": {
+          "other": 1
+        }
+      }
+    },
+    {
+      "kind": "label",
+      "name": "repo-wins",
+      "expect": {
+        "ok": "x"
+      },
+      "document": {
+        "repo": "x",
+        "repository": "y"
+      }
+    },
+    {
+      "kind": "label",
+      "name": "empty-doc",
+      "expect": {
+        "ok": "unknown"
+      },
+      "document": {}
+    },
+    {
+      "kind": "gitlog",
+      "name": "suite-export",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic first commit",
+            "changes": [
+              {
+                "status": "A",
+                "paths": [
+                  "docs/guide.md"
+                ]
+              },
+              {
+                "status": "A",
+                "paths": [
+                  "src/code.py"
+                ]
+              }
+            ]
+          },
+          {
+            "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "parents": [
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            ],
+            "committed_at": "2026-01-01T01:00:00Z",
+            "subject": "Synthetic second commit",
+            "changes": [
+              {
+                "status": "M",
+                "paths": [
+                  "src/code.py"
+                ]
+              },
+              {
+                "status": "R100",
+                "paths": [
+                  "docs/guide.md",
+                  "docs/manual.md"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic first commit\nA\tdocs/guide.md\nA\tsrc/code.py\n\ncommit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nparents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ndate 2026-01-01T01:00:00Z\nsubject Synthetic second commit\nM\tsrc/code.py\nR100\tdocs/guide.md\tdocs/manual.md\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "empty-text",
+      "expect": {
+        "ok": []
+      },
+      "text": ""
+    },
+    {
+      "kind": "gitlog",
+      "name": "blank-text",
+      "expect": {
+        "ok": []
+      },
+      "text": "\n\n  \n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "data-before-commit",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "Git history data stands before a commit"
+        ]
+      },
+      "text": "hello\ncommit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "blank-before-commit",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": []
+          }
+        ]
+      },
+      "text": "\n\ncommit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "commit-line-bare-word",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "Git history data stands before a commit"
+        ]
+      },
+      "text": "commit\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "commit-line-trailing-space",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history commit line is malformed"
+        ]
+      },
+      "text": "commit \n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "commit-line-two-hashes",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history commit line is malformed"
+        ]
+      },
+      "text": "commit a b\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "commit-line-wide-spaces",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "S",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  \nparents \ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "commit-line-tab-hash",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "Git history data stands before a commit"
+        ]
+      },
+      "text": "commit\ta\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "missing-parents",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record is incomplete"
+        ]
+      },
+      "text": "commit a\ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "missing-date",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record is incomplete"
+        ]
+      },
+      "text": "commit a\nparents \nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "missing-subject",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record is incomplete"
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00Z\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "repeat-parents",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record repeats its parents"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nparents b\nsubject Synthetic commit\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "repeat-date",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record repeats its date"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\ndate 2026-01-02T00:00:00Z\nsubject Synthetic commit\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "repeat-subject",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record repeats its subject"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nsubject Again\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "parents-glued-word",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [
+              "xyz"
+            ],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "S",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit a\nparentsXYZ\ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "parents-bare-word",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "S",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit a\nparents\ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "parent-singular",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit a\nparent b\ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "date-no-space",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit a\nparents \ndate2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "date-wide-space",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "S",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit a\nparents \ndate  2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "date-naive",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "commit date must carry a timezone offset"
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "date-garbage",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "commit date must be an ISO 8601 timestamp"
+        ]
+      },
+      "text": "commit a\nparents \ndate soon\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "subject-bare-word",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00Z\nsubject\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "subject-glued-word",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "s are great",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00Z\nsubjects are great\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "subject-padded",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "hello  ",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00Z\nsubject    hello  \n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-before-fields",
+      "expect": {
+        "ok": [
+          {
+            "commit": "a",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "S",
+            "changes": [
+              {
+                "status": "A",
+                "paths": [
+                  "file.txt"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "text": "commit a\nA\tfile.txt\nparents \ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-space-not-tab",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nM src/code.py\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-trailing-tab",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nM\t\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-double-tab",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nM\t\tpath\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-empty-status",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\n\tpath\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-padded-status",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": [
+              {
+                "status": "M",
+                "paths": [
+                  "path"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\n M \tpath\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-status-spaces-inside",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": [
+              {
+                "status": "R 100",
+                "paths": [
+                  "old",
+                  "new"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nR 100\told\tnew\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "change-path-spaces",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": [
+              {
+                "status": "A",
+                "paths": [
+                  "my file.txt"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nA\tmy file.txt\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "incomplete-then-malformed-commit",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history record is incomplete"
+        ]
+      },
+      "text": "commit a\nparents \ncommit x y\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "crlf-text",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\r\nparents \r\ndate 2026-01-01T00:00:00Z\r\nsubject Synthetic commit\r\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "cr-only-text",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\rparents \rdate 2026-01-01T00:00:00Z\rsubject Synthetic commit\r"
+    },
+    {
+      "kind": "gitlog",
+      "name": "unicode-line-sep-in-subject",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00Z\nsubject one two\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "vtab-in-subject",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "a Git history change line is malformed"
+        ]
+      },
+      "text": "commit a\nparents \ndate 2026-01-01T00:00:00Z\nsubject one\u000btwo\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "uppercase-hashes",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [
+              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            ],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "S",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nparents BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\ndate 2026-01-01T00:00:00Z\nsubject S\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "no-trailing-newline",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit"
+    },
+    {
+      "kind": "gitlog",
+      "name": "merge-shaped-record",
+      "expect": {
+        "ok": [
+          {
+            "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "parents": [
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "cccccccccccccccccccccccccccccccccccccccc"
+            ],
+            "committed_at": "2026-01-01T02:00:00Z",
+            "subject": "Merge side",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nparents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa cccccccccccccccccccccccccccccccccccccccc\ndate 2026-01-01T02:00:00Z\nsubject Merge side\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "repeated-commit-stands",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": []
+          },
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": []
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\n\ncommit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\n"
+    },
+    {
+      "kind": "gitlog",
+      "name": "copy-line",
+      "expect": {
+        "ok": [
+          {
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "parents": [],
+            "committed_at": "2026-01-01T00:00:00Z",
+            "subject": "Synthetic commit",
+            "changes": [
+              {
+                "status": "C100",
+                "paths": [
+                  "docs/guide.md",
+                  "docs/copy.md"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Synthetic commit\nC100\tdocs/guide.md\tdocs/copy.md\n"
+    },
+    {
+      "kind": "sha256",
+      "name": "empty",
+      "expect": {
+        "ok": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_hex": ""
+    },
+    {
+      "kind": "sha256",
+      "name": "abc",
+      "expect": {
+        "ok": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      },
+      "input_hex": "616263"
+    },
+    {
+      "kind": "sha256",
+      "name": "utf8-text",
+      "expect": {
+        "ok": "850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e"
+      },
+      "input_hex": "636166c3a9"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-55",
+      "expect": {
+        "ok": "e7313d333c272e639f790978283f9eb392e843d0f29b7016828bb1daa4aac70b"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-56",
+      "expect": {
+        "ok": "4324d65f3c103567f5589c710bc08f8523f929a9272e3af36fc968e52abc6c27"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d84"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-57",
+      "expect": {
+        "ok": "35df609437dcfea3279283ab79fd554e2bf78f8f7ae2de532d8ee300b09e8f73"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-63",
+      "expect": {
+        "ok": "81c80242132f230c3bd41b3e63bbcff16107339549214a99614ff26664625055"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-64",
+      "expect": {
+        "ok": "39e3d7b6b5d075d37d053ad89b24b41bef4f3c29760c84447cab3f3be1882241"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bc"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-65",
+      "expect": {
+        "ok": "aacca6ff74fdbb296d165a45cecfa04e5127bc008770fbbdd48006f2d2fae95e"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-119",
+      "expect": {
+        "ok": "9ce7368e4daf32341631b492e80359dc9f594b48453cd0dd5bf0b19279cc177e"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-120",
+      "expect": {
+        "ok": "7836b787757e95e58b3ca5aec90b1b004e8deba1e50e9675af9cabf1a13a04b5"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d44"
+    },
+    {
+      "kind": "sha256",
+      "name": "pattern-128",
+      "expect": {
+        "ok": "d2742f1f4ac6bb7ca2b239ee18402ba8b3f9f8e652d2a72973c2b9ba11c08cf6"
+      },
+      "input_hex": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dce3eaf1f8ff060d141b222930373e454c535a61686f767d848b9299a0a7aeb5bcc3cad1d8dfe6edf4fb020910171e252c333a41484f565d646b727980878e959ca3aab1b8bfc6cdd4dbe2e9f0f7fe050c131a21282f363d444b525960676e757c"
+    },
+    {
+      "kind": "sha256",
+      "name": "zeros-64",
+      "expect": {
+        "ok": "f5a5fd42d16a20302798ef6ed309979b43003d2320d9f0e8ea9831a92759fb4b"
+      },
+      "input_hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "kind": "sha256",
+      "name": "long-1000",
+      "expect": {
+        "ok": "d028495fd3bbf57a2e876cdb15519a8aefcb9d0ec9bd35da28a1be9176c84b54"
+      },
+      "input_hex": "01203f5e7d9cbbdaf91837567594b3d2f1102f4e6d8cabcae90827466584a3c2e1001f3e5d7c9bbad9f81736557493b2d1f00f2e4d6c8baac9e80726456483a2c1e0ff1e3d5c7b9ab9d8f71635547392b1d0ef0e2d4c6b8aa9c8e70625446382a1c0dffe1d3c5b7a99b8d7f61534537291b0cfee0d2c4b6a89a8c7e60524436281a0bfdefd1c3b5a7998b7d6f51433527190afceed0c2b4a6988a7c6e504234261809fbeddfc1b3a597897b6d5f4133251708faecdec0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f8eadcceb0a29486786a5c4e30221405f7e9dbcdbfa1938577695b4d3f211304f6e8daccbea0928476685a4c3e201203f5e7d9cbbdaf91837567594b3d2f1102f4e6d8cabcae90827466584a3c2e1001f3e5d7c9bbad9f81736557493b2d1f00f2e4d6c8baac9e80726456483a2c1e0ff1e3d5c7b9ab9d8f71635547392b1d0ef0e2d4c6b8aa9c8e70625446382a1c0dffe1d3c5b7a99b8d7f61534537291b0cfee0d2c4b6a89a8c7e60524436281a0bfdefd1c3b5a7998b7d6f51433527190afceed0c2b4a6988a7c6e504234261809fbeddfc1b3a597897b6d5f4133251708faecdec0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f8eadcceb0a29486786a5c4e30221405f7e9dbcdbfa1938577695b4d3f211304f6e8daccbea0928476685a4c3e201203f5e7d9cbbdaf91837567594b3d2f1102f4e6d8cabcae90827466584a3c2e1001f3e5d7c9bbad9f81736557493b2d1f00f2e4d6c8baac9e80726456483a2c1e0ff1e3d5c7b9ab9d8f71635547392b1d0ef0e2d4c6b8aa9c8e70625446382a1c0dffe1d3c5b7a99b8d7f61534537291b0cfee0d2c4b6a89a8c7e60524436281a0bfdefd1c3b5a7998b7d6f51433527190afceed0c2b4a6988a7c6e504234261809fbeddfc1b3a597897b6d5f4133251708faecdec0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f8eadcceb0a29486786a5c4e30221405f7e9dbcdbfa1938577695b4d3f211304f6e8daccbea0928476685a4c3e201203f5e7d9cbbdaf91837567594b3d2f1102f4e6d8cabcae90827466584a3c2e1001f3e5d7c9bbad9f81736557493b2d1f00f2e4d6c8baac9e80726456483a2c1e0ff1e3d5c7b9ab9d8f71635547392b1d0ef0e2d4c6b8aa9c8e70625446382a1c0dffe1d3c5b7a99b8d7f61534537291b0cfee0d2c4b6a89a8c7e60524436281a0bfdefd1c3b5a7998b7d6f51433527190afceed0c2b4a6988a7c6e504234261809fbeddfc1b3a597897b6d5f4133251708faecdec0b2a496887a6c5e4032241607f9ebddcfb1a39587796b5d4f31231506f8eadcceb0a29486786a5c4e30221405f7e9dbcdbfa"
+    },
+    {
+      "kind": "canonical",
+      "name": "flat",
+      "expect": {
+        "ok": {
+          "rendered": "{\"a\":2,\"b\":1}",
+          "digest": "d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"
+        }
+      },
+      "document": {
+        "b": 1,
+        "a": 2
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "nested",
+      "expect": {
+        "ok": {
+          "rendered": "{\"a\":\"t\",\"z\":[{\"x\":null,\"y\":true}]}",
+          "digest": "71d024d9f0d4a3ef9a2abd74255d42ee6dd27ae95c7cb515774e23f2f747fa5d"
+        }
+      },
+      "document": {
+        "z": [
+          {
+            "y": true,
+            "x": null
+          }
+        ],
+        "a": "t"
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "empty-object",
+      "expect": {
+        "ok": {
+          "rendered": "{}",
+          "digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        }
+      },
+      "document": {}
+    },
+    {
+      "kind": "canonical",
+      "name": "empty-list",
+      "expect": {
+        "ok": {
+          "rendered": "[]",
+          "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "document": []
+    },
+    {
+      "kind": "canonical",
+      "name": "nonascii",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":\"café\"}",
+          "digest": "2303df0176226e83b89fa2a9311d76a8a4c29b0e8ae83ffaa0e431fa4f8b5359"
+        }
+      },
+      "document": {
+        "k": "café"
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "control-char",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":\"a\\u0001b\"}",
+          "digest": "d39396c0a6f8854f7e258a7e382fb6761d2a6f513621b6f5940b3d894556857a"
+        }
+      },
+      "document": {
+        "k": "a\u0001b"
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "del-char",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":\"ab\"}",
+          "digest": "075bc1b4b12999eb7e2feb5821dbb2c4aa5aaa78ad04e0cd344134ee0e28570a"
+        }
+      },
+      "document": {
+        "k": "ab"
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "line-separator",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":\"a b\"}",
+          "digest": "e229a9cab5c0ee83831947bc9f63e913a1d2fa04b83832821dedb2f283cb6159"
+        }
+      },
+      "document": {
+        "k": "a b"
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-one",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":1.0}",
+          "digest": "46132d034c7785cc872044b79a6db04f63ac9c65cbf4e74e7b9ad13e61076c0b"
+        }
+      },
+      "document": {
+        "k": 1.0
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-small",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":0.1}",
+          "digest": "01a8bffe014d63ef49fce7082cc63db6d31fd20b36cfc307ac62d585da34ad70"
+        }
+      },
+      "document": {
+        "k": 0.1
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-plain",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":123456789.12345679}",
+          "digest": "5de655be2b8cd37d051ab805174451848508193432bb6d3489b620fdcb406a39"
+        }
+      },
+      "document": {
+        "k": 123456789.12345679
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-fixed-edge",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":1000000000000000.0}",
+          "digest": "c724478c9e99d44cd92184b259c4de1767e8739426d05fa201fdc2da6b97564c"
+        }
+      },
+      "document": {
+        "k": 1000000000000000.0
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-scientific-edge",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":1e+16}",
+          "digest": "9c8cc690bba5cc75cab5e463d59ac0f926f6f0391a45c01ddb22301f1b435ad3"
+        }
+      },
+      "document": {
+        "k": 1e+16
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-tiny",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":1e-05}",
+          "digest": "08ac9b490af3ec12818b73365715fd73ad7cd03535ebfef65c1d394f37830215"
+        }
+      },
+      "document": {
+        "k": 1e-05
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "neg-zero",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":-0.0}",
+          "digest": "f5039b294ce6e6b00dc9ba9524631576eca74e1042926251e7b95d55bc0a68cf"
+        }
+      },
+      "document": {
+        "k": -0.0
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "bigint",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":1180591620717411303424}",
+          "digest": "042355a2b981bddd0461dbef5e282c6c570166d236403ba2c6dd2f8e3f64b3be"
+        }
+      },
+      "document": {
+        "k": 1180591620717411303424
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "nan",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":NaN}",
+          "digest": "1bfc5909d0e960432d9e81a6bd47ce1f89b8081c6bf880b85df7399f8704bff6"
+        }
+      },
+      "document": {
+        "k": NaN
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "infinity",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":Infinity}",
+          "digest": "b7b30c319a1191c58cd3061d22a79d5c2ad97bc0578e413c52c6913d63839775"
+        }
+      },
+      "document": {
+        "k": Infinity
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "neg-infinity",
+      "expect": {
+        "ok": {
+          "rendered": "{\"k\":-Infinity}",
+          "digest": "c18cf8fb7f0cccf0005bc3c4e2862c75303f2f18867620ba8fe699f333c36da2"
+        }
+      },
+      "document": {
+        "k": -Infinity
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "unicode-keys",
+      "expect": {
+        "ok": {
+          "rendered": "{\"Z\":3,\"e\":2,\"é\":1}",
+          "digest": "296eddcfab96cda8a8310adbc82430c08592083c6fcc7f74873df6ce62b35e2f"
+        }
+      },
+      "document": {
+        "é": 1,
+        "e": 2,
+        "Z": 3
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "mixed-list",
+      "expect": {
+        "ok": {
+          "rendered": "[1,\"two\",3.5,true,null,{\"b\":[]}]",
+          "digest": "8bb18f662191d34d13ed4b8cfd1b9a869c2b45aa1b4c9dc862f9d57494b4aabf"
+        }
+      },
+      "document": [
+        1,
+        "two",
+        3.5,
+        true,
+        null,
+        {
+          "b": []
+        }
+      ]
+    },
+    {
+      "kind": "clone",
+      "name": "missing-path",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the Git repository path is not a local directory"
+        ]
+      },
+      "fixture": {
+        "style": "missing",
+        "steps": []
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "file-path",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the Git repository path is not a local directory"
+        ]
+      },
+      "fixture": {
+        "style": "file",
+        "steps": []
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "empty-dir",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the local Git repository could not be read"
+        ]
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": []
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "empty-repo",
+      "expect": {
+        "error": [
+          "CatchledgerError",
+          "the local Git repository could not be read"
+        ]
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": [
+          {
+            "op": "init"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "synthetic-repo",
+      "expect": {
+        "ok": {
+          "records": [
+            {
+              "commit": "6ea43e2228315b49a2b45ab9011dd81a3bff1f88",
+              "parents": [],
+              "committed_at": "2026-01-01T00:00:00Z",
+              "subject": "Synthetic first commit",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "docs/guide.md"
+                  ]
+                },
+                {
+                  "status": "A",
+                  "paths": [
+                    "src/code.py"
+                  ]
+                }
+              ]
+            },
+            {
+              "commit": "6966e85104c0988556ba9682effb919cf6b5a5da",
+              "parents": [
+                "6ea43e2228315b49a2b45ab9011dd81a3bff1f88"
+              ],
+              "committed_at": "2026-01-01T01:00:00Z",
+              "subject": "Synthetic second commit",
+              "changes": [
+                {
+                  "status": "R100",
+                  "paths": [
+                    "docs/guide.md",
+                    "docs/manual.md"
+                  ]
+                },
+                {
+                  "status": "M",
+                  "paths": [
+                    "src/code.py"
+                  ]
+                }
+              ]
+            }
+          ],
+          "digest": "b9a09a0783856961e4658da991a47aad38ef44d59b1134ebbb1396426430ea1d"
+        }
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": [
+          {
+            "op": "init"
+          },
+          {
+            "op": "mkdir",
+            "path": "src"
+          },
+          {
+            "op": "mkdir",
+            "path": "docs"
+          },
+          {
+            "op": "write",
+            "path": "src/code.py",
+            "text": "value = 1\n"
+          },
+          {
+            "op": "write",
+            "path": "docs/guide.md",
+            "text": "Synthetic guide.\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Synthetic first commit"
+            ],
+            "date": "2026-01-01T00:00:00Z"
+          },
+          {
+            "op": "write",
+            "path": "src/code.py",
+            "text": "value = 2\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "mv",
+              "docs/guide.md",
+              "docs/manual.md"
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Synthetic second commit"
+            ],
+            "date": "2026-01-01T01:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "merge-repo",
+      "expect": {
+        "ok": {
+          "records": [
+            {
+              "commit": "5a8448695b7c8a259cf97a2d4028d93a786fce6f",
+              "parents": [],
+              "committed_at": "2026-01-01T00:00:00Z",
+              "subject": "Base commit",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "base.txt"
+                  ]
+                }
+              ]
+            },
+            {
+              "commit": "0be59fff9890e5299eaa74954d1d4db4c143eb97",
+              "parents": [
+                "5a8448695b7c8a259cf97a2d4028d93a786fce6f"
+              ],
+              "committed_at": "2026-01-01T02:00:00Z",
+              "subject": "Main commit",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "main.txt"
+                  ]
+                }
+              ]
+            },
+            {
+              "commit": "c54129c940e79f4aebb9eb489620450561dd15a1",
+              "parents": [
+                "5a8448695b7c8a259cf97a2d4028d93a786fce6f"
+              ],
+              "committed_at": "2026-01-01T01:00:00Z",
+              "subject": "Side commit",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "side.txt"
+                  ]
+                }
+              ]
+            },
+            {
+              "commit": "45882dfe1b5d5f1e6ad33612230cf0ef0205a7bd",
+              "parents": [
+                "0be59fff9890e5299eaa74954d1d4db4c143eb97",
+                "c54129c940e79f4aebb9eb489620450561dd15a1"
+              ],
+              "committed_at": "2026-01-01T03:00:00Z",
+              "subject": "Merge side",
+              "changes": []
+            }
+          ],
+          "digest": "54fdb8bbccf4465adf13da932efd966c88d4974c680414abebf98e85c0c0cc63"
+        }
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": [
+          {
+            "op": "init"
+          },
+          {
+            "op": "write",
+            "path": "base.txt",
+            "text": "base\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Base commit"
+            ],
+            "date": "2026-01-01T00:00:00Z"
+          },
+          {
+            "op": "git",
+            "args": [
+              "checkout",
+              "-q",
+              "-b",
+              "side"
+            ],
+            "date": null
+          },
+          {
+            "op": "write",
+            "path": "side.txt",
+            "text": "side\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Side commit"
+            ],
+            "date": "2026-01-01T01:00:00Z"
+          },
+          {
+            "op": "git",
+            "args": [
+              "checkout",
+              "-q",
+              "main"
+            ],
+            "date": null
+          },
+          {
+            "op": "write",
+            "path": "main.txt",
+            "text": "main\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Main commit"
+            ],
+            "date": "2026-01-01T02:00:00Z"
+          },
+          {
+            "op": "git",
+            "args": [
+              "merge",
+              "-q",
+              "--no-ff",
+              "-m",
+              "Merge side",
+              "side"
+            ],
+            "date": "2026-01-01T03:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "cr-subject",
+      "expect": {
+        "ok": {
+          "records": [
+            {
+              "commit": "6368a6c7e724b4edbe36a829f2545d9a7857160e",
+              "parents": [],
+              "committed_at": "2026-01-01T00:00:00Z",
+              "subject": "Top subject",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "planted.txt"
+                  ]
+                },
+                {
+                  "status": "A",
+                  "paths": [
+                    "f.txt"
+                  ]
+                }
+              ]
+            }
+          ],
+          "digest": "467126b8a554d104bdc38127bffc0e9473553d5c16f22584228acbad8ab451e9"
+        }
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": [
+          {
+            "op": "init"
+          },
+          {
+            "op": "write",
+            "path": "f.txt",
+            "text": "data\n"
+          },
+          {
+            "op": "commit_tree",
+            "message_hex": "546f70207375626a6563740d4109706c616e7465642e7478740a0a626f64790a",
+            "date": "2026-01-01T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "latin1-subject",
+      "expect": {
+        "ok": {
+          "records": [
+            {
+              "commit": "e55d1e9b422d5aca086188093699f38582fe623c",
+              "parents": [],
+              "committed_at": "2026-01-01T00:00:00Z",
+              "subject": "Bad ÿþ subject",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "f.txt"
+                  ]
+                }
+              ]
+            }
+          ],
+          "digest": "873eb85a55d339c8118e03f0e55e2acd440e7d6f8522510999efae300443ec19"
+        }
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": [
+          {
+            "op": "init"
+          },
+          {
+            "op": "write",
+            "path": "f.txt",
+            "text": "data\n"
+          },
+          {
+            "op": "commit_tree",
+            "message_hex": "42616420fffe207375626a6563740a",
+            "date": "2026-01-01T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "symlinked-repo",
+      "expect": {
+        "ok": {
+          "records": [
+            {
+              "commit": "6ea43e2228315b49a2b45ab9011dd81a3bff1f88",
+              "parents": [],
+              "committed_at": "2026-01-01T00:00:00Z",
+              "subject": "Synthetic first commit",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "docs/guide.md"
+                  ]
+                },
+                {
+                  "status": "A",
+                  "paths": [
+                    "src/code.py"
+                  ]
+                }
+              ]
+            },
+            {
+              "commit": "6966e85104c0988556ba9682effb919cf6b5a5da",
+              "parents": [
+                "6ea43e2228315b49a2b45ab9011dd81a3bff1f88"
+              ],
+              "committed_at": "2026-01-01T01:00:00Z",
+              "subject": "Synthetic second commit",
+              "changes": [
+                {
+                  "status": "R100",
+                  "paths": [
+                    "docs/guide.md",
+                    "docs/manual.md"
+                  ]
+                },
+                {
+                  "status": "M",
+                  "paths": [
+                    "src/code.py"
+                  ]
+                }
+              ]
+            }
+          ],
+          "digest": "b9a09a0783856961e4658da991a47aad38ef44d59b1134ebbb1396426430ea1d"
+        }
+      },
+      "fixture": {
+        "style": "symlink",
+        "steps": [
+          {
+            "op": "init"
+          },
+          {
+            "op": "mkdir",
+            "path": "src"
+          },
+          {
+            "op": "mkdir",
+            "path": "docs"
+          },
+          {
+            "op": "write",
+            "path": "src/code.py",
+            "text": "value = 1\n"
+          },
+          {
+            "op": "write",
+            "path": "docs/guide.md",
+            "text": "Synthetic guide.\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Synthetic first commit"
+            ],
+            "date": "2026-01-01T00:00:00Z"
+          },
+          {
+            "op": "write",
+            "path": "src/code.py",
+            "text": "value = 2\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "mv",
+              "docs/guide.md",
+              "docs/manual.md"
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Synthetic second commit"
+            ],
+            "date": "2026-01-01T01:00:00Z"
+          },
+          {
+            "op": "symlink",
+            "path": "alias",
+            "to": "clone"
+          }
+        ],
+        "target": "clone"
+      }
+    },
+    {
+      "kind": "clone",
+      "name": "offset-date",
+      "expect": {
+        "ok": {
+          "records": [
+            {
+              "commit": "244c66b4ca5583136b93ffdbfbf60338cdf60170",
+              "parents": [],
+              "committed_at": "2026-01-01T00:00:00Z",
+              "subject": "Offset commit",
+              "changes": [
+                {
+                  "status": "A",
+                  "paths": [
+                    "f.txt"
+                  ]
+                }
+              ]
+            }
+          ],
+          "digest": "f00d111be91774b1b114ea48be07759cd8ba76edea89876cd9309190eb4861e4"
+        }
+      },
+      "fixture": {
+        "style": "repo",
+        "steps": [
+          {
+            "op": "init"
+          },
+          {
+            "op": "write",
+            "path": "f.txt",
+            "text": "data\n"
+          },
+          {
+            "op": "git",
+            "args": [
+              "add",
+              "."
+            ],
+            "date": null
+          },
+          {
+            "op": "git",
+            "args": [
+              "commit",
+              "-q",
+              "-m",
+              "Offset commit"
+            ],
+            "date": "2026-01-01T05:30:00+05:30"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-tie-to-even",
+      "expect": {
+        "ok": {
+          "rendered": "{\"value\":2.9802322387695312e-08}",
+          "digest": "4e4980fa47ebf2243230c59eb570bb6ab09981ae93e12ab17c3631d4a1048fbd"
+        }
+      },
+      "document": {
+        "value": 2.9802322387695312e-08
+      }
+    }
+  ]
+}

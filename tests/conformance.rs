@@ -1,13 +1,19 @@
-//! Recorded conformance for Rust port slice 1.
+//! Recorded conformance for the Rust port slices.
 //!
 //! The recordings in `tests/conformance/port1_cases.json` were
 //! generated from the landed Python, the spec, over the inputs its
 //! own test suite uses, plus the boundary cases the contract states.
-//! The recordings are never edited by hand. These tests run offline
-//! and compare byte for byte or message for message.
+//! The recordings in `tests/conformance/port2_cases.json` stand
+//! beside them for port slice 2, generated the same way over the
+//! ingestion inputs of the Python suite plus the boundary families
+//! the slice 2 probes recorded. The recordings are never edited by
+//! hand. These tests run offline and compare byte for byte or
+//! message for message, except the clone cases of slice 2, which
+//! rebuild a synthetic clone from its recorded recipe on the machine
+//! running the suite and compare the reading of that clone.
 
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use catchledger::jsonvalue::JsonValue;
 use catchledger::models::{CommitChange, CommitRecord, RunRecord};
@@ -508,5 +514,556 @@ fn every_recorded_case_is_consumed() {
     .iter()
     .map(|kind| kind_cases(all, kind).len())
     .sum();
+    assert_eq!(consumed, all.len());
+}
+
+// ---- Port slice 2: ingestion and digests ----
+
+use catchledger::render::render_canonical;
+use catchledger::{
+    canonical_json_sha256, ci_repo_label, parse_ci_document, parse_git_log,
+    read_git_history_from_clone, sha256_bytes, CatchledgerError,
+};
+
+fn recordings2() -> JsonValue {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("conformance")
+        .join("port2_cases.json");
+    let text = std::fs::read_to_string(&path).expect("the slice 2 recordings are readable");
+    read_json_document(&text, "conformance recordings").expect("the recordings decode")
+}
+
+/// Compare a record timestamp against the recorded text by its
+/// rendering, so the check does not derive both sides through the
+/// one parser. A parser regression that shifted an instant would
+/// move the expected value with the record and pass silently.
+fn check_rendered_stamp(stamp: i128, enc: &JsonValue, key: &str, name: &str) -> Result<(), String> {
+    if let Some(text) = enc.get(key).and_then(JsonValue::as_text) {
+        let rendered = format_timestamp(stamp);
+        if rendered != text {
+            return Err(format!(
+                "{name}: the {key} renders as {rendered} when {text} was recorded"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn check_run_enc(record: &RunRecord, enc: &JsonValue, name: &str) -> Result<(), String> {
+    let expected = run_from(enc);
+    if *record != expected {
+        return Err(format!("{name}: a run record differs"));
+    }
+    check_rendered_stamp(record.created_at, enc, "created_at", name)?;
+    check_rendered_stamp(record.started_at, enc, "started_at", name)?;
+    check_rendered_stamp(record.updated_at, enc, "updated_at", name)?;
+    let duration = enc
+        .get("duration_seconds")
+        .and_then(|value| match value {
+            JsonValue::Int(number) => Some(*number),
+            _ => None,
+        })
+        .ok_or_else(|| format!("{name}: the recorded run carries no duration"))?;
+    if record.duration_seconds() != duration {
+        return Err(format!("{name}: the duration differs"));
+    }
+    Ok(())
+}
+
+fn check_commit_enc(record: &CommitRecord, enc: &JsonValue, name: &str) -> Result<(), String> {
+    let expected = commit_from(enc);
+    if *record != expected {
+        return Err(format!("{name}: a commit record differs"));
+    }
+    check_rendered_stamp(record.committed_at, enc, "committed_at", name)?;
+    Ok(())
+}
+
+fn check_ci(case: &JsonValue) -> Result<(), String> {
+    let name = name_of(case);
+    let document = case
+        .get("document")
+        .ok_or_else(|| format!("{name}: the case carries no document"))?;
+    let outcome = parse_ci_document(document);
+    if let Some(expected) = expected_ok(case) {
+        let runs = outcome.map_err(|error| format!("{name}: refused with {}", error.message()))?;
+        let expected_runs = expected
+            .as_list()
+            .ok_or_else(|| format!("{name}: the recorded answer is not a list"))?;
+        if runs.len() != expected_runs.len() {
+            return Err(format!(
+                "{name}: read {} runs when {} were recorded",
+                runs.len(),
+                expected_runs.len()
+            ));
+        }
+        for (record, enc) in runs.iter().zip(expected_runs.iter()) {
+            check_run_enc(record, enc, name)?;
+        }
+        return Ok(());
+    }
+    let (class, message) = expected_error(case)
+        .ok_or_else(|| format!("{name}: the case expects neither ok nor error"))?;
+    match outcome {
+        Ok(_) => Err(format!(
+            "{name}: the document read when a refusal was recorded"
+        )),
+        Err(error) => {
+            if class != "CatchledgerError" || error.message() != message {
+                Err(format!(
+                    "{name}: refusal was {} when {class} {message} was recorded",
+                    error.message()
+                ))
+            } else {
+                Ok(())
+            }
+        }
+    }
+}
+
+#[test]
+fn ci_cases_match_the_recordings() {
+    let root = recordings2();
+    let cases = kind_cases(all_cases(&root), "ci");
+    assert_eq!(cases.len(), 59);
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| check_ci(case).err())
+        .collect();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn check_label(case: &JsonValue) -> Result<(), String> {
+    let name = name_of(case);
+    let document = case
+        .get("document")
+        .ok_or_else(|| format!("{name}: the case carries no document"))?;
+    let expected = expected_ok(case)
+        .and_then(JsonValue::as_text)
+        .ok_or_else(|| format!("{name}: the recorded label is not text"))?;
+    let label = ci_repo_label(document);
+    if label != expected {
+        return Err(format!(
+            "{name}: label read as {label} when {expected} was recorded"
+        ));
+    }
+    Ok(())
+}
+
+#[test]
+fn label_cases_match_the_recordings() {
+    let root = recordings2();
+    let cases = kind_cases(all_cases(&root), "label");
+    assert_eq!(cases.len(), 12);
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| check_label(case).err())
+        .collect();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn check_gitlog(case: &JsonValue) -> Result<(), String> {
+    let name = name_of(case);
+    let outcome = parse_git_log(text_of(case, "text"));
+    if let Some(expected) = expected_ok(case) {
+        let records =
+            outcome.map_err(|error| format!("{name}: refused with {}", error.message()))?;
+        let expected_records = expected
+            .as_list()
+            .ok_or_else(|| format!("{name}: the recorded answer is not a list"))?;
+        if records.len() != expected_records.len() {
+            return Err(format!(
+                "{name}: read {} records when {} were recorded",
+                records.len(),
+                expected_records.len()
+            ));
+        }
+        for (record, enc) in records.iter().zip(expected_records.iter()) {
+            check_commit_enc(record, enc, name)?;
+        }
+        return Ok(());
+    }
+    let (class, message) = expected_error(case)
+        .ok_or_else(|| format!("{name}: the case expects neither ok nor error"))?;
+    match outcome {
+        Ok(_) => Err(format!("{name}: the text read when a refusal was recorded")),
+        Err(error) => {
+            if class != "CatchledgerError" || error.message() != message {
+                Err(format!(
+                    "{name}: refusal was {} when {class} {message} was recorded",
+                    error.message()
+                ))
+            } else {
+                Ok(())
+            }
+        }
+    }
+}
+
+#[test]
+fn gitlog_cases_match_the_recordings() {
+    let root = recordings2();
+    let cases = kind_cases(all_cases(&root), "gitlog");
+    assert_eq!(cases.len(), 44);
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| check_gitlog(case).err())
+        .collect();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn hex_bytes(text: &str) -> Vec<u8> {
+    let mut out = Vec::with_capacity(text.len() / 2);
+    let bytes = text.as_bytes();
+    for pair in bytes.chunks_exact(2) {
+        let high = (pair[0] as char).to_digit(16).expect("hex digit");
+        let low = (pair[1] as char).to_digit(16).expect("hex digit");
+        out.push((high * 16 + low) as u8);
+    }
+    out
+}
+
+fn check_sha256(case: &JsonValue) -> Result<(), String> {
+    let name = name_of(case);
+    let data = hex_bytes(text_of(case, "input_hex"));
+    let expected = expected_ok(case)
+        .and_then(JsonValue::as_text)
+        .ok_or_else(|| format!("{name}: the recorded digest is not text"))?;
+    let digest = sha256_bytes(&data);
+    if digest != expected {
+        return Err(format!(
+            "{name}: digest read as {digest} when {expected} was recorded"
+        ));
+    }
+    Ok(())
+}
+
+#[test]
+fn sha256_cases_match_the_recordings() {
+    let root = recordings2();
+    let cases = kind_cases(all_cases(&root), "sha256");
+    assert_eq!(cases.len(), 14);
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| check_sha256(case).err())
+        .collect();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn check_canonical(case: &JsonValue) -> Result<(), String> {
+    let name = name_of(case);
+    let document = case
+        .get("document")
+        .ok_or_else(|| format!("{name}: the case carries no document"))?;
+    let expected =
+        expected_ok(case).ok_or_else(|| format!("{name}: the case expects no answer"))?;
+    let expected_rendered = text_of(expected, "rendered");
+    let rendered = render_canonical(document);
+    if rendered != expected_rendered {
+        return Err(format!(
+            "{name}: rendered as {rendered} when {expected_rendered} was recorded"
+        ));
+    }
+    let expected_digest = text_of(expected, "digest");
+    let digest = canonical_json_sha256(document);
+    if digest != expected_digest {
+        return Err(format!(
+            "{name}: digest read as {digest} when {expected_digest} was recorded"
+        ));
+    }
+    Ok(())
+}
+
+#[test]
+fn canonical_cases_match_the_recordings() {
+    let root = recordings2();
+    let cases = kind_cases(all_cases(&root), "canonical");
+    assert_eq!(cases.len(), 22);
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| check_canonical(case).err())
+        .collect();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+struct CloneReplay {
+    dir: PathBuf,
+}
+
+impl CloneReplay {
+    fn git(&self, args: &[&str], date: Option<&str>, stdin: Option<&[u8]>) -> String {
+        let mut command = std::process::Command::new("git");
+        command
+            .arg("-C")
+            .arg(&self.dir)
+            .args(args)
+            .env("GIT_AUTHOR_NAME", "Synthetic Dev")
+            .env("GIT_AUTHOR_EMAIL", "synthetic@example.invalid")
+            .env("GIT_COMMITTER_NAME", "Synthetic Dev")
+            .env("GIT_COMMITTER_EMAIL", "synthetic@example.invalid");
+        if let Some(date) = date {
+            command
+                .env("GIT_AUTHOR_DATE", date)
+                .env("GIT_COMMITTER_DATE", date);
+        }
+        if stdin.is_some() {
+            command.stdin(std::process::Stdio::piped());
+        }
+        let mut child = command
+            .stdout(std::process::Stdio::piped())
+            .spawn()
+            .expect("git starts");
+        if let Some(bytes) = stdin {
+            use std::io::Write;
+            child
+                .stdin
+                .as_mut()
+                .expect("stdin is piped")
+                .write_all(bytes)
+                .expect("the message writes");
+        }
+        let output = child.wait_with_output().expect("git finishes");
+        assert!(
+            output.status.success(),
+            "git {:?} failed with {}",
+            args,
+            String::from_utf8_lossy(&output.stderr)
+        );
+        String::from_utf8_lossy(&output.stdout).trim().to_string()
+    }
+}
+
+fn replay_steps(dir: &Path, steps: &[JsonValue]) {
+    let replay = CloneReplay {
+        dir: dir.to_path_buf(),
+    };
+    for step in steps {
+        let op = step
+            .get("op")
+            .and_then(JsonValue::as_text)
+            .expect("a step carries an op");
+        let date = step.get("date").and_then(JsonValue::as_text);
+        match op {
+            "init" => {
+                replay.git(
+                    &["init", "-q", "-b", "main", "--object-format=sha1"],
+                    None,
+                    None,
+                );
+            }
+            "mkdir" => {
+                std::fs::create_dir_all(dir.join(text_of(step, "path")))
+                    .expect("a fixture dir is made");
+            }
+            "write" => {
+                std::fs::write(dir.join(text_of(step, "path")), text_of(step, "text"))
+                    .expect("a fixture file writes");
+            }
+            "write_bytes" => {
+                std::fs::write(
+                    dir.join(text_of(step, "path")),
+                    hex_bytes(text_of(step, "hex")),
+                )
+                .expect("a fixture file writes");
+            }
+            "git" => {
+                let args: Vec<&str> = step
+                    .get("args")
+                    .and_then(JsonValue::as_list)
+                    .expect("a git step carries args")
+                    .iter()
+                    .map(|arg| arg.as_text().expect("an arg is text"))
+                    .collect();
+                replay.git(&args, date, None);
+            }
+            "commit_tree" => {
+                replay.git(&["add", "."], None, None);
+                let tree = replay.git(&["write-tree"], None, None);
+                let message = hex_bytes(text_of(step, "message_hex"));
+                let commit = replay.git(&["commit-tree", &tree], date, Some(&message));
+                replay.git(&["update-ref", "HEAD", &commit], None, None);
+            }
+            "symlink" => {
+                // The link stands in the fixture area, the parent of
+                // the built clone, and points at a sibling by name.
+                let area = dir.parent().expect("a fixture build dir has a parent");
+                std::os::unix::fs::symlink(
+                    area.join(text_of(step, "to")),
+                    area.join(text_of(step, "path")),
+                )
+                .expect("the fixture link is made");
+            }
+            other => panic!("unknown fixture op {other}"),
+        }
+    }
+}
+
+fn replay_clone(case: &JsonValue) -> PathBuf {
+    let name = name_of(case);
+    let fixture = case.get("fixture").expect("a clone case carries a fixture");
+    let style = fixture
+        .get("style")
+        .and_then(JsonValue::as_text)
+        .expect("the fixture carries a style");
+    let base =
+        std::env::temp_dir().join(format!("catchledger-port2-{}-{}", std::process::id(), name));
+    if base.exists() {
+        std::fs::remove_dir_all(&base).expect("a stale fixture clears");
+    }
+    match style {
+        "missing" => base,
+        "file" => {
+            std::fs::write(&base, "not a repo\n").expect("the file writes");
+            base
+        }
+        "repo" => {
+            std::fs::create_dir_all(&base).expect("the fixture dir is made");
+            let steps = fixture
+                .get("steps")
+                .and_then(JsonValue::as_list)
+                .expect("the fixture carries steps");
+            replay_steps(&base, steps);
+            base
+        }
+        "symlink" => {
+            let built = base.join(text_of(fixture, "target"));
+            std::fs::create_dir_all(&built).expect("the fixture dir is made");
+            let steps = fixture
+                .get("steps")
+                .and_then(JsonValue::as_list)
+                .expect("the fixture carries steps");
+            replay_steps(&built, steps);
+            let link_step = steps
+                .iter()
+                .find(|step| step.get("op").and_then(JsonValue::as_text) == Some("symlink"))
+                .expect("a symlink fixture carries a symlink step");
+            base.join(text_of(link_step, "path"))
+        }
+        other => panic!("unknown fixture style {other}"),
+    }
+}
+
+/// Rerun the clone reading's stated git invocation against a built
+/// fixture and hash the translated output, so the digest the reading
+/// returns can be proven on the machine running the suite. The
+/// recorded clone digest was read under one git generation and the
+/// log text changes its UTC date spelling across the git 2.45
+/// boundary, so the recomputation is the portable pin and the
+/// recorded digest stands as the generating machine's answer.
+fn live_clone_digest(dir: &Path) -> Result<String, String> {
+    let output = std::process::Command::new("git")
+        .arg("-C")
+        .arg(dir)
+        .args(["log", "--reverse", "--topo-order", "-M", "--name-status"])
+        .arg("--pretty=format:commit %H%nparents %P%ndate %cI%nsubject %s")
+        .output()
+        .map_err(|_| "the verification git could not be started".to_string())?;
+    if !output.status.success() {
+        return Err("the verification git log reading failed".to_string());
+    }
+    let text = String::from_utf8(output.stdout)
+        .map_err(|_| "the verification git log output was not UTF-8".to_string())?;
+    let translated = text.replace("\r\n", "\n").replace('\r', "\n");
+    Ok(sha256_bytes(translated.as_bytes()))
+}
+
+fn check_clone_outcome(
+    case: &JsonValue,
+    dir: &Path,
+    outcome: Result<(Vec<CommitRecord>, String), CatchledgerError>,
+) -> Result<(), String> {
+    let name = name_of(case);
+    if let Some(expected) = expected_ok(case) {
+        let (records, digest) =
+            outcome.map_err(|error| format!("{name}: refused with {}", error.message()))?;
+        let recomputed = live_clone_digest(dir)?;
+        if digest != recomputed {
+            return Err(format!(
+                "{name}: digest read as {digest} when the live log text hashes to {recomputed}"
+            ));
+        }
+        let expected_records = expected
+            .get("records")
+            .and_then(JsonValue::as_list)
+            .ok_or_else(|| format!("{name}: the recorded answer carries no records"))?;
+        if records.len() != expected_records.len() {
+            return Err(format!(
+                "{name}: read {} records when {} were recorded",
+                records.len(),
+                expected_records.len()
+            ));
+        }
+        for (record, enc) in records.iter().zip(expected_records.iter()) {
+            check_commit_enc(record, enc, name)?;
+        }
+        return Ok(());
+    }
+    let (class, message) = expected_error(case)
+        .ok_or_else(|| format!("{name}: the case expects neither ok nor error"))?;
+    match outcome {
+        Ok(_) => Err(format!(
+            "{name}: the clone read when a refusal was recorded"
+        )),
+        Err(error) => {
+            if class != "CatchledgerError" || error.message() != message {
+                Err(format!(
+                    "{name}: refusal was {} when {class} {message} was recorded",
+                    error.message()
+                ))
+            } else {
+                Ok(())
+            }
+        }
+    }
+}
+
+fn check_clone(case: &JsonValue) -> Result<(), String> {
+    let dir = replay_clone(case);
+    let outcome = read_git_history_from_clone(&dir);
+    let result = check_clone_outcome(case, &dir, outcome);
+    if std::fs::symlink_metadata(&dir)
+        .map(|meta| meta.file_type().is_symlink())
+        .unwrap_or(false)
+    {
+        // The path read was a link into a fixture area holding the
+        // built clone beside it, so clear the link and the area.
+        let area = dir.parent().map(|parent| parent.to_path_buf());
+        let _ = std::fs::remove_file(&dir);
+        if let Some(area) = area {
+            let _ = std::fs::remove_dir_all(&area);
+        }
+    } else {
+        let _ = std::fs::remove_dir_all(&dir);
+        let _ = std::fs::remove_file(&dir);
+    }
+    result
+}
+
+#[test]
+fn clone_cases_match_the_recordings() {
+    let root = recordings2();
+    let cases = kind_cases(all_cases(&root), "clone");
+    assert_eq!(cases.len(), 10);
+    let failures: Vec<String> = cases
+        .iter()
+        .filter_map(|case| check_clone(case).err())
+        .collect();
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[test]
+fn every_slice_2_case_is_consumed() {
+    let root = recordings2();
+    let all = all_cases(&root);
+    let declared = match root.get("case_count") {
+        Some(JsonValue::Int(count)) => *count as usize,
+        _ => panic!("the recordings carry no case count"),
+    };
+    assert_eq!(declared, all.len());
+    let consumed: usize = ["ci", "label", "gitlog", "sha256", "canonical", "clone"]
+        .iter()
+        .map(|kind| kind_cases(all, kind).len())
+        .sum();
     assert_eq!(consumed, all.len());
 }

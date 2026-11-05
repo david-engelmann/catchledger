@@ -18,7 +18,7 @@ def test_seed_files_present():
 
 def test_readme_records_the_closed_round_count():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "Closed rounds stand at 2 of 100" in readme
+    assert "Closed rounds stand at 3 of 100" in readme
 
 
 def test_agents_template_and_annex():
