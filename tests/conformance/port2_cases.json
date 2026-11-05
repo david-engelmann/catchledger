@@ -1,6 +1,6 @@
 {
   "format": "catchledger port slice 2 conformance recordings",
-  "case_count": 160,
+  "case_count": 161,
   "cases": [
     {
       "kind": "ci",
@@ -3384,6 +3384,19 @@
             "date": "2026-01-01T05:30:00+05:30"
           }
         ]
+      }
+    },
+    {
+      "kind": "canonical",
+      "name": "float-tie-to-even",
+      "expect": {
+        "ok": {
+          "rendered": "{\"value\":2.9802322387695312e-08}",
+          "digest": "4e4980fa47ebf2243230c59eb570bb6ab09981ae93e12ab17c3631d4a1048fbd"
+        }
+      },
+      "document": {
+        "value": 2.9802322387695312e-08
       }
     }
   ]

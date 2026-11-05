@@ -54,7 +54,63 @@ pub fn json_float_text(value: f64) -> String {
     let exponent: i32 = exponent_text
         .parse()
         .expect("scientific exponent always parses");
-    let digits: String = mantissa.chars().filter(|ch| *ch != '.').collect();
+    let mut digits: String = mantissa.chars().filter(|ch| *ch != '.').collect();
+    // The Python float spelling chooses between the two shortest
+    // candidates by closeness to the exact value, and where both
+    // candidates read back to the same value on an exact tie, by
+    // the even last digit. The Rust spelling rounds a decimal tie
+    // up even where the floor candidate also reads back and is the
+    // even one. The exact decimal expansion of the value shows a
+    // decimal tie as a five standing alone at the first digit past
+    // the shortest length, with nothing but zeros after it. A
+    // decimal tie is a true tie only when the other candidate also
+    // reads back, because the reading interval of a value standing
+    // at a binade edge is not symmetric, so the other candidate is
+    // parsed and compared before the even rule is applied.
+    let exact = format!("{magnitude:.767e}");
+    let exact_digits: String = exact
+        .split_once('e')
+        .expect("scientific spelling always carries an exponent")
+        .0
+        .chars()
+        .filter(|ch| *ch != '.')
+        .collect();
+    if exact_digits.len() > digits.len() {
+        let rest = &exact_digits[digits.len()..];
+        if rest.starts_with('5') && rest[1..].chars().all(|ch| ch == '0') {
+            let floor = &exact_digits[..digits.len()];
+            let other: String = if floor == digits {
+                let mut raised: Vec<u8> = digits.bytes().collect();
+                let mut at = raised.len() - 1;
+                loop {
+                    if raised[at] == b'9' {
+                        raised[at] = b'0';
+                        if at == 0 {
+                            raised.insert(0, b'1');
+                            break;
+                        }
+                        at -= 1;
+                    } else {
+                        raised[at] += 1;
+                        break;
+                    }
+                }
+                String::from_utf8(raised).expect("digits stay ASCII")
+            } else {
+                floor.to_string()
+            };
+            let unit = exponent - digits.len() as i32 + 1;
+            if let Ok(parsed) = format!("{other}e{unit}").parse::<f64>() {
+                if parsed.to_bits() == magnitude.to_bits()
+                    && other.len() == digits.len()
+                    && digits.as_bytes()[digits.len() - 1] % 2 == 1
+                    && other.as_bytes()[other.len() - 1] % 2 == 0
+                {
+                    digits = other;
+                }
+            }
+        }
+    }
     if (-4..16).contains(&exponent) {
         // Fixed notation. The point stands after exponent + 1 digits.
         let point = exponent + 1;

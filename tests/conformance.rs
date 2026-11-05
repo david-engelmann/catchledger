@@ -534,11 +534,30 @@ fn recordings2() -> JsonValue {
     read_json_document(&text, "conformance recordings").expect("the recordings decode")
 }
 
+/// Compare a record timestamp against the recorded text by its
+/// rendering, so the check does not derive both sides through the
+/// one parser. A parser regression that shifted an instant would
+/// move the expected value with the record and pass silently.
+fn check_rendered_stamp(stamp: i128, enc: &JsonValue, key: &str, name: &str) -> Result<(), String> {
+    if let Some(text) = enc.get(key).and_then(JsonValue::as_text) {
+        let rendered = format_timestamp(stamp);
+        if rendered != text {
+            return Err(format!(
+                "{name}: the {key} renders as {rendered} when {text} was recorded"
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn check_run_enc(record: &RunRecord, enc: &JsonValue, name: &str) -> Result<(), String> {
     let expected = run_from(enc);
     if *record != expected {
         return Err(format!("{name}: a run record differs"));
     }
+    check_rendered_stamp(record.created_at, enc, "created_at", name)?;
+    check_rendered_stamp(record.started_at, enc, "started_at", name)?;
+    check_rendered_stamp(record.updated_at, enc, "updated_at", name)?;
     let duration = enc
         .get("duration_seconds")
         .and_then(|value| match value {
@@ -557,6 +576,7 @@ fn check_commit_enc(record: &CommitRecord, enc: &JsonValue, name: &str) -> Resul
     if *record != expected {
         return Err(format!("{name}: a commit record differs"));
     }
+    check_rendered_stamp(record.committed_at, enc, "committed_at", name)?;
     Ok(())
 }
 
@@ -759,7 +779,7 @@ fn check_canonical(case: &JsonValue) -> Result<(), String> {
 fn canonical_cases_match_the_recordings() {
     let root = recordings2();
     let cases = kind_cases(all_cases(&root), "canonical");
-    assert_eq!(cases.len(), 21);
+    assert_eq!(cases.len(), 22);
     let failures: Vec<String> = cases
         .iter()
         .filter_map(|case| check_canonical(case).err())
@@ -826,7 +846,11 @@ fn replay_steps(dir: &Path, steps: &[JsonValue]) {
         let date = step.get("date").and_then(JsonValue::as_text);
         match op {
             "init" => {
-                replay.git(&["init", "-q", "-b", "main"], None, None);
+                replay.git(
+                    &["init", "-q", "-b", "main", "--object-format=sha1"],
+                    None,
+                    None,
+                );
             }
             "mkdir" => {
                 std::fs::create_dir_all(dir.join(text_of(step, "path")))
