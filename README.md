@@ -15,6 +15,7 @@ Dashboards total runs and failures, and no tool anywhere computes which of a tea
 - Slice 2 is the Round 1 work increment, and Round 1 closed after audit and two-axis review and red team and owner approval, with the review fixes landed on the same branch
 - Round 2 adds the duplicate JSON key refusal, so every JSON document the tool reads refuses a document that carries the same key twice in one object, naming the document and the repeated key
 - Round 2 also lands the first Rust port slice, a library crate with a thin binary covering the ledger core and the JSON reader and the canaryfield substrate, proven by 303 recorded conformance cases generated from the Python implementation, which stays in place as the spec
+- Round 3 lands the second Rust port slice on a local branch pending its reviews, carrying workflow run ingestion and Git log parsing and clone reading and the repository label reading and the digest helpers into the crate, proven by 160 new recorded conformance cases beside the standing 303, with the Python implementation standing in place as the spec
 - Closed rounds stand at 2 of 100
 - Seeded in October 2026. Part of the impatient programming portfolio, in the Gate Truth arc
 

@@ -4,15 +4,18 @@
 //! name. Port slice 1 carries the JSON reader with the duplicate key
 //! refusal, the timestamp reading, the ledger core with conservative
 //! attribution and evidence packs, the canaryfield substrate, and
-//! the deterministic JSON and markdown rendering. Workflow run
-//! ingestion, Git history ingestion, and the command line stay in
-//! the Python package in this slice, as the contract records.
+//! the deterministic JSON and markdown rendering. Port slice 2 adds
+//! workflow run ingestion, the repository label reading, Git log
+//! parsing and clone reading, and the digest helpers. The command
+//! line stays in the Python package, as the contract records.
 
 pub mod bigint;
 pub mod canary;
 pub mod dates;
 pub mod decimal;
+pub mod digest;
 pub mod errors;
+pub mod ingest;
 pub mod jsonvalue;
 pub mod ledger;
 pub mod models;
@@ -22,7 +25,9 @@ pub mod report;
 
 pub use canary::{normalize_canary_document, validate_canary_document};
 pub use dates::{format_timestamp, parse_timestamp};
+pub use digest::{canonical_json_sha256, sha256_bytes};
 pub use errors::{CatchledgerError, PackValidationError};
+pub use ingest::{ci_repo_label, parse_ci_document, parse_git_log, read_git_history_from_clone};
 pub use jsonvalue::JsonValue;
 pub use ledger::{
     build_evidence_packs, build_ledger, validate_evidence_pack, LedgerInputs, LEDGER_FORMAT,

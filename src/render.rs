@@ -5,7 +5,7 @@
 
 use crate::jsonvalue::JsonValue;
 
-fn escape_string(text: &str, out: &mut String) {
+pub(crate) fn escape_string(text: &str, out: &mut String) {
     out.push('"');
     for ch in text.chars() {
         match ch {
@@ -140,5 +140,49 @@ pub fn render_json(document: &JsonValue) -> String {
     let mut out = String::new();
     write_value(document, 0, &mut out);
     out.push('\n');
+    out
+}
+
+fn write_value_compact(value: &JsonValue, out: &mut String) {
+    match value {
+        JsonValue::Null => out.push_str("null"),
+        JsonValue::Bool(flag) => out.push_str(if *flag { "true" } else { "false" }),
+        JsonValue::Int(integer) => out.push_str(&integer.to_string()),
+        JsonValue::BigInt(text) => out.push_str(text),
+        JsonValue::Float(number) => out.push_str(&json_float_text(*number)),
+        JsonValue::Text(text) => escape_string(text, out),
+        JsonValue::List(items) => {
+            out.push('[');
+            for (index, item) in items.iter().enumerate() {
+                if index > 0 {
+                    out.push(',');
+                }
+                write_value_compact(item, out);
+            }
+            out.push(']');
+        }
+        JsonValue::Object(pairs) => {
+            let mut sorted: Vec<&(String, JsonValue)> = pairs.iter().collect();
+            sorted.sort_by(|a, b| a.0.cmp(&b.0));
+            out.push('{');
+            for (index, (key, item)) in sorted.iter().enumerate() {
+                if index > 0 {
+                    out.push(',');
+                }
+                escape_string(key, out);
+                out.push(':');
+                write_value_compact(item, out);
+            }
+            out.push('}');
+        }
+    }
+}
+
+/// Render a document in the canonical rendering the digest helpers
+/// hash, sorted keys and compact separators and no trailing newline,
+/// byte for byte the rendering the Python canonical digest renders.
+pub fn render_canonical(document: &JsonValue) -> String {
+    let mut out = String::new();
+    write_value_compact(document, &mut out);
     out
 }
