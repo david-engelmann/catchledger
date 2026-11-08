@@ -1,6 +1,6 @@
 # catchledger
 
-The scorecard every gate should carry, fires, blocks, true catches, false blocks, flake rate, runtime, and cost per catch, joined from CI logs to what happened next.
+It records fires, blocks, true catches, false blocks, flake rate, runtime, and cost per catch for each gate, joined from CI logs to what happened next.
 
 ## What this is
 
