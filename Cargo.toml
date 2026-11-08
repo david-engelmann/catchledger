@@ -2,7 +2,7 @@
 name = "catchledger"
 version = "0.1.0"
 edition = "2021"
-description = "The scorecard every gate should carry, joined from CI logs to what happened next"
+description = "It records fires, blocks, true catches, false blocks, flake rate, runtime, and cost per catch for each gate, joined from CI logs to what happened next."
 license = "MIT"
 
 [lib]

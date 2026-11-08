@@ -19,7 +19,7 @@ fn test_seed_files_present() {
     let licence = read("LICENSE");
     let gitignore = read(".gitignore");
     assert!(readme.contains("# catchledger"));
-    assert!(readme.contains("The scorecard every gate should carry"));
+    assert!(readme.contains("It records fires, blocks, true catches, false blocks"));
     assert!(readme.contains("## Licence"));
     assert!(licence.contains("MIT License"));
     assert!(gitignore.contains("__pycache__/"));
