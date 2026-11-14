@@ -17,7 +17,8 @@ Dashboards total runs and failures, and no tool anywhere computes which of a tea
 - Round 2 also lands the first Rust port slice, a library crate with a thin binary covering the ledger core and the JSON reader and the canaryfield substrate, proven by 303 recorded conformance cases generated from the Python implementation, which stays in place as the spec
 - Round 3 lands the second Rust port slice, carrying workflow run ingestion and Git log parsing and clone reading and the repository label reading and the digest helpers into the crate, proven by 161 new recorded conformance cases beside the standing 303, with the Python implementation standing in place as the spec
 - Round 4 lands the closing slice of the port, carrying the command line whole into the binary and retiring the Python package and suite, proven by a recorded black box battery of 40 invocations beside the standing recordings, with the clone case's git history digest proven by recomputation against the running git as the earlier slices established, so the tree stands Rust whole on both surfaces
-- Closed rounds stand at 5 of 100
+- Round 6 lands slice 5, the quoted path decoding, retiring the ground's stated limit that a path git renders in its quoted form is recorded in that form, so changed paths and flagged paths stand in the spelling the tree carries in the commit records and the catch records and the evidence packs
+- Closed rounds stand at 6 of 100
 - Seeded in October 2026. Part of the impatient programming portfolio, in the Gate Truth arc
 
 ## Licence
