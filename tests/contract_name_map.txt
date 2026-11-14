@@ -82,3 +82,10 @@ test_usage_entry_naming_a_run_twice_refuses | rust-test | tests/token_usage.rs |
 test_usage_entry_naming_no_run_passes_over | rust-test | tests/token_usage.rs | test_usage_entry_naming_no_run_passes_over
 test_usage_entry_with_negative_count_refuses | rust-test | tests/token_usage.rs | test_usage_entry_with_negative_count_refuses
 test_usage_joins_by_run_identifier | rust-test | tests/token_usage.rs | test_usage_joins_by_run_identifier
+test_a_quoted_utf8_path_is_decoded_in_the_records | rust-test | tests/quoted_paths.rs | test_a_quoted_utf8_path_is_decoded_in_the_records
+test_a_quoted_path_with_an_escaped_quote_is_decoded | rust-test | tests/quoted_paths.rs | test_a_quoted_path_with_an_escaped_quote_is_decoded
+test_an_unquoted_path_reads_as_it_reads_today | rust-test | tests/quoted_paths.rs | test_an_unquoted_path_reads_as_it_reads_today
+test_a_rename_line_decodes_both_of_its_paths | rust-test | tests/quoted_paths.rs | test_a_rename_line_decodes_both_of_its_paths
+test_a_malformed_quoted_path_is_refused | rust-test | tests/quoted_paths.rs | test_a_malformed_quoted_path_is_refused
+test_a_quoted_path_decoding_to_invalid_utf8_is_refused | rust-test | tests/quoted_paths.rs | test_a_quoted_path_decoding_to_invalid_utf8_is_refused
+test_clone_and_export_agree_on_quoted_paths | rust-test | tests/quoted_paths.rs | test_clone_and_export_agree_on_quoted_paths
