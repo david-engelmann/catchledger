@@ -19,6 +19,7 @@ use std::os::unix::ffi::{OsStrExt, OsStringExt};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
+use catchledger::decimal::DecimalValue;
 use catchledger::digest::sha256_bytes;
 use catchledger::ingest::{
     ci_repo_label, parse_ci_document, parse_git_log, read_git_history_from_clone,
@@ -29,12 +30,13 @@ use catchledger::ledger::{
 };
 use catchledger::reader::read_json_document;
 use catchledger::render::render_json;
-use catchledger::report::render_markdown;
+use catchledger::report::{render_markdown, render_token_section};
+use catchledger::{build_token_figures, read_token_price, read_token_usage, token_cost_document};
 use catchledger::{validate_canary_document, CatchledgerError};
 
-const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT]";
+const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT]";
 
-const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT]
+const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT]
 
 build a conservative per check scorecard from local CI and Git history
 ";
@@ -79,6 +81,22 @@ const FLAGS: &[FlagSpec] = &[
     },
     FlagSpec {
         name: "cost-per-minute",
+        required: false,
+    },
+    FlagSpec {
+        name: "token-usage",
+        required: false,
+    },
+    FlagSpec {
+        name: "token-output",
+        required: false,
+    },
+    FlagSpec {
+        name: "price-per-input-token",
+        required: false,
+    },
+    FlagSpec {
+        name: "price-per-output-token",
         required: false,
     },
 ];
@@ -290,6 +308,9 @@ fn scan(args: &[OsString]) -> Scan {
     if values.contains_key("git-log") == values.contains_key("git-repo") {
         return Scan::UsageError;
     }
+    if values.contains_key("token-usage") != values.contains_key("token-output") {
+        return Scan::UsageError;
+    }
     Scan::Parsed(values)
 }
 
@@ -376,6 +397,30 @@ fn door(values: &Values) -> Result<(), String> {
         None => (None, None),
     };
 
+    let (usage, usage_digest) = match values.get("token-usage") {
+        Some(path) => {
+            let (document, digest) = read_document(&PathBuf::from(path), "token usage")?;
+            let usage = read_token_usage(&document).map_err(refusal)?;
+            (Some(usage), Some(digest))
+        }
+        None => (None, None),
+    };
+    let input_price_text = match values.get("price-per-input-token") {
+        Some(text) => word_text(text),
+        None => "0".to_string(),
+    };
+    let output_price_text = match values.get("price-per-output-token") {
+        Some(text) => word_text(text),
+        None => "0".to_string(),
+    };
+    let (input_price, output_price) = match &usage {
+        Some(_) => (
+            read_token_price(&input_price_text, "input").map_err(refusal)?,
+            read_token_price(&output_price_text, "output").map_err(refusal)?,
+        ),
+        None => (DecimalValue::from_i64(0), DecimalValue::from_i64(0)),
+    };
+
     // The label is the one argument word that flows into the
     // outputs as data, so a label whose bytes are not UTF-8 text
     // refuses here where the label is resolved, ahead of every
@@ -403,9 +448,24 @@ fn door(values: &Values) -> Result<(), String> {
     };
     let ledger = build_ledger(&runs, &commits, &inputs).map_err(refusal)?;
     let packs = build_evidence_packs(&ledger).map_err(|error| error.message().to_string())?;
+    let figures = match &usage {
+        Some(usage) => Some(
+            build_token_figures(&ledger, &runs, usage, &input_price, &output_price)
+                .map_err(refusal)?,
+        ),
+        None => None,
+    };
 
-    write_text(&path_of(values, "output"), &render_json(&ledger))?;
-    let report = render_markdown(&ledger).map_err(refusal)?;
+    let ledger_text = render_json(&ledger);
+    write_text(&path_of(values, "output"), &ledger_text)?;
+    let mut report = render_markdown(&ledger).map_err(refusal)?;
+    if let Some(figures) = &figures {
+        report = format!(
+            "{}\n\n{}",
+            report.trim_end_matches('\n'),
+            render_token_section(figures)
+        );
+    }
     write_text(&path_of(values, "report"), &report)?;
     let packs_dir = path_of(values, "packs-dir");
     std::fs::create_dir_all(&packs_dir)
@@ -416,6 +476,17 @@ fn door(values: &Values) -> Result<(), String> {
     for (filename, _) in &packs {
         let (written, _digest) = read_document(&packs_dir.join(filename), "written evidence pack")?;
         validate_evidence_pack(&written, &ledger).map_err(|error| error.message().to_string())?;
+    }
+    if let (Some(figures), Some(usage_digest)) = (&figures, &usage_digest) {
+        let document = token_cost_document(
+            figures,
+            &inputs.repo,
+            &input_price_text,
+            &output_price_text,
+            usage_digest,
+            &sha256_bytes(ledger_text.as_bytes()),
+        );
+        write_text(&path_of(values, "token-output"), &render_json(&document))?;
     }
     Ok(())
 }

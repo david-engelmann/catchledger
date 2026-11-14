@@ -1,0 +1,222 @@
+{
+ "format": "catchledger-cli-cases/1",
+ "note": "The slice 4 battery is authored from the obligations of the slice 4 contract section, with its expected outputs verified against an independent decimal computation at authoring. It is not a recording of the retired Python, which carried no token usage surface.",
+ "cases": [
+  {
+   "name": "token usage joins the example inputs",
+   "section": "slice4",
+   "inputs": [
+    {
+     "path": "runs.json",
+     "text": "{\"repo\":\"synthetic-ledger-repo\",\"workflow_runs\":[{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T00:09:55Z\",\"head_sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"id\":101,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T00:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T00:11:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T01:09:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":102,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:11:00Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T02:09:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":103,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T02:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:12:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T02:19:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":104,\"name\":\"unit checks\",\"run_attempt\":2,\"run_started_at\":\"2026-01-01T02:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:20:30Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T03:09:55Z\",\"head_sha\":\"dddddddddddddddddddddddddddddddddddddddd\",\"id\":105,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T03:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T03:10:45Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T01:19:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":106,\"name\":\"style checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:20:30Z\"}]}"
+    },
+    {
+     "path": "gitlog.txt",
+     "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Add synthetic math module\nA\tdocs/guide.md\nA\tsrc/math.py\n\ncommit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nparents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ndate 2026-01-01T01:00:00Z\nsubject Correct synthetic math result\nM\tsrc/math.py\n\ncommit cccccccccccccccccccccccccccccccccccccccc\nparents bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndate 2026-01-01T02:00:00Z\nsubject Add synthetic edge case\nM\tsrc/math.py\nM\ttests/test_math.py\n\ncommit dddddddddddddddddddddddddddddddddddddddd\nparents cccccccccccccccccccccccccccccccccccccccc\ndate 2026-01-01T03:00:00Z\nsubject Expand synthetic guide\nM\tdocs/guide.md\n"
+    },
+    {
+     "path": "usage.json",
+     "text": "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}"
+    }
+   ],
+   "steps": [
+    {
+     "argv": [
+      "--ci-history",
+      "{DIR}/runs.json",
+      "--git-log",
+      "{DIR}/gitlog.txt",
+      "--output",
+      "{DIR}/out/ledger.json",
+      "--report",
+      "{DIR}/out/report.md",
+      "--packs-dir",
+      "{DIR}/out/packs",
+      "--token-usage",
+      "{DIR}/usage.json",
+      "--token-output",
+      "{DIR}/out/tokens.json",
+      "--price-per-input-token",
+      "0.000003",
+      "--price-per-output-token",
+      "0.000015"
+     ],
+     "exit": 0,
+     "stderr": "",
+     "stdout_empty": true
+    }
+   ],
+   "outputs": [
+    {
+     "path": "out/ledger.json",
+     "text": "{\n  \"checks\": [\n    {\n      \"canaryfield_results\": null,\n      \"catch_record\": [\n        {\n          \"block_run_id\": \"106\",\n          \"blocked_commit\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n          \"evidence\": {\n            \"fix_commits\": [],\n            \"reason\": \"flagged_change_without_validating_success\",\n            \"type\": \"none\",\n            \"validating_run_id\": null\n          },\n          \"flagged_paths\": [\n            \"src/math.py\"\n          ],\n          \"outcome\": \"unattributed\",\n          \"started_at\": \"2026-01-01T01:20:00Z\"\n        }\n      ],\n      \"evidence_pack_file\": \"001-style-checks.json\",\n      \"name\": \"style checks\",\n      \"scorecard\": {\n        \"blocks\": 1,\n        \"catches\": 0,\n        \"cost_per_catch_usd\": null,\n        \"false_block_rate\": 0.0,\n        \"false_blocks\": 0,\n        \"fires\": 1,\n        \"flake_rate\": 0.0,\n        \"flaky_commits\": 0,\n        \"judged_commits\": 1,\n        \"runtime_minutes\": 0.5,\n        \"runtime_seconds\": 30,\n        \"total_cost_usd\": 0.004,\n        \"unattributed_blocks\": 1\n      }\n    },\n    {\n      \"canaryfield_results\": null,\n      \"catch_record\": [\n        {\n          \"block_run_id\": \"101\",\n          \"blocked_commit\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"evidence\": {\n            \"fix_commits\": [\n              \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            ],\n            \"reason\": null,\n            \"type\": \"flagged_fix_then_success\",\n            \"validating_run_id\": \"102\"\n          },\n          \"flagged_paths\": [\n            \"docs/guide.md\",\n            \"src/math.py\"\n          ],\n          \"outcome\": \"catch\",\n          \"started_at\": \"2026-01-01T00:10:00Z\"\n        },\n        {\n          \"block_run_id\": \"103\",\n          \"blocked_commit\": \"cccccccccccccccccccccccccccccccccccccccc\",\n          \"evidence\": {\n            \"fix_commits\": [],\n            \"reason\": null,\n            \"type\": \"same_commit_success_after_block\",\n            \"validating_run_id\": \"104\"\n          },\n          \"flagged_paths\": [\n            \"src/math.py\",\n            \"tests/test_math.py\"\n          ],\n          \"outcome\": \"false_block\",\n          \"started_at\": \"2026-01-01T02:10:00Z\"\n        }\n      ],\n      \"evidence_pack_file\": \"002-unit-checks.json\",\n      \"name\": \"unit checks\",\n      \"scorecard\": {\n        \"blocks\": 2,\n        \"catches\": 1,\n        \"cost_per_catch_usd\": 0.042,\n        \"false_block_rate\": 0.5,\n        \"false_blocks\": 1,\n        \"fires\": 5,\n        \"flake_rate\": 0.25,\n        \"flaky_commits\": 1,\n        \"judged_commits\": 4,\n        \"runtime_minutes\": 5.25,\n        \"runtime_seconds\": 315,\n        \"total_cost_usd\": 0.042,\n        \"unattributed_blocks\": 0\n      }\n    }\n  ],\n  \"format\": \"catchledger-ledger/1\",\n  \"history_window\": {\n    \"first_run_started_at\": \"2026-01-01T00:10:00Z\",\n    \"last_run_updated_at\": \"2026-01-01T03:10:45Z\"\n  },\n  \"pricing\": {\n    \"cost_per_minute\": \"0.008\",\n    \"currency\": \"USD\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"source\": {\n    \"canaryfield_results_sha256\": null,\n    \"ci_history_sha256\": \"42484f3f72972509cd1738f687150e4a4c22107f0cf34e04c2f9f33b61e0450d\",\n    \"git_history_sha256\": \"f641b80ab08928a0b223c84ceb4422790ca62d4f288ffd1964cc6e0734a87765\"\n  },\n  \"totals\": {\n    \"blocks\": 3,\n    \"catches\": 1,\n    \"false_block_rate\": 0.333333,\n    \"false_blocks\": 1,\n    \"fires\": 6,\n    \"runtime_minutes\": 5.75,\n    \"runtime_seconds\": 345,\n    \"total_cost_usd\": 0.046,\n    \"unattributed_blocks\": 1\n  }\n}\n"
+    },
+    {
+     "path": "out/packs/001-style-checks.json",
+     "text": "{\n  \"canaryfield_results\": null,\n  \"catch_record\": [\n    {\n      \"block_run_id\": \"106\",\n      \"blocked_commit\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n      \"evidence\": {\n        \"fix_commits\": [],\n        \"reason\": \"flagged_change_without_validating_success\",\n        \"type\": \"none\",\n        \"validating_run_id\": null\n      },\n      \"flagged_paths\": [\n        \"src/math.py\"\n      ],\n      \"outcome\": \"unattributed\",\n      \"started_at\": \"2026-01-01T01:20:00Z\"\n    }\n  ],\n  \"check\": \"style checks\",\n  \"false_block_rate\": 0.0,\n  \"format\": \"catchledger-pack/1\",\n  \"history_window\": {\n    \"first_run_started_at\": \"2026-01-01T00:10:00Z\",\n    \"last_run_updated_at\": \"2026-01-01T03:10:45Z\"\n  },\n  \"pricing\": {\n    \"cost_per_minute\": \"0.008\",\n    \"currency\": \"USD\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"scorecard\": {\n    \"blocks\": 1,\n    \"catches\": 0,\n    \"cost_per_catch_usd\": null,\n    \"false_block_rate\": 0.0,\n    \"false_blocks\": 0,\n    \"fires\": 1,\n    \"flake_rate\": 0.0,\n    \"flaky_commits\": 0,\n    \"judged_commits\": 1,\n    \"runtime_minutes\": 0.5,\n    \"runtime_seconds\": 30,\n    \"total_cost_usd\": 0.004,\n    \"unattributed_blocks\": 1\n  },\n  \"source\": {\n    \"canaryfield_results_sha256\": null,\n    \"ci_history_sha256\": \"42484f3f72972509cd1738f687150e4a4c22107f0cf34e04c2f9f33b61e0450d\",\n    \"git_history_sha256\": \"f641b80ab08928a0b223c84ceb4422790ca62d4f288ffd1964cc6e0734a87765\"\n  }\n}\n"
+    },
+    {
+     "path": "out/packs/002-unit-checks.json",
+     "text": "{\n  \"canaryfield_results\": null,\n  \"catch_record\": [\n    {\n      \"block_run_id\": \"101\",\n      \"blocked_commit\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"evidence\": {\n        \"fix_commits\": [\n          \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n        ],\n        \"reason\": null,\n        \"type\": \"flagged_fix_then_success\",\n        \"validating_run_id\": \"102\"\n      },\n      \"flagged_paths\": [\n        \"docs/guide.md\",\n        \"src/math.py\"\n      ],\n      \"outcome\": \"catch\",\n      \"started_at\": \"2026-01-01T00:10:00Z\"\n    },\n    {\n      \"block_run_id\": \"103\",\n      \"blocked_commit\": \"cccccccccccccccccccccccccccccccccccccccc\",\n      \"evidence\": {\n        \"fix_commits\": [],\n        \"reason\": null,\n        \"type\": \"same_commit_success_after_block\",\n        \"validating_run_id\": \"104\"\n      },\n      \"flagged_paths\": [\n        \"src/math.py\",\n        \"tests/test_math.py\"\n      ],\n      \"outcome\": \"false_block\",\n      \"started_at\": \"2026-01-01T02:10:00Z\"\n    }\n  ],\n  \"check\": \"unit checks\",\n  \"false_block_rate\": 0.5,\n  \"format\": \"catchledger-pack/1\",\n  \"history_window\": {\n    \"first_run_started_at\": \"2026-01-01T00:10:00Z\",\n    \"last_run_updated_at\": \"2026-01-01T03:10:45Z\"\n  },\n  \"pricing\": {\n    \"cost_per_minute\": \"0.008\",\n    \"currency\": \"USD\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"scorecard\": {\n    \"blocks\": 2,\n    \"catches\": 1,\n    \"cost_per_catch_usd\": 0.042,\n    \"false_block_rate\": 0.5,\n    \"false_blocks\": 1,\n    \"fires\": 5,\n    \"flake_rate\": 0.25,\n    \"flaky_commits\": 1,\n    \"judged_commits\": 4,\n    \"runtime_minutes\": 5.25,\n    \"runtime_seconds\": 315,\n    \"total_cost_usd\": 0.042,\n    \"unattributed_blocks\": 0\n  },\n  \"source\": {\n    \"canaryfield_results_sha256\": null,\n    \"ci_history_sha256\": \"42484f3f72972509cd1738f687150e4a4c22107f0cf34e04c2f9f33b61e0450d\",\n    \"git_history_sha256\": \"f641b80ab08928a0b223c84ceb4422790ca62d4f288ffd1964cc6e0734a87765\"\n  }\n}\n"
+    },
+    {
+     "path": "out/report.md",
+     "text": "# Catchledger report\n\nRepository synthetic-ledger-repo\n\n## Totals\n\n| Measure | Value |\n| --- | ---: |\n| Fires | 6 |\n| Blocks | 3 |\n| Catches | 1 |\n| False blocks | 1 |\n| Unattributed blocks | 1 |\n| False block rate | 0.333333 |\n| Runtime seconds | 345 |\n| Runtime minutes | 5.750000 |\n| Total cost | USD 0.046000 |\n\n## style checks\n\n### Scorecard\n\n| Field | Value |\n| --- | ---: |\n| Fires | 1 |\n| Blocks | 1 |\n| Judged commits | 1 |\n| Flaky commits | 0 |\n| Flake rate | 0.000000 |\n| Runtime seconds | 30 |\n| Runtime minutes | 0.500000 |\n| Catches | 0 |\n| False blocks | 0 |\n| Unattributed blocks | 1 |\n| False block rate | 0.000000 |\n| Total cost | USD 0.004000 |\n| Cost per catch | not available |\n\n### Catch record\n\n| Block run | Blocked commit | Started | Outcome | Fix commits | Validating run | Reason |\n| --- | --- | --- | --- | --- | --- | --- |\n| 106 | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 2026-01-01T01:20:00Z | unattributed | none | none | flagged_change_without_validating_success |\n\n### Canaryfield results\n\nNo canaryfield results stand for this check.\n\n## unit checks\n\n### Scorecard\n\n| Field | Value |\n| --- | ---: |\n| Fires | 5 |\n| Blocks | 2 |\n| Judged commits | 4 |\n| Flaky commits | 1 |\n| Flake rate | 0.250000 |\n| Runtime seconds | 315 |\n| Runtime minutes | 5.250000 |\n| Catches | 1 |\n| False blocks | 1 |\n| Unattributed blocks | 0 |\n| False block rate | 0.500000 |\n| Total cost | USD 0.042000 |\n| Cost per catch | USD 0.042000 |\n\n### Catch record\n\n| Block run | Blocked commit | Started | Outcome | Fix commits | Validating run | Reason |\n| --- | --- | --- | --- | --- | --- | --- |\n| 101 | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | 2026-01-01T00:10:00Z | catch | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 102 | none |\n| 103 | cccccccccccccccccccccccccccccccccccccccc | 2026-01-01T02:10:00Z | false_block | none | 104 | none |\n\n### Canaryfield results\n\nNo canaryfield results stand for this check.\n\n## Token costs\n\n| Check | Input tokens | Output tokens | Token cost |\n| --- | ---: | ---: | ---: |\n| style checks | 0 | 0 | USD 0.000000 |\n| unit checks | 6200 | 300 | USD 0.023100 |\n| Totals | 6200 | 300 | USD 0.023100 |\n"
+    },
+    {
+     "path": "out/tokens.json",
+     "text": "{\n  \"checks\": [\n    {\n      \"catches\": 0,\n      \"fires\": 1,\n      \"input_tokens\": 0,\n      \"name\": \"style checks\",\n      \"output_tokens\": 0,\n      \"token_cost_usd\": 0.0\n    },\n    {\n      \"catches\": 1,\n      \"fires\": 5,\n      \"input_tokens\": 6200,\n      \"name\": \"unit checks\",\n      \"output_tokens\": 300,\n      \"token_cost_usd\": 0.0231\n    }\n  ],\n  \"format\": \"catchledger-token-cost/1\",\n  \"pricing\": {\n    \"currency\": \"USD\",\n    \"input_token_price\": \"0.000003\",\n    \"output_token_price\": \"0.000015\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"source\": {\n    \"ledger_sha256\": \"5838e0d834966bc0be3424c5b633d032c9e634a4ea00c8c51ac7f5c393873cbf\",\n    \"token_usage_sha256\": \"f9db0ce0b770936cdcc996442ba32eb327b1e398c8a953ab4516e844125fffc6\"\n  },\n  \"totals\": {\n    \"catches\": 1,\n    \"fires\": 6,\n    \"input_tokens\": 6200,\n    \"output_tokens\": 300,\n    \"token_cost_usd\": 0.0231\n  }\n}\n"
+    }
+   ]
+  },
+  {
+   "name": "token usage at the default prices",
+   "section": "slice4",
+   "inputs": [
+    {
+     "path": "runs.json",
+     "text": "{\"repo\":\"synthetic-ledger-repo\",\"workflow_runs\":[{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T00:09:55Z\",\"head_sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"id\":101,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T00:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T00:11:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T01:09:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":102,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:11:00Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T02:09:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":103,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T02:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:12:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T02:19:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":104,\"name\":\"unit checks\",\"run_attempt\":2,\"run_started_at\":\"2026-01-01T02:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:20:30Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T03:09:55Z\",\"head_sha\":\"dddddddddddddddddddddddddddddddddddddddd\",\"id\":105,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T03:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T03:10:45Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T01:19:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":106,\"name\":\"style checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:20:30Z\"}]}"
+    },
+    {
+     "path": "gitlog.txt",
+     "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Add synthetic math module\nA\tdocs/guide.md\nA\tsrc/math.py\n\ncommit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nparents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ndate 2026-01-01T01:00:00Z\nsubject Correct synthetic math result\nM\tsrc/math.py\n\ncommit cccccccccccccccccccccccccccccccccccccccc\nparents bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndate 2026-01-01T02:00:00Z\nsubject Add synthetic edge case\nM\tsrc/math.py\nM\ttests/test_math.py\n\ncommit dddddddddddddddddddddddddddddddddddddddd\nparents cccccccccccccccccccccccccccccccccccccccc\ndate 2026-01-01T03:00:00Z\nsubject Expand synthetic guide\nM\tdocs/guide.md\n"
+    },
+    {
+     "path": "usage.json",
+     "text": "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}"
+    }
+   ],
+   "steps": [
+    {
+     "argv": [
+      "--ci-history",
+      "{DIR}/runs.json",
+      "--git-log",
+      "{DIR}/gitlog.txt",
+      "--output",
+      "{DIR}/out/ledger.json",
+      "--report",
+      "{DIR}/out/report.md",
+      "--packs-dir",
+      "{DIR}/out/packs",
+      "--token-usage",
+      "{DIR}/usage.json",
+      "--token-output",
+      "{DIR}/out/tokens.json"
+     ],
+     "exit": 0,
+     "stderr": "",
+     "stdout_empty": true
+    }
+   ],
+   "outputs": [
+    {
+     "path": "out/ledger.json",
+     "text": "{\n  \"checks\": [\n    {\n      \"canaryfield_results\": null,\n      \"catch_record\": [\n        {\n          \"block_run_id\": \"106\",\n          \"blocked_commit\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n          \"evidence\": {\n            \"fix_commits\": [],\n            \"reason\": \"flagged_change_without_validating_success\",\n            \"type\": \"none\",\n            \"validating_run_id\": null\n          },\n          \"flagged_paths\": [\n            \"src/math.py\"\n          ],\n          \"outcome\": \"unattributed\",\n          \"started_at\": \"2026-01-01T01:20:00Z\"\n        }\n      ],\n      \"evidence_pack_file\": \"001-style-checks.json\",\n      \"name\": \"style checks\",\n      \"scorecard\": {\n        \"blocks\": 1,\n        \"catches\": 0,\n        \"cost_per_catch_usd\": null,\n        \"false_block_rate\": 0.0,\n        \"false_blocks\": 0,\n        \"fires\": 1,\n        \"flake_rate\": 0.0,\n        \"flaky_commits\": 0,\n        \"judged_commits\": 1,\n        \"runtime_minutes\": 0.5,\n        \"runtime_seconds\": 30,\n        \"total_cost_usd\": 0.004,\n        \"unattributed_blocks\": 1\n      }\n    },\n    {\n      \"canaryfield_results\": null,\n      \"catch_record\": [\n        {\n          \"block_run_id\": \"101\",\n          \"blocked_commit\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"evidence\": {\n            \"fix_commits\": [\n              \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            ],\n            \"reason\": null,\n            \"type\": \"flagged_fix_then_success\",\n            \"validating_run_id\": \"102\"\n          },\n          \"flagged_paths\": [\n            \"docs/guide.md\",\n            \"src/math.py\"\n          ],\n          \"outcome\": \"catch\",\n          \"started_at\": \"2026-01-01T00:10:00Z\"\n        },\n        {\n          \"block_run_id\": \"103\",\n          \"blocked_commit\": \"cccccccccccccccccccccccccccccccccccccccc\",\n          \"evidence\": {\n            \"fix_commits\": [],\n            \"reason\": null,\n            \"type\": \"same_commit_success_after_block\",\n            \"validating_run_id\": \"104\"\n          },\n          \"flagged_paths\": [\n            \"src/math.py\",\n            \"tests/test_math.py\"\n          ],\n          \"outcome\": \"false_block\",\n          \"started_at\": \"2026-01-01T02:10:00Z\"\n        }\n      ],\n      \"evidence_pack_file\": \"002-unit-checks.json\",\n      \"name\": \"unit checks\",\n      \"scorecard\": {\n        \"blocks\": 2,\n        \"catches\": 1,\n        \"cost_per_catch_usd\": 0.042,\n        \"false_block_rate\": 0.5,\n        \"false_blocks\": 1,\n        \"fires\": 5,\n        \"flake_rate\": 0.25,\n        \"flaky_commits\": 1,\n        \"judged_commits\": 4,\n        \"runtime_minutes\": 5.25,\n        \"runtime_seconds\": 315,\n        \"total_cost_usd\": 0.042,\n        \"unattributed_blocks\": 0\n      }\n    }\n  ],\n  \"format\": \"catchledger-ledger/1\",\n  \"history_window\": {\n    \"first_run_started_at\": \"2026-01-01T00:10:00Z\",\n    \"last_run_updated_at\": \"2026-01-01T03:10:45Z\"\n  },\n  \"pricing\": {\n    \"cost_per_minute\": \"0.008\",\n    \"currency\": \"USD\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"source\": {\n    \"canaryfield_results_sha256\": null,\n    \"ci_history_sha256\": \"42484f3f72972509cd1738f687150e4a4c22107f0cf34e04c2f9f33b61e0450d\",\n    \"git_history_sha256\": \"f641b80ab08928a0b223c84ceb4422790ca62d4f288ffd1964cc6e0734a87765\"\n  },\n  \"totals\": {\n    \"blocks\": 3,\n    \"catches\": 1,\n    \"false_block_rate\": 0.333333,\n    \"false_blocks\": 1,\n    \"fires\": 6,\n    \"runtime_minutes\": 5.75,\n    \"runtime_seconds\": 345,\n    \"total_cost_usd\": 0.046,\n    \"unattributed_blocks\": 1\n  }\n}\n"
+    },
+    {
+     "path": "out/packs/001-style-checks.json",
+     "text": "{\n  \"canaryfield_results\": null,\n  \"catch_record\": [\n    {\n      \"block_run_id\": \"106\",\n      \"blocked_commit\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n      \"evidence\": {\n        \"fix_commits\": [],\n        \"reason\": \"flagged_change_without_validating_success\",\n        \"type\": \"none\",\n        \"validating_run_id\": null\n      },\n      \"flagged_paths\": [\n        \"src/math.py\"\n      ],\n      \"outcome\": \"unattributed\",\n      \"started_at\": \"2026-01-01T01:20:00Z\"\n    }\n  ],\n  \"check\": \"style checks\",\n  \"false_block_rate\": 0.0,\n  \"format\": \"catchledger-pack/1\",\n  \"history_window\": {\n    \"first_run_started_at\": \"2026-01-01T00:10:00Z\",\n    \"last_run_updated_at\": \"2026-01-01T03:10:45Z\"\n  },\n  \"pricing\": {\n    \"cost_per_minute\": \"0.008\",\n    \"currency\": \"USD\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"scorecard\": {\n    \"blocks\": 1,\n    \"catches\": 0,\n    \"cost_per_catch_usd\": null,\n    \"false_block_rate\": 0.0,\n    \"false_blocks\": 0,\n    \"fires\": 1,\n    \"flake_rate\": 0.0,\n    \"flaky_commits\": 0,\n    \"judged_commits\": 1,\n    \"runtime_minutes\": 0.5,\n    \"runtime_seconds\": 30,\n    \"total_cost_usd\": 0.004,\n    \"unattributed_blocks\": 1\n  },\n  \"source\": {\n    \"canaryfield_results_sha256\": null,\n    \"ci_history_sha256\": \"42484f3f72972509cd1738f687150e4a4c22107f0cf34e04c2f9f33b61e0450d\",\n    \"git_history_sha256\": \"f641b80ab08928a0b223c84ceb4422790ca62d4f288ffd1964cc6e0734a87765\"\n  }\n}\n"
+    },
+    {
+     "path": "out/packs/002-unit-checks.json",
+     "text": "{\n  \"canaryfield_results\": null,\n  \"catch_record\": [\n    {\n      \"block_run_id\": \"101\",\n      \"blocked_commit\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"evidence\": {\n        \"fix_commits\": [\n          \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n        ],\n        \"reason\": null,\n        \"type\": \"flagged_fix_then_success\",\n        \"validating_run_id\": \"102\"\n      },\n      \"flagged_paths\": [\n        \"docs/guide.md\",\n        \"src/math.py\"\n      ],\n      \"outcome\": \"catch\",\n      \"started_at\": \"2026-01-01T00:10:00Z\"\n    },\n    {\n      \"block_run_id\": \"103\",\n      \"blocked_commit\": \"cccccccccccccccccccccccccccccccccccccccc\",\n      \"evidence\": {\n        \"fix_commits\": [],\n        \"reason\": null,\n        \"type\": \"same_commit_success_after_block\",\n        \"validating_run_id\": \"104\"\n      },\n      \"flagged_paths\": [\n        \"src/math.py\",\n        \"tests/test_math.py\"\n      ],\n      \"outcome\": \"false_block\",\n      \"started_at\": \"2026-01-01T02:10:00Z\"\n    }\n  ],\n  \"check\": \"unit checks\",\n  \"false_block_rate\": 0.5,\n  \"format\": \"catchledger-pack/1\",\n  \"history_window\": {\n    \"first_run_started_at\": \"2026-01-01T00:10:00Z\",\n    \"last_run_updated_at\": \"2026-01-01T03:10:45Z\"\n  },\n  \"pricing\": {\n    \"cost_per_minute\": \"0.008\",\n    \"currency\": \"USD\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"scorecard\": {\n    \"blocks\": 2,\n    \"catches\": 1,\n    \"cost_per_catch_usd\": 0.042,\n    \"false_block_rate\": 0.5,\n    \"false_blocks\": 1,\n    \"fires\": 5,\n    \"flake_rate\": 0.25,\n    \"flaky_commits\": 1,\n    \"judged_commits\": 4,\n    \"runtime_minutes\": 5.25,\n    \"runtime_seconds\": 315,\n    \"total_cost_usd\": 0.042,\n    \"unattributed_blocks\": 0\n  },\n  \"source\": {\n    \"canaryfield_results_sha256\": null,\n    \"ci_history_sha256\": \"42484f3f72972509cd1738f687150e4a4c22107f0cf34e04c2f9f33b61e0450d\",\n    \"git_history_sha256\": \"f641b80ab08928a0b223c84ceb4422790ca62d4f288ffd1964cc6e0734a87765\"\n  }\n}\n"
+    },
+    {
+     "path": "out/report.md",
+     "text": "# Catchledger report\n\nRepository synthetic-ledger-repo\n\n## Totals\n\n| Measure | Value |\n| --- | ---: |\n| Fires | 6 |\n| Blocks | 3 |\n| Catches | 1 |\n| False blocks | 1 |\n| Unattributed blocks | 1 |\n| False block rate | 0.333333 |\n| Runtime seconds | 345 |\n| Runtime minutes | 5.750000 |\n| Total cost | USD 0.046000 |\n\n## style checks\n\n### Scorecard\n\n| Field | Value |\n| --- | ---: |\n| Fires | 1 |\n| Blocks | 1 |\n| Judged commits | 1 |\n| Flaky commits | 0 |\n| Flake rate | 0.000000 |\n| Runtime seconds | 30 |\n| Runtime minutes | 0.500000 |\n| Catches | 0 |\n| False blocks | 0 |\n| Unattributed blocks | 1 |\n| False block rate | 0.000000 |\n| Total cost | USD 0.004000 |\n| Cost per catch | not available |\n\n### Catch record\n\n| Block run | Blocked commit | Started | Outcome | Fix commits | Validating run | Reason |\n| --- | --- | --- | --- | --- | --- | --- |\n| 106 | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 2026-01-01T01:20:00Z | unattributed | none | none | flagged_change_without_validating_success |\n\n### Canaryfield results\n\nNo canaryfield results stand for this check.\n\n## unit checks\n\n### Scorecard\n\n| Field | Value |\n| --- | ---: |\n| Fires | 5 |\n| Blocks | 2 |\n| Judged commits | 4 |\n| Flaky commits | 1 |\n| Flake rate | 0.250000 |\n| Runtime seconds | 315 |\n| Runtime minutes | 5.250000 |\n| Catches | 1 |\n| False blocks | 1 |\n| Unattributed blocks | 0 |\n| False block rate | 0.500000 |\n| Total cost | USD 0.042000 |\n| Cost per catch | USD 0.042000 |\n\n### Catch record\n\n| Block run | Blocked commit | Started | Outcome | Fix commits | Validating run | Reason |\n| --- | --- | --- | --- | --- | --- | --- |\n| 101 | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | 2026-01-01T00:10:00Z | catch | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb | 102 | none |\n| 103 | cccccccccccccccccccccccccccccccccccccccc | 2026-01-01T02:10:00Z | false_block | none | 104 | none |\n\n### Canaryfield results\n\nNo canaryfield results stand for this check.\n\n## Token costs\n\n| Check | Input tokens | Output tokens | Token cost |\n| --- | ---: | ---: | ---: |\n| style checks | 0 | 0 | USD 0.000000 |\n| unit checks | 6200 | 300 | USD 0.000000 |\n| Totals | 6200 | 300 | USD 0.000000 |\n"
+    },
+    {
+     "path": "out/tokens.json",
+     "text": "{\n  \"checks\": [\n    {\n      \"catches\": 0,\n      \"fires\": 1,\n      \"input_tokens\": 0,\n      \"name\": \"style checks\",\n      \"output_tokens\": 0,\n      \"token_cost_usd\": 0.0\n    },\n    {\n      \"catches\": 1,\n      \"fires\": 5,\n      \"input_tokens\": 6200,\n      \"name\": \"unit checks\",\n      \"output_tokens\": 300,\n      \"token_cost_usd\": 0.0\n    }\n  ],\n  \"format\": \"catchledger-token-cost/1\",\n  \"pricing\": {\n    \"currency\": \"USD\",\n    \"input_token_price\": \"0\",\n    \"output_token_price\": \"0\"\n  },\n  \"repo\": \"synthetic-ledger-repo\",\n  \"source\": {\n    \"ledger_sha256\": \"5838e0d834966bc0be3424c5b633d032c9e634a4ea00c8c51ac7f5c393873cbf\",\n    \"token_usage_sha256\": \"f9db0ce0b770936cdcc996442ba32eb327b1e398c8a953ab4516e844125fffc6\"\n  },\n  \"totals\": {\n    \"catches\": 1,\n    \"fires\": 6,\n    \"input_tokens\": 6200,\n    \"output_tokens\": 300,\n    \"token_cost_usd\": 0.0\n  }\n}\n"
+    }
+   ]
+  },
+  {
+   "name": "a usage entry naming a run twice refuses",
+   "section": "slice4",
+   "inputs": [
+    {
+     "path": "runs.json",
+     "text": "{\"repo\":\"synthetic-ledger-repo\",\"workflow_runs\":[{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T00:09:55Z\",\"head_sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"id\":101,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T00:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T00:11:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T01:09:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":102,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:11:00Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T02:09:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":103,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T02:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:12:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T02:19:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":104,\"name\":\"unit checks\",\"run_attempt\":2,\"run_started_at\":\"2026-01-01T02:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:20:30Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T03:09:55Z\",\"head_sha\":\"dddddddddddddddddddddddddddddddddddddddd\",\"id\":105,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T03:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T03:10:45Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T01:19:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":106,\"name\":\"style checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:20:30Z\"}]}"
+    },
+    {
+     "path": "gitlog.txt",
+     "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Add synthetic math module\nA\tdocs/guide.md\nA\tsrc/math.py\n\ncommit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nparents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ndate 2026-01-01T01:00:00Z\nsubject Correct synthetic math result\nM\tsrc/math.py\n\ncommit cccccccccccccccccccccccccccccccccccccccc\nparents bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndate 2026-01-01T02:00:00Z\nsubject Add synthetic edge case\nM\tsrc/math.py\nM\ttests/test_math.py\n\ncommit dddddddddddddddddddddddddddddddddddddddd\nparents cccccccccccccccccccccccccccccccccccccccc\ndate 2026-01-01T03:00:00Z\nsubject Expand synthetic guide\nM\tdocs/guide.md\n"
+    },
+    {
+     "path": "usage.json",
+     "text": "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1, \"output_tokens\": 1}, {\"run\": \"102\", \"input_tokens\": 2, \"output_tokens\": 2}]}"
+    }
+   ],
+   "steps": [
+    {
+     "argv": [
+      "--ci-history",
+      "{DIR}/runs.json",
+      "--git-log",
+      "{DIR}/gitlog.txt",
+      "--output",
+      "{DIR}/out/ledger.json",
+      "--report",
+      "{DIR}/out/report.md",
+      "--packs-dir",
+      "{DIR}/out/packs",
+      "--token-usage",
+      "{DIR}/usage.json",
+      "--token-output",
+      "{DIR}/out/tokens.json"
+     ],
+     "exit": 2,
+     "stderr": "catchledger error: the token usage document names a run twice\n",
+     "stdout_empty": true
+    }
+   ],
+   "outputs": []
+  },
+  {
+   "name": "a negative token price refuses",
+   "section": "slice4",
+   "inputs": [
+    {
+     "path": "runs.json",
+     "text": "{\"repo\":\"synthetic-ledger-repo\",\"workflow_runs\":[{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T00:09:55Z\",\"head_sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"id\":101,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T00:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T00:11:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T01:09:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":102,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:11:00Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T02:09:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":103,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T02:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:12:00Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T02:19:55Z\",\"head_sha\":\"cccccccccccccccccccccccccccccccccccccccc\",\"id\":104,\"name\":\"unit checks\",\"run_attempt\":2,\"run_started_at\":\"2026-01-01T02:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T02:20:30Z\"},{\"conclusion\":\"success\",\"created_at\":\"2026-01-01T03:09:55Z\",\"head_sha\":\"dddddddddddddddddddddddddddddddddddddddd\",\"id\":105,\"name\":\"unit checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T03:10:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T03:10:45Z\"},{\"conclusion\":\"failure\",\"created_at\":\"2026-01-01T01:19:55Z\",\"head_sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"id\":106,\"name\":\"style checks\",\"run_attempt\":1,\"run_started_at\":\"2026-01-01T01:20:00Z\",\"status\":\"completed\",\"updated_at\":\"2026-01-01T01:20:30Z\"}]}"
+    },
+    {
+     "path": "gitlog.txt",
+     "text": "commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nparents \ndate 2026-01-01T00:00:00Z\nsubject Add synthetic math module\nA\tdocs/guide.md\nA\tsrc/math.py\n\ncommit bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nparents aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ndate 2026-01-01T01:00:00Z\nsubject Correct synthetic math result\nM\tsrc/math.py\n\ncommit cccccccccccccccccccccccccccccccccccccccc\nparents bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndate 2026-01-01T02:00:00Z\nsubject Add synthetic edge case\nM\tsrc/math.py\nM\ttests/test_math.py\n\ncommit dddddddddddddddddddddddddddddddddddddddd\nparents cccccccccccccccccccccccccccccccccccccccc\ndate 2026-01-01T03:00:00Z\nsubject Expand synthetic guide\nM\tdocs/guide.md\n"
+    },
+    {
+     "path": "usage.json",
+     "text": "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}"
+    }
+   ],
+   "steps": [
+    {
+     "argv": [
+      "--ci-history",
+      "{DIR}/runs.json",
+      "--git-log",
+      "{DIR}/gitlog.txt",
+      "--output",
+      "{DIR}/out/ledger.json",
+      "--report",
+      "{DIR}/out/report.md",
+      "--packs-dir",
+      "{DIR}/out/packs",
+      "--token-usage",
+      "{DIR}/usage.json",
+      "--token-output",
+      "{DIR}/out/tokens.json",
+      "--price-per-input-token",
+      "-1"
+     ],
+     "exit": 2,
+     "stderr": "catchledger error: the input price per token must be nonnegative\n",
+     "stdout_empty": true
+    }
+   ],
+   "outputs": []
+  }
+ ]
+}
