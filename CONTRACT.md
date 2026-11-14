@@ -202,3 +202,7 @@ Proven by test_report_carries_the_token_section_where_usage_stands, and test_out
 
 Obligation S4-6 covers the proof and the audit machinery. Equivalence for the additive guarantee is the standing recorded battery passing unaltered, its invocations carrying no token flag and its written files comparing byte for byte. The new behaviour is proven by an authored battery kept at tests/conformance/slice4_cases.json, its provenance stated in the file as authored from these obligations, replayed through the command line by a committed Rust test that asserts its own case count, beside the named Rust pins the obligations above carry. Every test name this contract carries stands disposed in tests/contract_name_map.txt as the retirement machinery requires, and the census the contract test pins moves by the names this slice adds.
 Proven by test_slice4_battery_replays, and test_every_contract_name_is_disposed.
+
+## S4 closing entry, the line share (Round 5)
+
+Entered with the closure commit. Counting code lines with blank lines and comment only lines excluded and the recordings excluded as data, the implementation surface is 3,998 lines of Rust and no Python stands in the tree. The Rust test surface is 2,077 lines. The counts are by the calibrated method that reproduces the slice 1 and slice 3 entries exactly, recounted on the closure tree. The implementation and test surfaces are both Rust whole, and the non Rust remainder is none.
