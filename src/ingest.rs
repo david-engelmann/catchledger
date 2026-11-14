@@ -241,6 +241,79 @@ fn finish_record(
     Ok(())
 }
 
+/// Read one path field of a git log change line. A field
+/// standing wrapped in double quotes carries git's C style
+/// quoting, under obligation QP-2, a backslash escape standing
+/// for the quote or the backslash or a control letter or one
+/// byte named in three octal digits, and the decoded bytes
+/// must read as UTF-8 text. A field standing in any other
+/// shape reads as it stands. A quoting that does not stand
+/// refuses as a malformed change line.
+fn decode_git_path(field: &str) -> Result<String, CatchledgerError> {
+    let malformed = || CatchledgerError::new("a Git history change line is malformed");
+    if !field.starts_with('"') {
+        return Ok(field.to_string());
+    }
+    let inner = match field
+        .strip_prefix('"')
+        .and_then(|rest| rest.strip_suffix('"'))
+    {
+        Some(inner) if field.len() >= 2 => inner,
+        _ => return Err(malformed()),
+    };
+    let bytes = inner.as_bytes();
+    let mut decoded: Vec<u8> = Vec::new();
+    let mut index = 0;
+    while index < bytes.len() {
+        let byte = bytes[index];
+        if byte == b'"' {
+            return Err(malformed());
+        }
+        if byte != b'\\' {
+            decoded.push(byte);
+            index += 1;
+            continue;
+        }
+        let escaped = match bytes.get(index + 1) {
+            Some(value) => *value,
+            None => return Err(malformed()),
+        };
+        match escaped {
+            b'"' => decoded.push(b'"'),
+            b'\\' => decoded.push(b'\\'),
+            b'n' => decoded.push(b'\n'),
+            b't' => decoded.push(b'\t'),
+            b'a' => decoded.push(0x07),
+            b'b' => decoded.push(0x08),
+            b'f' => decoded.push(0x0c),
+            b'r' => decoded.push(b'\r'),
+            b'v' => decoded.push(0x0b),
+            b'0'..=b'7' => {
+                let digits = match bytes.get(index + 1..index + 4) {
+                    Some(digits)
+                        if digits.len() == 3
+                            && digits.iter().all(|d| (b'0'..=b'7').contains(d)) =>
+                    {
+                        digits
+                    }
+                    _ => return Err(malformed()),
+                };
+                let value = digits
+                    .iter()
+                    .fold(0u32, |acc, d| acc * 8 + u32::from(d - b'0'));
+                if value > 255 {
+                    return Err(malformed());
+                }
+                decoded.push(value as u8);
+                index += 2;
+            }
+            _ => return Err(malformed()),
+        }
+        index += 2;
+    }
+    String::from_utf8(decoded).map_err(|_| malformed())
+}
+
 /// Parse git log output in the documented catchledger shape.
 ///
 /// Mirrors the Python `parse_git_log`.
@@ -325,9 +398,18 @@ pub fn parse_git_log(text: &str) -> Result<Vec<CommitRecord>, CatchledgerError> 
                 "a Git history change line is malformed",
             ));
         }
+        let mut decoded_paths: Vec<String> = Vec::new();
+        for path in paths {
+            decoded_paths.push(decode_git_path(path)?);
+        }
+        if decoded_paths.iter().any(|path| path.is_empty()) {
+            return Err(CatchledgerError::new(
+                "a Git history change line is malformed",
+            ));
+        }
         partial.changes.push(CommitChange {
             status: status.to_string(),
-            paths: paths.iter().map(|path| path.to_string()).collect(),
+            paths: decoded_paths,
         });
     }
     finish_record(current.take(), &mut records)?;
