@@ -181,6 +181,75 @@ pub fn decimal_mul(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
     }
 }
 
+/// Add two finite decimals under the context.
+///
+/// The coefficients are aligned at the smaller exponent before
+/// they meet. An adjusted gap past sixty four digits cannot
+/// move the twenty eight digit rounding of the sum, because the
+/// smaller term's first significant digit lands past the
+/// ninetieth digit of the larger, so the larger term stands as
+/// the sum in that case and every smaller gap is aligned
+/// exactly.
+pub fn decimal_add(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
+    let (neg_a, coeff_a, exp_a) = a.parts();
+    let (neg_b, coeff_b, exp_b) = b.parts();
+    if coeff_a.is_zero() {
+        let (coeff, exp10) = context_round(coeff_b.clone(), exp_b);
+        return DecimalValue::Finite {
+            negative: neg_b,
+            coeff,
+            exp10,
+        };
+    }
+    if coeff_b.is_zero() {
+        let (coeff, exp10) = context_round(coeff_a.clone(), exp_a);
+        return DecimalValue::Finite {
+            negative: neg_a,
+            coeff,
+            exp10,
+        };
+    }
+    let adjusted_a = coeff_a.decimal_digits() as i64 + exp_a;
+    let adjusted_b = coeff_b.decimal_digits() as i64 + exp_b;
+    if (adjusted_a - adjusted_b).abs() > 64 {
+        let (negative, coeff, exp10) = if adjusted_a > adjusted_b {
+            (neg_a, coeff_a.clone(), exp_a)
+        } else {
+            (neg_b, coeff_b.clone(), exp_b)
+        };
+        let (coeff, exp10) = context_round(coeff, exp10);
+        return DecimalValue::Finite {
+            negative,
+            coeff,
+            exp10,
+        };
+    }
+    let common = exp_a.min(exp_b);
+    let scaled_a = coeff_a.mul_pow10((exp_a - common) as u32);
+    let scaled_b = coeff_b.mul_pow10((exp_b - common) as u32);
+    let (negative, coeff) = if neg_a == neg_b {
+        (neg_a, scaled_a.add_big(&scaled_b))
+    } else {
+        match scaled_a.cmp_big(&scaled_b) {
+            Ordering::Greater => (neg_a, scaled_a.sub_big(&scaled_b)),
+            Ordering::Less => (neg_b, scaled_b.sub_big(&scaled_a)),
+            Ordering::Equal => {
+                return DecimalValue::Finite {
+                    negative: false,
+                    coeff: BigUint::zero(),
+                    exp10: common,
+                }
+            }
+        }
+    };
+    let (coeff, exp10) = context_round(coeff, common);
+    DecimalValue::Finite {
+        negative,
+        coeff,
+        exp10,
+    }
+}
+
 /// Divide two finite decimals under the context.
 ///
 /// The divisor is never zero at the call sites, which divide by

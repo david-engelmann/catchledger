@@ -23,6 +23,7 @@ pub mod models;
 pub mod reader;
 pub mod render;
 pub mod report;
+pub mod token;
 
 pub use canary::{normalize_canary_document, validate_canary_document};
 pub use dates::{format_timestamp, parse_timestamp};
@@ -38,3 +39,7 @@ pub use models::{CommitChange, CommitRecord, RunRecord};
 pub use reader::{read_json_document, read_json_file};
 pub use render::render_json;
 pub use report::render_markdown;
+pub use token::{
+    build_token_figures, read_token_price, read_token_usage, token_cost_document, TokenFigures,
+    TokenUsage,
+};

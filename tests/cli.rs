@@ -37,14 +37,15 @@ use catchledger::{read_json_document, sha256_bytes};
 /// the pin a usage refusal step byte compares its standard error
 /// against, so a step the argument reader refused cannot pass on
 /// the tool refusal line standing in its place.
-const USAGE_LINE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT]\n";
+const USAGE_LINE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT]\n";
 
 fn recordings() -> Vec<JsonValue> {
-    let path = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/conformance/cli_cases.json"
-    );
-    let text = std::fs::read_to_string(path).expect("the battery recordings stand in the tree");
+    recordings_at("/tests/conformance/cli_cases.json")
+}
+
+fn recordings_at(suffix: &str) -> Vec<JsonValue> {
+    let path = format!("{}{suffix}", env!("CARGO_MANIFEST_DIR"));
+    let text = std::fs::read_to_string(&path).expect("the battery recordings stand in the tree");
     let document =
         read_json_document(&text, "battery recordings").expect("the battery recordings parse");
     document
@@ -371,6 +372,15 @@ fn pin_dir(name: &str) -> PathBuf {
     }
     std::fs::create_dir_all(&dir).expect("a pin directory stands");
     dir
+}
+
+#[test]
+fn test_slice4_battery_replays() {
+    let cases = recordings_at("/tests/conformance/slice4_cases.json");
+    assert_eq!(cases.len(), 4, "the slice 4 battery carries its four cases");
+    for (index, case) in cases.iter().enumerate() {
+        run_case(index + 1000, case);
+    }
 }
 
 #[test]

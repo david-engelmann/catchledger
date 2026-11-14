@@ -5,6 +5,7 @@ use crate::dates::py_whitespace;
 use crate::errors::CatchledgerError;
 use crate::jsonvalue::JsonValue;
 use crate::render::json_float_text;
+use crate::token::TokenFigures;
 
 fn render_error() -> CatchledgerError {
     CatchledgerError::new("the ledger cannot be rendered")
@@ -299,4 +300,36 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
     let joined = lines.join("\n");
     let trimmed = joined.trim_end_matches(py_whitespace);
     Ok(format!("{trimmed}\n"))
+}
+
+/// Render the token costs section the report carries where a
+/// token usage document stood, in the report's own table shape.
+/// The section stands after the standing sections, and the
+/// totals line closes it in the same words as its check lines.
+pub fn render_token_section(figures: &TokenFigures) -> String {
+    let mut lines: Vec<String> = vec![
+        "## Token costs".to_string(),
+        String::new(),
+        "| Check | Input tokens | Output tokens | Token cost |".to_string(),
+        "| --- | ---: | ---: | ---: |".to_string(),
+    ];
+    for check in &figures.checks {
+        lines.push(format!(
+            "| {} | {} | {} | {} |",
+            check.name,
+            check.input_tokens,
+            check.output_tokens,
+            money(&JsonValue::Float(check.token_cost_usd))
+                .unwrap_or_else(|_| "not available".to_string())
+        ));
+    }
+    lines.push(format!(
+        "| Totals | {} | {} | {} |",
+        figures.input_tokens,
+        figures.output_tokens,
+        money(&JsonValue::Float(figures.token_cost_usd))
+            .unwrap_or_else(|_| "not available".to_string())
+    ));
+    let joined = lines.join("\n");
+    format!("{joined}\n")
 }
