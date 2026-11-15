@@ -93,3 +93,7 @@ test_a_canaryfield_document_with_a_timed_out_result_is_read | rust-test | tests/
 test_a_timed_out_result_is_counted_under_no_count_word | rust-test | tests/timed_out.rs | test_a_timed_out_result_is_counted_under_no_count_word
 test_a_timed_out_word_stands_in_its_matched_row | rust-test | tests/timed_out.rs | test_a_timed_out_word_stands_in_its_matched_row
 test_an_unknown_result_word_is_still_refused | rust-test | tests/timed_out.rs | test_an_unknown_result_word_is_still_refused
+test_a_git_that_does_not_finish_is_refused_within_the_bound | rust-test | tests/git_timeout.rs | test_a_git_that_does_not_finish_is_refused_within_the_bound
+test_a_slow_git_inside_the_bound_is_read_wholly | rust-test | tests/git_timeout.rs | test_a_slow_git_inside_the_bound_is_read_wholly
+test_a_failing_git_keeps_its_standing_refusal_under_the_bound | rust-test | tests/git_timeout.rs | test_a_failing_git_keeps_its_standing_refusal_under_the_bound
+test_the_git_time_limit_stands_at_120_seconds | rust-test | tests/git_timeout.rs | test_the_git_time_limit_stands_at_120_seconds

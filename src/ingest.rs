@@ -9,7 +9,9 @@
 //! reading is a live git object store.
 
 use std::collections::HashMap;
+use std::io::Read;
 use std::path::Path;
+use std::time::{Duration, Instant};
 
 use crate::dates::{parse_timestamp, py_strip, py_whitespace};
 use crate::digest::sha256_bytes;
@@ -18,6 +20,11 @@ use crate::jsonvalue::JsonValue;
 use crate::models::{CommitChange, CommitRecord, RunRecord};
 
 const GIT_LOG_FORMAT: &str = "commit %H%nparents %P%ndate %cI%nsubject %s";
+
+/// The allowed time of one clone reading's git subprocess, the
+/// stated limit the bound of slice 7 gives the reading. The door
+/// and every caller in the tree pass this limit to the reading.
+pub const GIT_TIME_LIMIT: Duration = Duration::from_secs(120);
 
 /// Split a string on runs of Python whitespace, dropping the empty
 /// parts, as the Python argument free split does.
@@ -426,6 +433,7 @@ pub fn parse_git_log(text: &str) -> Result<Vec<CommitRecord>, CatchledgerError> 
 /// probes record.
 pub fn read_git_history_from_clone(
     path: &Path,
+    allowed_time: Duration,
 ) -> Result<(Vec<CommitRecord>, String), CatchledgerError> {
     if !path.is_dir() {
         return Err(CatchledgerError::new(
@@ -433,19 +441,49 @@ pub fn read_git_history_from_clone(
         ));
     }
     let pretty = format!("--pretty=format:{GIT_LOG_FORMAT}");
-    let completed = std::process::Command::new("git")
+    let mut child = std::process::Command::new("git")
         .arg("-C")
         .arg(path)
         .args(["log", "--reverse", "--topo-order", "-M", "--name-status"])
         .arg(&pretty)
-        .output()
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::null())
+        .spawn()
         .map_err(|_| CatchledgerError::new("the local git executable could not be started"))?;
-    if !completed.status.success() {
+    let mut pipe = child.stdout.take().expect("the reading pipes the output");
+    let drain = std::thread::spawn(move || {
+        let mut buffer = Vec::new();
+        let _ = pipe.read_to_end(&mut buffer);
+        buffer
+    });
+    let deadline = Instant::now() + allowed_time;
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break status,
+            Ok(None) => {
+                if Instant::now() >= deadline {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return Err(CatchledgerError::new(
+                        "the local git did not finish within the allowed time",
+                    ));
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            Err(_) => {
+                return Err(CatchledgerError::new(
+                    "the local Git repository could not be read",
+                ));
+            }
+        }
+    };
+    let stdout = drain.join().unwrap_or_default();
+    if !status.success() {
         return Err(CatchledgerError::new(
             "the local Git repository could not be read",
         ));
     }
-    let text = String::from_utf8(completed.stdout)
+    let text = String::from_utf8(stdout)
         .map_err(|_| CatchledgerError::new("the Git history output is not UTF-8 text"))?;
     let translated = text.replace("\r\n", "\n").replace('\r', "\n");
     let records = parse_git_log(&translated)?;

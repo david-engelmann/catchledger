@@ -29,7 +29,9 @@ pub use canary::{normalize_canary_document, validate_canary_document};
 pub use dates::{format_timestamp, parse_timestamp};
 pub use digest::{canonical_json_sha256, sha256_bytes};
 pub use errors::{CatchledgerError, PackValidationError};
-pub use ingest::{ci_repo_label, parse_ci_document, parse_git_log, read_git_history_from_clone};
+pub use ingest::{
+    ci_repo_label, parse_ci_document, parse_git_log, read_git_history_from_clone, GIT_TIME_LIMIT,
+};
 pub use jsonvalue::JsonValue;
 pub use ledger::{
     build_evidence_packs, build_ledger, validate_evidence_pack, LedgerInputs, LEDGER_FORMAT,
