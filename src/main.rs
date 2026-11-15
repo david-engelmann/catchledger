@@ -22,7 +22,7 @@ use std::process::ExitCode;
 use catchledger::decimal::DecimalValue;
 use catchledger::digest::sha256_bytes;
 use catchledger::ingest::{
-    ci_repo_label, parse_ci_document, parse_git_log, read_git_history_from_clone,
+    ci_repo_label, parse_ci_document, parse_git_log, read_git_history_from_clone, GIT_TIME_LIMIT,
 };
 use catchledger::jsonvalue::JsonValue;
 use catchledger::ledger::{
@@ -385,7 +385,8 @@ fn door(values: &Values) -> Result<(), String> {
             let commits = parse_git_log(&git_text).map_err(refusal)?;
             (commits, digest)
         }
-        None => read_git_history_from_clone(&path_of(values, "git-repo")).map_err(refusal)?,
+        None => read_git_history_from_clone(&path_of(values, "git-repo"), GIT_TIME_LIMIT)
+            .map_err(refusal)?,
     };
 
     let (canary_document, canary_digest) = match values.get("canaryfield-results") {

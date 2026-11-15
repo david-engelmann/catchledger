@@ -522,7 +522,7 @@ fn every_recorded_case_is_consumed() {
 use catchledger::render::render_canonical;
 use catchledger::{
     canonical_json_sha256, ci_repo_label, parse_ci_document, parse_git_log,
-    read_git_history_from_clone, sha256_bytes, CatchledgerError,
+    read_git_history_from_clone, sha256_bytes, CatchledgerError, GIT_TIME_LIMIT,
 };
 
 fn recordings2() -> JsonValue {
@@ -1020,7 +1020,7 @@ fn check_clone_outcome(
 
 fn check_clone(case: &JsonValue) -> Result<(), String> {
     let dir = replay_clone(case);
-    let outcome = read_git_history_from_clone(&dir);
+    let outcome = read_git_history_from_clone(&dir, GIT_TIME_LIMIT);
     let result = check_clone_outcome(case, &dir, outcome);
     if std::fs::symlink_metadata(&dir)
         .map(|meta| meta.file_type().is_symlink())

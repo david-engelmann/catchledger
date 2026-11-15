@@ -5,7 +5,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use catchledger::ingest::{parse_git_log, read_git_history_from_clone};
+use catchledger::ingest::{parse_git_log, read_git_history_from_clone, GIT_TIME_LIMIT};
 
 const HASH_A: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
@@ -122,7 +122,8 @@ fn test_clone_and_export_agree_on_quoted_paths() {
     std::fs::write(repo.join("src/café.py"), "x").expect("the file writes");
     git(&repo, &["add", "-A"]);
     git(&repo, &["commit", "-qm", "one"]);
-    let (records, _digest) = read_git_history_from_clone(&repo).expect("the clone reads");
+    let (records, _digest) =
+        read_git_history_from_clone(&repo, GIT_TIME_LIMIT).expect("the clone reads");
     assert_eq!(records.len(), 1);
     assert_eq!(records[0].changes[0].paths, vec!["src/café.py".to_string()]);
     let output = Command::new("git")
