@@ -89,3 +89,7 @@ test_a_rename_line_decodes_both_of_its_paths | rust-test | tests/quoted_paths.rs
 test_a_malformed_quoted_path_is_refused | rust-test | tests/quoted_paths.rs | test_a_malformed_quoted_path_is_refused
 test_a_quoted_path_decoding_to_invalid_utf8_is_refused | rust-test | tests/quoted_paths.rs | test_a_quoted_path_decoding_to_invalid_utf8_is_refused
 test_clone_and_export_agree_on_quoted_paths | rust-test | tests/quoted_paths.rs | test_clone_and_export_agree_on_quoted_paths
+test_a_canaryfield_document_with_a_timed_out_result_is_read | rust-test | tests/timed_out.rs | test_a_canaryfield_document_with_a_timed_out_result_is_read
+test_a_timed_out_result_is_counted_under_no_count_word | rust-test | tests/timed_out.rs | test_a_timed_out_result_is_counted_under_no_count_word
+test_a_timed_out_word_stands_in_its_matched_row | rust-test | tests/timed_out.rs | test_a_timed_out_word_stands_in_its_matched_row
+test_an_unknown_result_word_is_still_refused | rust-test | tests/timed_out.rs | test_an_unknown_result_word_is_still_refused

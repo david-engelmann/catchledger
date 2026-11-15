@@ -12,6 +12,18 @@ use crate::jsonvalue::JsonValue;
 pub const CANARY_RESULT_WORDS: [&str; 4] =
     ["caught", "waved-through", "not-applicable", "gate-broken"];
 
+/// The planted result words a canaryfield document may carry, the
+/// four the counts stand over and the timed-out word canaryfield's
+/// timeout slice added to its result documents, which is counted
+/// under none of the four.
+pub const CANARY_KNOWN_RESULT_WORDS: [&str; 5] = [
+    "caught",
+    "waved-through",
+    "not-applicable",
+    "gate-broken",
+    "timed-out",
+];
+
 /// The source shape name carried into normalized evidence.
 pub const CANARY_SOURCE_FORMAT: &str = "canaryfield-catch-table";
 
@@ -98,7 +110,7 @@ pub fn validate_canary_document(document: &JsonValue) -> Result<(), CatchledgerE
                 ));
             }
             match result {
-                JsonValue::Text(word) if CANARY_RESULT_WORDS.contains(&word.as_str()) => {}
+                JsonValue::Text(word) if CANARY_KNOWN_RESULT_WORDS.contains(&word.as_str()) => {}
                 _ => {
                     return Err(CatchledgerError::new(
                         "a canaryfield row carries an unknown result",
