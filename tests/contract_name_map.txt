@@ -105,3 +105,11 @@ test_check_mode_refuses_the_output_flag | rust-test | tests/token_check.rs | tes
 test_check_mode_refuses_the_token_output_flag | rust-test | tests/token_check.rs | test_check_mode_refuses_the_token_output_flag
 test_check_mode_without_a_token_usage_document_is_refused | rust-test | tests/token_check.rs | test_check_mode_without_a_token_usage_document_is_refused
 test_a_token_cost_document_with_an_edited_price_is_refused | rust-test | tests/token_check.rs | test_a_token_cost_document_with_an_edited_price_is_refused
+test_a_generated_report_validates_in_check_mode | rust-test | tests/report_check.rs | test_a_generated_report_validates_in_check_mode
+test_a_report_with_a_tampered_figure_is_refused | rust-test | tests/report_check.rs | test_a_report_with_a_tampered_figure_is_refused
+test_a_report_missing_its_final_newline_is_refused | rust-test | tests/report_check.rs | test_a_report_missing_its_final_newline_is_refused
+test_a_missing_report_is_refused_in_check_mode | rust-test | tests/report_check.rs | test_a_missing_report_is_refused_in_check_mode
+test_check_report_mode_refuses_the_output_flag | rust-test | tests/report_check.rs | test_check_report_mode_refuses_the_output_flag
+test_check_report_mode_refuses_the_report_flag | rust-test | tests/report_check.rs | test_check_report_mode_refuses_the_report_flag
+test_a_report_with_a_token_section_validates_in_check_mode | rust-test | tests/report_check.rs | test_a_report_with_a_token_section_validates_in_check_mode
+test_a_report_checked_without_its_token_usage_is_refused | rust-test | tests/report_check.rs | test_a_report_checked_without_its_token_usage_is_refused
