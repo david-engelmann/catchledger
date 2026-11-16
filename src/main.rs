@@ -31,12 +31,15 @@ use catchledger::ledger::{
 use catchledger::reader::read_json_document;
 use catchledger::render::render_json;
 use catchledger::report::{render_markdown, render_token_section};
-use catchledger::{build_token_figures, read_token_price, read_token_usage, token_cost_document};
+use catchledger::{
+    build_token_figures, read_token_price, read_token_usage, token_cost_document,
+    validate_token_cost,
+};
 use catchledger::{validate_canary_document, CatchledgerError};
 
-const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT]";
+const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH]";
 
-const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT]
+const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH]
 
 build a conservative per check scorecard from local CI and Git history
 ";
@@ -97,6 +100,10 @@ const FLAGS: &[FlagSpec] = &[
     },
     FlagSpec {
         name: "price-per-output-token",
+        required: false,
+    },
+    FlagSpec {
+        name: "check-token-cost",
         required: false,
     },
 ];
@@ -300,15 +307,28 @@ fn scan(args: &[OsString]) -> Scan {
     if refused_at_end {
         return Scan::UsageError;
     }
+    let checking = values.contains_key("check-token-cost");
     for spec in FLAGS {
         if spec.required && !values.contains_key(spec.name) {
+            if checking && matches!(spec.name, "output" | "report" | "packs-dir") {
+                continue;
+            }
             return Scan::UsageError;
         }
     }
     if values.contains_key("git-log") == values.contains_key("git-repo") {
         return Scan::UsageError;
     }
-    if values.contains_key("token-usage") != values.contains_key("token-output") {
+    if checking {
+        if !values.contains_key("token-usage")
+            || values.contains_key("token-output")
+            || values.contains_key("output")
+            || values.contains_key("report")
+            || values.contains_key("packs-dir")
+        {
+            return Scan::UsageError;
+        }
+    } else if values.contains_key("token-usage") != values.contains_key("token-output") {
         return Scan::UsageError;
     }
     Scan::Parsed(values)
@@ -458,6 +478,22 @@ fn door(values: &Values) -> Result<(), String> {
     };
 
     let ledger_text = render_json(&ledger);
+    if let Some(check_path) = values.get("check-token-cost") {
+        let (supplied, _supplied_digest) = read_document(&PathBuf::from(check_path), "token cost")?;
+        let figures = figures.expect("the check mode stands on a usage document");
+        let usage_digest = usage_digest.expect("the check mode stands on a usage document");
+        validate_token_cost(
+            &supplied,
+            &figures,
+            &inputs.repo,
+            &input_price_text,
+            &output_price_text,
+            &usage_digest,
+            &sha256_bytes(ledger_text.as_bytes()),
+        )
+        .map_err(refusal)?;
+        return Ok(());
+    }
     write_text(&path_of(values, "output"), &ledger_text)?;
     let mut report = render_markdown(&ledger).map_err(refusal)?;
     if let Some(figures) = &figures {
