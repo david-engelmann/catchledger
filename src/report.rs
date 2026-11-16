@@ -333,3 +333,41 @@ pub fn render_token_section(figures: &TokenFigures) -> String {
     let joined = lines.join("\n");
     format!("{joined}\n")
 }
+
+/// Build the report a run writes from the ledger it built and
+/// the token figures where they stand, the markdown of the
+/// ledger with the token section standing after it where the
+/// figures stand. The run's write and the report check read
+/// this one composition.
+pub fn build_report(
+    ledger: &JsonValue,
+    figures: Option<&TokenFigures>,
+) -> Result<String, CatchledgerError> {
+    let mut report = render_markdown(ledger)?;
+    if let Some(figures) = figures {
+        report = format!(
+            "{}\n\n{}",
+            report.trim_end_matches('\n'),
+            render_token_section(figures)
+        );
+    }
+    Ok(report)
+}
+
+/// Validate a supplied report against the report the same
+/// ledger and figures render, byte for byte, because a report
+/// is its rendering and a respelling of it is a different
+/// document.
+pub fn validate_report(
+    supplied: &[u8],
+    ledger: &JsonValue,
+    figures: Option<&TokenFigures>,
+) -> Result<bool, CatchledgerError> {
+    let expected = build_report(ledger, figures)?;
+    if supplied != expected.as_bytes() {
+        return Err(CatchledgerError::new(
+            "the report disagrees with the ledger",
+        ));
+    }
+    Ok(true)
+}

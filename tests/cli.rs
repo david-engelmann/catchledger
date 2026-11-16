@@ -37,7 +37,7 @@ use catchledger::{read_json_document, sha256_bytes};
 /// the pin a usage refusal step byte compares its standard error
 /// against, so a step the argument reader refused cannot pass on
 /// the tool refusal line standing in its place.
-const USAGE_LINE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH]\n";
+const USAGE_LINE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH]\n";
 
 fn recordings() -> Vec<JsonValue> {
     recordings_at("/tests/conformance/cli_cases.json")
