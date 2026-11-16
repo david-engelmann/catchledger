@@ -30,16 +30,16 @@ use catchledger::ledger::{
 };
 use catchledger::reader::read_json_document;
 use catchledger::render::render_json;
-use catchledger::report::{render_markdown, render_token_section};
+use catchledger::report::{build_report, validate_report};
 use catchledger::{
     build_token_figures, read_token_price, read_token_usage, token_cost_document,
     validate_token_cost,
 };
 use catchledger::{validate_canary_document, CatchledgerError};
 
-const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH]";
+const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH]";
 
-const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH]
+const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH]
 
 build a conservative per check scorecard from local CI and Git history
 ";
@@ -104,6 +104,10 @@ const FLAGS: &[FlagSpec] = &[
     },
     FlagSpec {
         name: "check-token-cost",
+        required: false,
+    },
+    FlagSpec {
+        name: "check-report",
         required: false,
     },
 ];
@@ -307,7 +311,9 @@ fn scan(args: &[OsString]) -> Scan {
     if refused_at_end {
         return Scan::UsageError;
     }
-    let checking = values.contains_key("check-token-cost");
+    let checking_token = values.contains_key("check-token-cost");
+    let checking_report = values.contains_key("check-report");
+    let checking = checking_token || checking_report;
     for spec in FLAGS {
         if spec.required && !values.contains_key(spec.name) {
             if checking && matches!(spec.name, "output" | "report" | "packs-dir") {
@@ -319,9 +325,18 @@ fn scan(args: &[OsString]) -> Scan {
     if values.contains_key("git-log") == values.contains_key("git-repo") {
         return Scan::UsageError;
     }
-    if checking {
+    if checking_token {
         if !values.contains_key("token-usage")
             || values.contains_key("token-output")
+            || values.contains_key("output")
+            || values.contains_key("report")
+            || values.contains_key("packs-dir")
+            || checking_report
+        {
+            return Scan::UsageError;
+        }
+    } else if checking_report {
+        if values.contains_key("token-output")
             || values.contains_key("output")
             || values.contains_key("report")
             || values.contains_key("packs-dir")
@@ -494,15 +509,14 @@ fn door(values: &Values) -> Result<(), String> {
         .map_err(refusal)?;
         return Ok(());
     }
-    write_text(&path_of(values, "output"), &ledger_text)?;
-    let mut report = render_markdown(&ledger).map_err(refusal)?;
-    if let Some(figures) = &figures {
-        report = format!(
-            "{}\n\n{}",
-            report.trim_end_matches('\n'),
-            render_token_section(figures)
-        );
+    if let Some(check_path) = values.get("check-report") {
+        let supplied = std::fs::read(PathBuf::from(check_path))
+            .map_err(|_| "the report could not be read".to_string())?;
+        validate_report(&supplied, &ledger, figures.as_ref()).map_err(refusal)?;
+        return Ok(());
     }
+    write_text(&path_of(values, "output"), &ledger_text)?;
+    let report = build_report(&ledger, figures.as_ref()).map_err(refusal)?;
     write_text(&path_of(values, "report"), &report)?;
     let packs_dir = path_of(values, "packs-dir");
     std::fs::create_dir_all(&packs_dir)
