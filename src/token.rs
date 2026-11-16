@@ -289,3 +289,34 @@ pub fn token_cost_document(
         ),
     ])
 }
+
+/// Validate a supplied token cost document against the
+/// document the figures of the run's own inputs build,
+/// comparing whole over values, the spelling of the supplied
+/// document standing outside the comparison as it stands
+/// outside this crate's other document comparisons.
+#[allow(clippy::too_many_arguments)]
+pub fn validate_token_cost(
+    supplied: &JsonValue,
+    figures: &TokenFigures,
+    repo: &str,
+    input_price_text: &str,
+    output_price_text: &str,
+    token_usage_sha256: &str,
+    ledger_sha256: &str,
+) -> Result<bool, CatchledgerError> {
+    let expected = token_cost_document(
+        figures,
+        repo,
+        input_price_text,
+        output_price_text,
+        token_usage_sha256,
+        ledger_sha256,
+    );
+    if *supplied != expected {
+        return Err(refusal(
+            "the token cost document disagrees with the ledger and the token usage",
+        ));
+    }
+    Ok(true)
+}

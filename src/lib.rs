@@ -42,6 +42,6 @@ pub use reader::{read_json_document, read_json_file};
 pub use render::render_json;
 pub use report::render_markdown;
 pub use token::{
-    build_token_figures, read_token_price, read_token_usage, token_cost_document, TokenFigures,
-    TokenUsage,
+    build_token_figures, read_token_price, read_token_usage, token_cost_document,
+    validate_token_cost, TokenFigures, TokenUsage,
 };
