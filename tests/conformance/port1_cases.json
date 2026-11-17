@@ -10069,7 +10069,10 @@
         }
       },
       "expect": {
-        "ok": true
+        "error": [
+          "PackValidationError",
+          "the evidence pack disagrees with its ledger"
+        ]
       }
     },
     {
