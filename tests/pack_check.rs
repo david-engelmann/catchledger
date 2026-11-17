@@ -1,0 +1,288 @@
+//! The pins of slice 10, the pack check, over synthetic
+//! documents the suite writes itself. The genuine packs are
+//! written by a full run of the binary over the synthetic
+//! examples, and the check mode is then driven over the same
+//! inputs.
+
+use std::path::{Path, PathBuf};
+use std::process::Command;
+
+const USAGE_DOCUMENT: &str = "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}";
+
+struct ScratchDir(PathBuf);
+
+impl ScratchDir {
+    fn hold(name: &str) -> ScratchDir {
+        let dir = std::env::temp_dir().join(format!("catchledger-{name}-{}", std::process::id()));
+        if dir.exists() {
+            std::fs::remove_dir_all(&dir).expect("a stale pin directory clears");
+        }
+        std::fs::create_dir_all(&dir).expect("a pin directory stands");
+        ScratchDir(dir)
+    }
+}
+
+impl Drop for ScratchDir {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+fn example(name: &str) -> String {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("examples")
+        .join(name);
+    std::fs::read_to_string(path).expect("the example inputs stand in the tree")
+}
+
+fn staged(name: &str) -> (ScratchDir, PathBuf) {
+    let scratch = ScratchDir::hold(name);
+    let dir = scratch.0.clone();
+    std::fs::write(dir.join("runs.json"), example("synthetic-runs.json")).expect("runs staged");
+    std::fs::write(dir.join("gitlog.txt"), example("synthetic-git-log.txt")).expect("log staged");
+    std::fs::write(dir.join("usage.json"), USAGE_DOCUMENT).expect("usage staged");
+    (scratch, dir)
+}
+
+fn run_binary(args: &[String]) -> (i32, String, String) {
+    let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+        .args(args)
+        .output()
+        .expect("the binary runs");
+    (
+        output.status.code().expect("the binary exits with a code"),
+        String::from_utf8(output.stdout).expect("standard output is text"),
+        String::from_utf8(output.stderr).expect("standard error is text"),
+    )
+}
+
+fn at(dir: &Path, name: &str) -> String {
+    dir.join(name).to_string_lossy().into_owned()
+}
+
+/// Run the full run once so the genuine packs stand in the
+/// scratch under packs, and hand back their file names in
+/// sorted order.
+fn genuine_packs(dir: &Path) -> Vec<String> {
+    let args = vec![
+        "--ci-history".into(),
+        at(dir, "runs.json"),
+        "--git-log".into(),
+        at(dir, "gitlog.txt"),
+        "--output".into(),
+        at(dir, "ledger.json"),
+        "--report".into(),
+        at(dir, "report.md"),
+        "--packs-dir".into(),
+        at(dir, "packs"),
+    ];
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 0, "the run stands: {stderr}");
+    let mut names = Vec::new();
+    for entry in std::fs::read_dir(dir.join("packs")).expect("the packs stand") {
+        let entry = entry.expect("a pack entry reads");
+        names.push(entry.file_name().to_string_lossy().into_owned());
+    }
+    names.sort();
+    names
+}
+
+/// Copy the standing packs directory whole into a new
+/// directory in the scratch and hand back its name, so a pin
+/// can edit the copy while the genuine packs stand.
+fn copied_packs(dir: &Path, name: &str) -> String {
+    let target = dir.join(name);
+    std::fs::create_dir_all(&target).expect("the copy directory stands");
+    for entry in std::fs::read_dir(dir.join("packs")).expect("the packs stand") {
+        let entry = entry.expect("a pack entry reads");
+        std::fs::copy(entry.path(), target.join(entry.file_name())).expect("the pack copies");
+    }
+    name.to_string()
+}
+
+fn check_args(dir: &Path, packs: &str) -> Vec<String> {
+    vec![
+        "--ci-history".into(),
+        at(dir, "runs.json"),
+        "--git-log".into(),
+        at(dir, "gitlog.txt"),
+        "--check-packs".into(),
+        at(dir, packs),
+    ]
+}
+
+#[test]
+fn test_a_generated_pack_directory_validates_in_check_mode() {
+    let (_scratch, dir) = staged("packs-genuine");
+    genuine_packs(&dir);
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "packs"));
+    assert_eq!(exit, 0, "the genuine packs validate: {stderr}");
+    assert!(stderr.is_empty(), "the check is silent: {stderr}");
+}
+
+#[test]
+fn test_a_pack_directory_validates_with_token_usage_standing() {
+    let (_scratch, dir) = staged("packs-usage-standing");
+    genuine_packs(&dir);
+    let mut args = check_args(&dir, "packs");
+    args.extend([
+        "--token-usage".into(),
+        at(&dir, "usage.json"),
+        "--price-per-input-token".into(),
+        "0.001".into(),
+        "--price-per-output-token".into(),
+        "0.002".into(),
+    ]);
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 0, "the packs stand the same with usage: {stderr}");
+    assert!(stderr.is_empty(), "the check is silent: {stderr}");
+}
+
+#[test]
+fn test_a_pack_with_a_tampered_figure_is_refused() {
+    let (_scratch, dir) = staged("packs-figure");
+    let names = genuine_packs(&dir);
+    let copy = copied_packs(&dir, "packs-tampered");
+    let path = dir.join(&copy).join(&names[0]);
+    let genuine = std::fs::read_to_string(&path).expect("the pack reads");
+    let marker = "\"fires\": ";
+    let figure_at = genuine.find(marker).expect("the figure stands") + marker.len();
+    let mut bytes = genuine.clone().into_bytes();
+    bytes[figure_at] = if bytes[figure_at] == b'9' {
+        b'8'
+    } else {
+        bytes[figure_at] + 1
+    };
+    let tampered = String::from_utf8(bytes).expect("the tamper stays text");
+    assert_ne!(tampered, genuine, "the tamper lands");
+    std::fs::write(&path, &tampered).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, &copy));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence packs disagree with the ledger"),
+        "the refusal carries the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_pack_directory_missing_a_pack_is_refused() {
+    let (_scratch, dir) = staged("packs-missing-one");
+    let names = genuine_packs(&dir);
+    let copy = copied_packs(&dir, "packs-short");
+    std::fs::remove_file(dir.join(&copy).join(&names[0])).expect("the pack lifts out");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, &copy));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence packs disagree with the ledger"),
+        "a missing pack refuses in the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_pack_directory_carrying_an_extra_pack_is_refused() {
+    let (_scratch, dir) = staged("packs-extra");
+    let names = genuine_packs(&dir);
+    let copy = copied_packs(&dir, "packs-wide");
+    std::fs::copy(
+        dir.join(&copy).join(&names[0]),
+        dir.join(&copy).join("999-extra.json"),
+    )
+    .expect("the extra pack stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, &copy));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence packs disagree with the ledger"),
+        "an extra pack refuses in the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_missing_pack_directory_is_refused_in_check_mode() {
+    let (_scratch, dir) = staged("packs-missing-dir");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "no-packs"));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence packs could not be read"),
+        "the refusal carries the reading words: {stderr}"
+    );
+}
+
+#[test]
+fn test_an_unparseable_pack_document_is_refused_in_check_mode() {
+    let (_scratch, dir) = staged("packs-unparseable");
+    let names = genuine_packs(&dir);
+    let copy = copied_packs(&dir, "packs-broken");
+    std::fs::write(
+        dir.join(&copy).join(&names[0]),
+        "this is not a pack document",
+    )
+    .expect("the broken pack stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, &copy));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence pack is not valid JSON"),
+        "the refusal carries the reader words under the label: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_respelled_pack_validates_in_check_mode() {
+    let (_scratch, dir) = staged("packs-respelled");
+    let names = genuine_packs(&dir);
+    let copy = copied_packs(&dir, "packs-respelled");
+    let path = dir.join(&copy).join(&names[0]);
+    let genuine = std::fs::read_to_string(&path).expect("the pack reads");
+    let mut respelled = genuine
+        .lines()
+        .map(|line| line.trim_start())
+        .collect::<Vec<_>>()
+        .join("\n");
+    respelled.push('\n');
+    assert_ne!(respelled, genuine, "the respelling lands");
+    std::fs::write(&path, &respelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, &copy));
+    assert_eq!(exit, 0, "the respelled pack validates: {stderr}");
+    assert!(stderr.is_empty(), "the check is silent: {stderr}");
+}
+
+#[test]
+fn test_check_packs_mode_refuses_the_packs_dir_flag() {
+    let (_scratch, dir) = staged("packs-packs-dir-flag");
+    genuine_packs(&dir);
+    let mut args = check_args(&dir, "packs");
+    args.extend(["--packs-dir".into(), at(&dir, "other-packs")]);
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 2, "the mode refuses at the usage exit");
+    assert!(
+        stderr.contains("usage: catchledger"),
+        "the refusal is the usage line: {stderr}"
+    );
+}
+
+#[test]
+fn test_check_packs_mode_refuses_the_output_flag() {
+    let (_scratch, dir) = staged("packs-output-flag");
+    genuine_packs(&dir);
+    let mut args = check_args(&dir, "packs");
+    args.extend(["--output".into(), at(&dir, "other.json")]);
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 2, "the mode refuses at the usage exit");
+    assert!(
+        stderr.contains("usage: catchledger"),
+        "the refusal is the usage line: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_pack_directory_checked_against_other_inputs_is_refused() {
+    let (_scratch, dir) = staged("packs-other-inputs");
+    genuine_packs(&dir);
+    let mut args = check_args(&dir, "packs");
+    args.extend(["--cost-per-minute".into(), "0.5".into()]);
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence packs disagree with the ledger"),
+        "packs priced from other inputs refuse: {stderr}"
+    );
+}
