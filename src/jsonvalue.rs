@@ -81,7 +81,6 @@ fn integer_text(value: &JsonValue) -> Option<String> {
     match value {
         JsonValue::Int(integer) => Some(integer.to_string()),
         JsonValue::BigInt(text) => Some(text.clone()),
-        JsonValue::Bool(flag) => Some(if *flag { "1" } else { "0" }.to_string()),
         _ => None,
     }
 }
@@ -89,20 +88,21 @@ fn integer_text(value: &JsonValue) -> Option<String> {
 fn numbers_equal(a: &JsonValue, b: &JsonValue) -> Option<bool> {
     let a_numeric = matches!(
         a,
-        JsonValue::Int(_) | JsonValue::BigInt(_) | JsonValue::Float(_) | JsonValue::Bool(_)
+        JsonValue::Int(_) | JsonValue::BigInt(_) | JsonValue::Float(_)
     );
     let b_numeric = matches!(
         b,
-        JsonValue::Int(_) | JsonValue::BigInt(_) | JsonValue::Float(_) | JsonValue::Bool(_)
+        JsonValue::Int(_) | JsonValue::BigInt(_) | JsonValue::Float(_)
     );
     if !a_numeric || !b_numeric {
         return None;
     }
     if let (JsonValue::Float(x), JsonValue::Float(y)) = (a, b) {
-        return Some(x == y || (x.is_nan() && y.is_nan()));
+        return Some(x == y);
     }
     // Mixed kinds compare exactly, the way Python compares int and
-    // float and bool across kinds.
+    // float across kinds. The boolean stands outside the numeric
+    // reading and never reaches this comparison as a number.
     let a_float = match a {
         JsonValue::Float(value) => Some(*value),
         _ => None,
@@ -131,6 +131,7 @@ impl PartialEq for JsonValue {
         }
         match (self, other) {
             (JsonValue::Null, JsonValue::Null) => true,
+            (JsonValue::Bool(a), JsonValue::Bool(b)) => a == b,
             (JsonValue::Text(a), JsonValue::Text(b)) => a == b,
             (JsonValue::List(a), JsonValue::List(b)) => {
                 a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x == y)
