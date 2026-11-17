@@ -290,3 +290,73 @@ fn test_a_ledger_validates_with_token_usage_standing() {
     assert_eq!(exit, 0, "the ledger stands the same with usage: {stderr}");
     assert!(stderr.is_empty(), "the check is silent: {stderr}");
 }
+
+#[test]
+fn test_a_ledger_with_catches_spelled_true_is_refused() {
+    let (_scratch, dir) = staged("ledger-bool-catches");
+    let genuine = genuine_ledger(&dir);
+    let totals_at = genuine.find("\"totals\"").expect("the totals stand");
+    let marker = "\"catches\": ";
+    let figure_at = totals_at
+        + genuine[totals_at..]
+            .find(marker)
+            .expect("the figure stands")
+        + marker.len();
+    assert_eq!(
+        &genuine[figure_at..figure_at + 1],
+        "1",
+        "the totals catches stand at one"
+    );
+    let spelled = format!("{}true{}", &genuine[..figure_at], &genuine[figure_at + 1..]);
+    assert_ne!(spelled, genuine, "the spelling lands");
+    std::fs::write(dir.join("checked.json"), &spelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "checked.json"));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the ledger disagrees with the run's inputs"),
+        "a boolean spelled over a count refuses in the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_ledger_with_a_false_block_rate_spelled_false_is_refused() {
+    let (_scratch, dir) = staged("ledger-bool-rate");
+    let genuine = genuine_ledger(&dir);
+    let spelled = genuine.replacen(
+        "\"false_block_rate\": 0.0",
+        "\"false_block_rate\": false",
+        1,
+    );
+    assert_ne!(spelled, genuine, "the spelling lands");
+    std::fs::write(dir.join("checked.json"), &spelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "checked.json"));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the ledger disagrees with the run's inputs"),
+        "a boolean spelled over a rate refuses in the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_ledger_with_an_integer_spelled_as_a_float_validates() {
+    let (_scratch, dir) = staged("ledger-float-spelling");
+    let genuine = genuine_ledger(&dir);
+    let totals_at = genuine.find("\"totals\"").expect("the totals stand");
+    let marker = "\"fires\": ";
+    let figure_at = totals_at
+        + genuine[totals_at..]
+            .find(marker)
+            .expect("the figure stands")
+        + marker.len();
+    assert_eq!(
+        &genuine[figure_at..figure_at + 1],
+        "6",
+        "the totals fires stand at six"
+    );
+    let respelled = format!("{}6.0{}", &genuine[..figure_at], &genuine[figure_at + 1..]);
+    assert_ne!(respelled, genuine, "the respelling lands");
+    std::fs::write(dir.join("checked.json"), &respelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "checked.json"));
+    assert_eq!(exit, 0, "the respelled ledger validates: {stderr}");
+    assert!(stderr.is_empty(), "the check is silent: {stderr}");
+}

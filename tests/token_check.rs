@@ -221,3 +221,58 @@ fn test_a_token_cost_document_with_an_edited_price_is_refused() {
         "a price the run did not give refuses: {stderr}"
     );
 }
+
+#[test]
+fn test_a_token_cost_document_with_catches_spelled_true_is_refused() {
+    let (_scratch, dir) = staged("check-bool-catches");
+    let genuine = genuine_document(&dir);
+    let totals_at = genuine.find("\"totals\"").expect("the totals stand");
+    let marker = "\"catches\": ";
+    let figure_at = totals_at
+        + genuine[totals_at..]
+            .find(marker)
+            .expect("the figure stands")
+        + marker.len();
+    assert_eq!(
+        &genuine[figure_at..figure_at + 1],
+        "1",
+        "the totals catches stand at one"
+    );
+    let spelled = format!("{}true{}", &genuine[..figure_at], &genuine[figure_at + 1..]);
+    assert_ne!(spelled, genuine, "the spelling lands");
+    std::fs::write(dir.join("tokens-tampered.json"), &spelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "tokens-tampered.json"));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the token cost document disagrees with the ledger and the token usage"),
+        "a boolean spelled over a count refuses in the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_token_cost_document_with_an_integer_spelled_as_a_float_validates() {
+    let (_scratch, dir) = staged("check-float-spelling");
+    let genuine = genuine_document(&dir);
+    let totals_at = genuine.find("\"totals\"").expect("the totals stand");
+    let marker = "\"input_tokens\": ";
+    let figure_at = totals_at
+        + genuine[totals_at..]
+            .find(marker)
+            .expect("the figure stands")
+        + marker.len();
+    assert_eq!(
+        &genuine[figure_at..figure_at + 4],
+        "6200",
+        "the totals input tokens stand at 6200"
+    );
+    let respelled = format!(
+        "{}6200.0{}",
+        &genuine[..figure_at],
+        &genuine[figure_at + 4..]
+    );
+    assert_ne!(respelled, genuine, "the respelling lands");
+    std::fs::write(dir.join("tokens-tampered.json"), &respelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "tokens-tampered.json"));
+    assert_eq!(exit, 0, "the respelled document validates: {stderr}");
+    assert!(stderr.is_empty(), "the check is silent: {stderr}");
+}
