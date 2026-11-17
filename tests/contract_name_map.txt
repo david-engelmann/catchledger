@@ -124,3 +124,15 @@ test_a_respelled_pack_validates_in_check_mode | rust-test | tests/pack_check.rs 
 test_check_packs_mode_refuses_the_packs_dir_flag | rust-test | tests/pack_check.rs | test_check_packs_mode_refuses_the_packs_dir_flag
 test_check_packs_mode_refuses_the_output_flag | rust-test | tests/pack_check.rs | test_check_packs_mode_refuses_the_output_flag
 test_a_pack_directory_checked_against_other_inputs_is_refused | rust-test | tests/pack_check.rs | test_a_pack_directory_checked_against_other_inputs_is_refused
+test_a_generated_ledger_validates_in_check_mode | rust-test | tests/ledger_check.rs | test_a_generated_ledger_validates_in_check_mode
+test_a_ledger_with_a_tampered_total_is_refused | rust-test | tests/ledger_check.rs | test_a_ledger_with_a_tampered_total_is_refused
+test_a_ledger_with_a_tampered_source_digest_is_refused | rust-test | tests/ledger_check.rs | test_a_ledger_with_a_tampered_source_digest_is_refused
+test_a_ledger_with_a_tampered_history_window_is_refused | rust-test | tests/ledger_check.rs | test_a_ledger_with_a_tampered_history_window_is_refused
+test_a_missing_ledger_is_refused_in_check_mode | rust-test | tests/ledger_check.rs | test_a_missing_ledger_is_refused_in_check_mode
+test_an_unparseable_ledger_document_is_refused_in_check_mode | rust-test | tests/ledger_check.rs | test_an_unparseable_ledger_document_is_refused_in_check_mode
+test_a_ledger_with_a_repeated_key_refuses_in_the_reader_wording | rust-test | tests/ledger_check.rs | test_a_ledger_with_a_repeated_key_refuses_in_the_reader_wording
+test_a_respelled_ledger_validates_in_check_mode | rust-test | tests/ledger_check.rs | test_a_respelled_ledger_validates_in_check_mode
+test_check_ledger_mode_refuses_the_output_flag | rust-test | tests/ledger_check.rs | test_check_ledger_mode_refuses_the_output_flag
+test_check_ledger_mode_refuses_a_second_check_flag | rust-test | tests/ledger_check.rs | test_check_ledger_mode_refuses_a_second_check_flag
+test_a_ledger_checked_against_other_inputs_is_refused | rust-test | tests/ledger_check.rs | test_a_ledger_checked_against_other_inputs_is_refused
+test_a_ledger_validates_with_token_usage_standing | rust-test | tests/ledger_check.rs | test_a_ledger_validates_with_token_usage_standing
