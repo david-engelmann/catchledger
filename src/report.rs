@@ -365,6 +365,15 @@ pub fn validate_report(
 ) -> Result<bool, CatchledgerError> {
     let expected = build_report(ledger, figures)?;
     if supplied != expected.as_bytes() {
+        let token_side = figures.is_some()
+            || supplied
+                .split(|byte| *byte == b'\n')
+                .any(|line| line == "## Token costs".as_bytes());
+        if token_side {
+            return Err(CatchledgerError::new(
+                "the report disagrees with the ledger and the token usage",
+            ));
+        }
         return Err(CatchledgerError::new(
             "the report disagrees with the ledger",
         ));
