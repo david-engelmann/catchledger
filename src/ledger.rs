@@ -712,3 +712,16 @@ pub fn validate_evidence_packs(
     }
     Ok(true)
 }
+
+/// Validate a supplied ledger against the ledger the run's own
+/// inputs build, comparing whole over values, the spelling of
+/// the supplied document standing outside the comparison as it
+/// stands outside this crate's other document comparisons.
+pub fn validate_ledger(supplied: &JsonValue, ledger: &JsonValue) -> Result<bool, CatchledgerError> {
+    if supplied != ledger {
+        return Err(CatchledgerError::new(
+            "the ledger disagrees with the run's inputs",
+        ));
+    }
+    Ok(true)
+}

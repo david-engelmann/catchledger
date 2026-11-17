@@ -27,7 +27,7 @@ use catchledger::ingest::{
 use catchledger::jsonvalue::JsonValue;
 use catchledger::ledger::{
     build_evidence_packs, build_ledger, validate_evidence_pack, validate_evidence_packs,
-    LedgerInputs,
+    validate_ledger, LedgerInputs,
 };
 use catchledger::reader::read_json_document;
 use catchledger::render::render_json;
@@ -38,9 +38,9 @@ use catchledger::{
 };
 use catchledger::{validate_canary_document, CatchledgerError};
 
-const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH] [--check-packs DIR]";
+const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH] [--check-packs DIR] [--check-ledger PATH]";
 
-const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH] [--check-packs DIR]
+const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH] [--check-packs DIR] [--check-ledger PATH]
 
 build a conservative per check scorecard from local CI and Git history
 ";
@@ -113,6 +113,10 @@ const FLAGS: &[FlagSpec] = &[
     },
     FlagSpec {
         name: "check-packs",
+        required: false,
+    },
+    FlagSpec {
+        name: "check-ledger",
         required: false,
     },
 ];
@@ -319,7 +323,8 @@ fn scan(args: &[OsString]) -> Scan {
     let checking_token = values.contains_key("check-token-cost");
     let checking_report = values.contains_key("check-report");
     let checking_packs = values.contains_key("check-packs");
-    let checking = checking_token || checking_report || checking_packs;
+    let checking_ledger = values.contains_key("check-ledger");
+    let checking = checking_token || checking_report || checking_packs || checking_ledger;
     for spec in FLAGS {
         if spec.required && !values.contains_key(spec.name) {
             if checking && matches!(spec.name, "output" | "report" | "packs-dir") {
@@ -339,6 +344,7 @@ fn scan(args: &[OsString]) -> Scan {
             || values.contains_key("packs-dir")
             || checking_report
             || checking_packs
+            || checking_ledger
         {
             return Scan::UsageError;
         }
@@ -348,10 +354,20 @@ fn scan(args: &[OsString]) -> Scan {
             || values.contains_key("report")
             || values.contains_key("packs-dir")
             || checking_packs
+            || checking_ledger
         {
             return Scan::UsageError;
         }
     } else if checking_packs {
+        if values.contains_key("token-output")
+            || values.contains_key("output")
+            || values.contains_key("report")
+            || values.contains_key("packs-dir")
+            || checking_ledger
+        {
+            return Scan::UsageError;
+        }
+    } else if checking_ledger {
         if values.contains_key("token-output")
             || values.contains_key("output")
             || values.contains_key("report")
@@ -544,6 +560,11 @@ fn door(values: &Values) -> Result<(), String> {
             }
         }
         validate_evidence_packs(&supplied, &ledger).map_err(|error| error.message().to_string())?;
+        return Ok(());
+    }
+    if let Some(check_path) = values.get("check-ledger") {
+        let (supplied, _supplied_digest) = read_document(&PathBuf::from(check_path), "ledger")?;
+        validate_ledger(&supplied, &ledger).map_err(refusal)?;
         return Ok(());
     }
     write_text(&path_of(values, "output"), &ledger_text)?;
