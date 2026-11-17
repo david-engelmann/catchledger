@@ -7,6 +7,9 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use catchledger::jsonvalue::parse_json;
+use catchledger::validate_evidence_pack;
+
 const USAGE_DOCUMENT: &str = "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}";
 
 struct ScratchDir(PathBuf);
@@ -284,5 +287,80 @@ fn test_a_pack_directory_checked_against_other_inputs_is_refused() {
     assert!(
         stderr.contains("the evidence packs disagree with the ledger"),
         "packs priced from other inputs refuse: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_pack_with_catches_spelled_false_is_refused() {
+    let (_scratch, dir) = staged("packs-bool-catches");
+    let names = genuine_packs(&dir);
+    let copy = copied_packs(&dir, "packs-bool");
+    let path = dir.join(&copy).join(&names[0]);
+    let genuine = std::fs::read_to_string(&path).expect("the pack reads");
+    let scorecard_at = genuine.find("\"scorecard\"").expect("the scorecard stands");
+    let marker = "\"catches\": 0";
+    let spelled_at = scorecard_at
+        + genuine[scorecard_at..]
+            .find(marker)
+            .expect("the figure stands");
+    let spelled = format!(
+        "{}\"catches\": false{}",
+        &genuine[..spelled_at],
+        &genuine[spelled_at + marker.len()..]
+    );
+    assert_ne!(spelled, genuine, "the spelling lands");
+    std::fs::write(&path, &spelled).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, &copy));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the evidence packs disagree with the ledger"),
+        "a boolean spelled over a count refuses in the disagreement words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_pack_with_catches_spelled_false_refuses_through_the_library() {
+    let (_scratch, dir) = staged("packs-library-bool");
+    let names = genuine_packs(&dir);
+    let ledger_text = std::fs::read_to_string(dir.join("ledger.json")).expect("the ledger reads");
+    let ledger = parse_json(&ledger_text).expect("the ledger parses");
+    let copy = copied_packs(&dir, "packs-library-bool-copy");
+    let path = dir.join(&copy).join(&names[0]);
+    let genuine = std::fs::read_to_string(&path).expect("the pack reads");
+    let scorecard_at = genuine.find("\"scorecard\"").expect("the scorecard stands");
+    let marker = "\"catches\": 0";
+    let spelled_at = scorecard_at
+        + genuine[scorecard_at..]
+            .find(marker)
+            .expect("the figure stands");
+    let spelled = format!(
+        "{}\"catches\": false{}",
+        &genuine[..spelled_at],
+        &genuine[spelled_at + marker.len()..]
+    );
+    assert_ne!(spelled, genuine, "the spelling lands");
+    let pack = parse_json(&spelled).expect("the pack parses");
+    let error = validate_evidence_pack(&pack, &ledger)
+        .expect_err("a boolean spelled pack refuses through the library");
+    assert_eq!(
+        error.message(),
+        "the evidence pack disagrees with its ledger",
+        "the refusal carries the pack validation words"
+    );
+}
+
+#[test]
+fn test_two_nan_values_stand_unequal_under_the_model_comparison() {
+    let first = parse_json("NaN").expect("the word parses");
+    let second = parse_json("NaN").expect("the word parses");
+    assert!(
+        first != second,
+        "two NaN values read across a parse boundary stand unequal"
+    );
+    let one = parse_json("{\"rate\": NaN}").expect("the document parses");
+    let two = parse_json("{\"rate\": NaN}").expect("the document parses");
+    assert!(
+        one != two,
+        "documents carrying NaN stand unequal across a parse boundary"
     );
 }
