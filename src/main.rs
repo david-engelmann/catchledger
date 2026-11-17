@@ -26,7 +26,8 @@ use catchledger::ingest::{
 };
 use catchledger::jsonvalue::JsonValue;
 use catchledger::ledger::{
-    build_evidence_packs, build_ledger, validate_evidence_pack, LedgerInputs,
+    build_evidence_packs, build_ledger, validate_evidence_pack, validate_evidence_packs,
+    LedgerInputs,
 };
 use catchledger::reader::read_json_document;
 use catchledger::render::render_json;
@@ -37,9 +38,9 @@ use catchledger::{
 };
 use catchledger::{validate_canary_document, CatchledgerError};
 
-const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH]";
+const USAGE: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH] [--check-packs DIR]";
 
-const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH]
+const HELP: &str = "usage: catchledger --ci-history PATH (--git-log PATH | --git-repo PATH) [--canaryfield-results PATH] --output PATH --report PATH --packs-dir DIR [--repo-label TEXT] [--cost-per-minute TEXT] [--token-usage PATH --token-output PATH] [--price-per-input-token TEXT] [--price-per-output-token TEXT] [--check-token-cost PATH] [--check-report PATH] [--check-packs DIR]
 
 build a conservative per check scorecard from local CI and Git history
 ";
@@ -108,6 +109,10 @@ const FLAGS: &[FlagSpec] = &[
     },
     FlagSpec {
         name: "check-report",
+        required: false,
+    },
+    FlagSpec {
+        name: "check-packs",
         required: false,
     },
 ];
@@ -313,7 +318,8 @@ fn scan(args: &[OsString]) -> Scan {
     }
     let checking_token = values.contains_key("check-token-cost");
     let checking_report = values.contains_key("check-report");
-    let checking = checking_token || checking_report;
+    let checking_packs = values.contains_key("check-packs");
+    let checking = checking_token || checking_report || checking_packs;
     for spec in FLAGS {
         if spec.required && !values.contains_key(spec.name) {
             if checking && matches!(spec.name, "output" | "report" | "packs-dir") {
@@ -332,10 +338,20 @@ fn scan(args: &[OsString]) -> Scan {
             || values.contains_key("report")
             || values.contains_key("packs-dir")
             || checking_report
+            || checking_packs
         {
             return Scan::UsageError;
         }
     } else if checking_report {
+        if values.contains_key("token-output")
+            || values.contains_key("output")
+            || values.contains_key("report")
+            || values.contains_key("packs-dir")
+            || checking_packs
+        {
+            return Scan::UsageError;
+        }
+    } else if checking_packs {
         if values.contains_key("token-output")
             || values.contains_key("output")
             || values.contains_key("report")
@@ -513,6 +529,21 @@ fn door(values: &Values) -> Result<(), String> {
         let supplied = std::fs::read(PathBuf::from(check_path))
             .map_err(|_| "the report could not be read".to_string())?;
         validate_report(&supplied, &ledger, figures.as_ref()).map_err(refusal)?;
+        return Ok(());
+    }
+    if let Some(check_dir) = values.get("check-packs") {
+        let entries = std::fs::read_dir(PathBuf::from(check_dir))
+            .map_err(|_| "the evidence packs could not be read".to_string())?;
+        let mut supplied = Vec::new();
+        for entry in entries {
+            let entry = entry.map_err(|_| "the evidence packs could not be read".to_string())?;
+            let filename = entry.file_name().to_string_lossy().into_owned();
+            if filename.ends_with(".json") {
+                let (document, _digest) = read_document(&entry.path(), "evidence pack")?;
+                supplied.push((filename, document));
+            }
+        }
+        validate_evidence_packs(&supplied, &ledger).map_err(|error| error.message().to_string())?;
         return Ok(());
     }
     write_text(&path_of(values, "output"), &ledger_text)?;

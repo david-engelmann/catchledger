@@ -34,8 +34,8 @@ pub use ingest::{
 };
 pub use jsonvalue::JsonValue;
 pub use ledger::{
-    build_evidence_packs, build_ledger, validate_evidence_pack, LedgerInputs, LEDGER_FORMAT,
-    PACK_FORMAT,
+    build_evidence_packs, build_ledger, validate_evidence_pack, validate_evidence_packs,
+    LedgerInputs, LEDGER_FORMAT, PACK_FORMAT,
 };
 pub use models::{CommitChange, CommitRecord, RunRecord};
 pub use reader::{read_json_document, read_json_file};
