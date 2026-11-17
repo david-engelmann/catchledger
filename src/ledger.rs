@@ -684,3 +684,31 @@ pub fn validate_evidence_pack(
     }
     Ok(true)
 }
+
+/// Return true when a set of packs exactly matches the packs
+/// rebuilt from a ledger, compared as a set by file name and
+/// whole over values, so a missing pack and a pack the ledger
+/// does not build and a pack that differs each refuse in the
+/// one disagreement wording.
+pub fn validate_evidence_packs(
+    supplied: &[(String, JsonValue)],
+    ledger: &JsonValue,
+) -> Result<bool, PackValidationError> {
+    let expected_packs = build_evidence_packs(ledger)?;
+    if supplied.len() != expected_packs.len() {
+        return Err(PackValidationError::new(
+            "the evidence packs disagree with the ledger",
+        ));
+    }
+    for (filename, expected) in &expected_packs {
+        let stands = supplied
+            .iter()
+            .any(|(name, pack)| name == filename && pack == expected);
+        if !stands {
+            return Err(PackValidationError::new(
+                "the evidence packs disagree with the ledger",
+            ));
+        }
+    }
+    Ok(true)
+}
