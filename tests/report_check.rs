@@ -285,3 +285,94 @@ fn test_a_report_without_a_token_section_checked_with_its_token_usage_is_refused
         "the refusal names the documents its comparison reads: {stderr}"
     );
 }
+
+/// Stage the examples with the first workflow renamed to
+/// Token costs, so the staged ledger carries a check whose
+/// name spells the token section heading.
+fn staged_named(name: &str) -> (ScratchDir, PathBuf) {
+    let scratch = ScratchDir::hold(name);
+    let dir = scratch.0.clone();
+    let runs = example("synthetic-runs.json").replace("unit checks", "Token costs");
+    std::fs::write(dir.join("runs.json"), runs).expect("runs staged");
+    std::fs::write(dir.join("gitlog.txt"), example("synthetic-git-log.txt")).expect("log staged");
+    std::fs::write(dir.join("usage.json"), USAGE_DOCUMENT).expect("usage staged");
+    (scratch, dir)
+}
+
+/// The deciding pin of the Round 14 repair. A check whose
+/// name spells the token section heading puts that heading
+/// line into every rendering of its ledger as a check
+/// heading, and RW-2 promises the plain regime the standing
+/// words. This pin passes on the contract tree, where the
+/// standing code speaks the standing words in the plain
+/// regime everywhere, and its discriminating validation
+/// stands against the unrepaired build, where the refusal
+/// names the token usage and the second assertion fails.
+#[test]
+fn test_a_tampered_plain_report_for_a_check_named_token_costs_is_refused_in_the_standing_words() {
+    let (_scratch, dir) = staged_named("report-named-plain");
+    let genuine = genuine_report(&dir, false);
+    assert!(
+        genuine.contains("## Token costs"),
+        "the named check puts its heading into the rendering"
+    );
+    let tampered = genuine.replace("| Fires | 6 |", "| Fires | 9 |");
+    assert_ne!(tampered, genuine, "the tamper lands");
+    std::fs::write(dir.join("report-tampered.md"), &tampered).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "report-tampered.md", false));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the report disagrees with the ledger"),
+        "the refusal carries the disagreement words: {stderr}"
+    );
+    assert!(
+        !stderr.contains("and the token usage"),
+        "the plain regime keeps the standing words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_report_with_a_tampered_token_section_count_is_refused() {
+    let (_scratch, dir) = staged("report-section-count");
+    let genuine = genuine_report(&dir, true);
+    let tampered = genuine.replace(
+        "| unit checks | 6200 | 300 |",
+        "| unit checks | 6201 | 300 |",
+    );
+    assert_ne!(tampered, genuine, "the tamper lands");
+    std::fs::write(dir.join("report-tampered.md"), &tampered).expect("the copy stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "report-tampered.md", false));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the report disagrees with the ledger and the token usage"),
+        "a section standing in the supplied report refuses in the two document words: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_token_report_for_a_check_named_token_costs_checked_without_its_token_usage_is_refused() {
+    let (_scratch, dir) = staged_named("report-named-no-usage");
+    genuine_report(&dir, true);
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "report.md", false));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the report disagrees with the ledger and the token usage"),
+        "the genuine section standing behind the colliding name refuses: {stderr}"
+    );
+}
+
+#[test]
+fn test_a_token_report_for_a_check_named_token_costs_checked_against_a_tampered_token_usage_is_refused(
+) {
+    let (_scratch, dir) = staged_named("report-named-tampered-usage");
+    genuine_report(&dir, true);
+    let tampered = USAGE_DOCUMENT.replace("\"input_tokens\": 1200", "\"input_tokens\": 1201");
+    assert_ne!(tampered, USAGE_DOCUMENT, "the tamper lands");
+    std::fs::write(dir.join("usage.json"), &tampered).expect("the usage stands");
+    let (exit, _stdout, stderr) = run_binary(&check_args(&dir, "report.md", true));
+    assert_eq!(exit, 2, "the check refuses at the standing exit");
+    assert!(
+        stderr.contains("the report disagrees with the ledger and the token usage"),
+        "the refusal names the documents its comparison reads: {stderr}"
+    );
+}
