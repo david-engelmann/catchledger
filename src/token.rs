@@ -16,6 +16,7 @@ use crate::decimal::{
 };
 use crate::errors::CatchledgerError;
 use crate::jsonvalue::JsonValue;
+use crate::ledger::CURRENCY_WORD;
 use crate::models::RunRecord;
 
 pub const TOKEN_USAGE_FORMAT: &str = "catchledger-token-usage/1";
@@ -259,7 +260,7 @@ pub fn token_cost_document(
         (
             "pricing",
             JsonValue::object(vec![
-                ("currency", JsonValue::Text("USD".to_string())),
+                ("currency", JsonValue::Text(CURRENCY_WORD.to_string())),
                 (
                     "input_token_price",
                     JsonValue::Text(input_price_text.to_string()),
