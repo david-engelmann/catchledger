@@ -23,6 +23,7 @@ pub const DEFAULT_COST_PER_MINUTE: &str = "0.008";
 pub const CURRENCY_WORD: &str = "USD";
 const NONNEGATIVE_PRICE_WORDING: &str = "the price per minute must be nonnegative";
 const PACKS_DISAGREEMENT_WORDING: &str = "the evidence packs disagree with the ledger";
+const RUNS_LABEL: &str = "runs";
 
 // ---------------------------------------------------------------------
 // The decimal pipeline of the Python ledger module
@@ -526,8 +527,16 @@ pub fn build_ledger(
     let history_window = if runs.is_empty() {
         JsonValue::Null
     } else {
-        let first = runs.iter().map(|run| run.started_at).min().expect("runs");
-        let last = runs.iter().map(|run| run.updated_at).max().expect("runs");
+        let first = runs
+            .iter()
+            .map(|run| run.started_at)
+            .min()
+            .expect(RUNS_LABEL);
+        let last = runs
+            .iter()
+            .map(|run| run.updated_at)
+            .max()
+            .expect(RUNS_LABEL);
         JsonValue::object(vec![
             (
                 "first_run_started_at",
