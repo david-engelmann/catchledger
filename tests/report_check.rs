@@ -410,3 +410,33 @@ fn test_the_token_section_frame_stands_spelled_once_in_the_report_source() {
         "the frame definition stands named at its definition and at both places that read it"
     );
 }
+
+/// The structural pin of slice 16. The not available
+/// spelling of the report stands spelled once in the
+/// report source, in the one definition the rate helper
+/// and the money helper read at their null arms and the
+/// two fallback sites inside render_token_section read
+/// where a money figure fails to build, and this pin
+/// reads that source and counts the spellings. It fails
+/// on the tree slice 16 starts from, where the phrase
+/// stands spelled four times, at the two helper arms and
+/// at the two fallback sites, and it passes on the
+/// gathered tree.
+#[test]
+fn test_the_not_available_spelling_stands_spelled_once_in_the_report_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    assert_eq!(
+        source.matches("\"not available\"").count(),
+        1,
+        "the not available spelling stands spelled once in the report source"
+    );
+    assert!(
+        source.matches("NOT_AVAILABLE_TEXT").count() >= 5,
+        "the not available definition stands named at its definition and at the four places that read it"
+    );
+}
