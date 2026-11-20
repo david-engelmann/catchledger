@@ -30,19 +30,34 @@ fn field<'a>(value: &'a JsonValue, key: &str) -> Result<&'a JsonValue, Catchledg
     value.get(key).ok_or_else(render_error)
 }
 
+/// The spellings of the special values of a float in a
+/// report cell, where a not a number value reads as nan
+/// and the infinite values read as inf and negative inf,
+/// returning the spelling where the value carries one
+/// and no spelling where the value stands finite, spelled
+/// once here so the plain cell helper and the six place
+/// helper read their special arms from this one place
+/// and cannot drift apart in spelling.
+fn special_float_text(value: f64) -> Option<String> {
+    if value.is_nan() {
+        return Some("nan".to_string());
+    }
+    if value.is_infinite() {
+        return Some(if value < 0.0 {
+            "-inf".to_string()
+        } else {
+            "inf".to_string()
+        });
+    }
+    None
+}
+
 /// Spell a float the way the Python string conversion spells it in
 /// a plain cell, where the special values read as words rather than
 /// in the JSON spelling the document rendering uses.
 fn cell_float_text(value: f64) -> String {
-    if value.is_nan() {
-        return "nan".to_string();
-    }
-    if value.is_infinite() {
-        return if value < 0.0 {
-            "-inf".to_string()
-        } else {
-            "inf".to_string()
-        };
+    if let Some(text) = special_float_text(value) {
+        return text;
     }
     json_float_text(value)
 }
@@ -51,15 +66,8 @@ fn cell_float_text(value: f64) -> String {
 /// spells it in a formatted cell, where a not a number value reads
 /// as nan and the infinite values read as inf and negative inf.
 fn fixed6(value: f64) -> String {
-    if value.is_nan() {
-        return "nan".to_string();
-    }
-    if value.is_infinite() {
-        return if value < 0.0 {
-            "-inf".to_string()
-        } else {
-            "inf".to_string()
-        };
+    if let Some(text) = special_float_text(value) {
+        return text;
     }
     format!("{value:.6}")
 }
