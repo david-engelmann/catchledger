@@ -550,3 +550,41 @@ fn test_a_repository_label_carrying_a_non_utf8_byte_is_refused() {
     );
     std::fs::remove_dir_all(&dir).expect("a pin directory clears");
 }
+
+/// The structural pin of slice 17. The default price of
+/// the tool stands spelled once in the production
+/// source, in the definition the ledger module carries,
+/// and the fallback of the command line door reads that
+/// definition where it builds its price text, the
+/// definition its name standing in the ledger import of
+/// the main module and at the fallback reading, and
+/// this pin reads the production source whole and
+/// counts the spellings. It fails on the tree slice 17
+/// starts from, where the value stands spelled twice,
+/// at the definition and at the fallback literal, and
+/// the definition stands named nowhere in the main
+/// module, and it passes on the gathered tree.
+#[test]
+fn test_the_default_price_stands_spelled_once_in_the_production_source() {
+    let source_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let entries = std::fs::read_dir(&source_dir).expect("the production source stands in the tree");
+    let mut spellings = 0;
+    for entry in entries {
+        let path = entry.expect("a production source entry reads").path();
+        if path.to_string_lossy().ends_with(".rs") {
+            let text = std::fs::read_to_string(&path).expect("a production source file reads");
+            spellings += text.matches("\"0.008\"").count();
+        }
+    }
+    assert_eq!(
+        spellings, 1,
+        "the default price stands spelled once in the production source"
+    );
+    let main_source = std::fs::read_to_string(source_dir.join("main.rs"))
+        .expect("the main source stands in the tree");
+    assert_eq!(
+        main_source.matches("DEFAULT_COST_PER_MINUTE").count(),
+        2,
+        "the default price definition stands named in its import and at its fallback"
+    );
+}
