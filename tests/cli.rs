@@ -685,3 +685,277 @@ fn test_the_door_and_reader_reading_expressions_stand_at_their_seats() {
         "the not valid JSON wording stands at its definition and at its two reading seats"
     );
 }
+
+/// The structural pin of slice 21. The change line
+/// sentence of the ingest module, the words a Git
+/// history change line is malformed, stands spelled
+/// once in the ingest source, in the one definition the
+/// malformed closure of the path decoding reads and the
+/// three fresh spellings of the log reading read, and
+/// this pin reads that source and counts the spellings.
+/// It fails on the tree slice 21 starts from, where the
+/// sentence stands spelled four times, and it passes on
+/// the gathered tree.
+#[test]
+fn test_the_change_line_sentence_stands_spelled_once_in_the_ingest_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ingest.rs"),
+    )
+    .expect("the ingest source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"a Git history change line is malformed\"")
+            .count(),
+        1,
+        "the change line sentence stands spelled once in the ingest source"
+    );
+    assert!(
+        source.matches("CHANGE_LINE_MALFORMED").count() >= 5,
+        "the change line definition stands named at its definition and at the four places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The export shape
+/// sentence of the ingest module, the words the
+/// workflow run export must be a list or an object with
+/// workflow runs, stands spelled once in the ingest
+/// source, in the one definition the two arms of the
+/// export reading read, and this pin reads that source
+/// and counts the spellings. It fails on the tree slice
+/// 21 starts from, where the sentence stands spelled
+/// twice, and it passes on the gathered tree.
+#[test]
+fn test_the_export_shape_sentence_stands_spelled_once_in_the_ingest_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ingest.rs"),
+    )
+    .expect("the ingest source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the workflow run export must be a list or an object with workflow runs\"")
+            .count(),
+        1,
+        "the export shape sentence stands spelled once in the ingest source"
+    );
+    assert!(
+        source.matches("WORKFLOW_RUN_EXPORT_SHAPE").count() >= 3,
+        "the export shape definition stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The identifier
+/// sentence of the ingest module, the words a completed
+/// workflow run needs an identifier, stands spelled
+/// once in the ingest source, in the one definition the
+/// two arms of the export reading read, and this pin
+/// reads that source and counts the spellings. It fails
+/// on the tree slice 21 starts from, where the sentence
+/// stands spelled twice, and it passes on the gathered
+/// tree.
+#[test]
+fn test_the_completed_run_identifier_sentence_stands_spelled_once_in_the_ingest_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ingest.rs"),
+    )
+    .expect("the ingest source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"a completed workflow run needs an identifier\"")
+            .count(),
+        1,
+        "the identifier sentence stands spelled once in the ingest source"
+    );
+    assert!(
+        source.matches("COMPLETED_RUN_NEEDS_IDENTIFIER").count() >= 3,
+        "the identifier definition stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The local Git
+/// sentence of the ingest module, the words the local
+/// Git repository could not be read, stands spelled
+/// once in the ingest source, in the one definition the
+/// two arms of the clone reading read, and this pin
+/// reads that source and counts the spellings. It fails
+/// on the tree slice 21 starts from, where the sentence
+/// stands spelled twice, and it passes on the gathered
+/// tree.
+#[test]
+fn test_the_local_git_sentence_stands_spelled_once_in_the_ingest_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ingest.rs"),
+    )
+    .expect("the ingest source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the local Git repository could not be read\"")
+            .count(),
+        1,
+        "the local Git sentence stands spelled once in the ingest source"
+    );
+    assert!(
+        source.matches("LOCAL_GIT_REPOSITORY_READ").count() >= 3,
+        "the local Git definition stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The outgrow sentence
+/// of the token module, the words the token counts
+/// outgrow the ledger, stands spelled once in the token
+/// source, in the one definition the big integer arm of
+/// the count reading reads through the refusal helper
+/// and the two width arms of the figures building read
+/// through the same helper, and this pin reads that
+/// source and counts the spellings. It fails on the
+/// tree slice 21 starts from, where the sentence stands
+/// spelled three times, and it passes on the gathered
+/// tree.
+#[test]
+fn test_the_token_counts_outgrow_sentence_stands_spelled_once_in_the_token_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("token.rs"),
+    )
+    .expect("the token source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the token counts outgrow the ledger\"")
+            .count(),
+        1,
+        "the outgrow sentence stands spelled once in the token source"
+    );
+    assert!(
+        source.matches("TOKEN_COUNTS_OUTGROW").count() >= 4,
+        "the outgrow definition stands named at its definition and at the three places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The price template
+/// of the token module, the words the price per token
+/// must be nonnegative under the price named by the
+/// caller, stands spelled once in the token source, in
+/// the one wording function the two arms of the price
+/// reading read, and this pin reads that source and
+/// counts the spellings. It fails on the tree slice 21
+/// starts from, where the template stands spelled
+/// twice, once in each arm, and it passes on the
+/// gathered tree.
+#[test]
+fn test_the_token_price_template_stands_spelled_once_in_the_token_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("token.rs"),
+    )
+    .expect("the token source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the {which} price per token must be nonnegative\"")
+            .count(),
+        1,
+        "the price template stands spelled once in the token source"
+    );
+    assert!(
+        source.matches("nonnegative_price_wording").count() >= 3,
+        "the price wording function stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The nonnegative
+/// sentence of the ledger module, the words the price
+/// per minute must be nonnegative, stands spelled once
+/// in the ledger source, in the one definition the two
+/// arms of the pricing function read, and this pin
+/// reads that source and counts the spellings. It fails
+/// on the tree slice 21 starts from, where the sentence
+/// stands spelled twice, and it passes on the gathered
+/// tree.
+#[test]
+fn test_the_price_per_minute_sentence_stands_spelled_once_in_the_ledger_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ledger.rs"),
+    )
+    .expect("the ledger source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the price per minute must be nonnegative\"")
+            .count(),
+        1,
+        "the nonnegative sentence stands spelled once in the ledger source"
+    );
+    assert!(
+        source.matches("NONNEGATIVE_PRICE_WORDING").count() >= 3,
+        "the nonnegative definition stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The disagreement
+/// sentence of the ledger module, the words the
+/// evidence packs disagree with the ledger, stands
+/// spelled once in the ledger source, in the one
+/// definition the two arms of the pack validation read,
+/// and this pin reads that source and counts the
+/// spellings. It fails on the tree slice 21 starts from,
+/// where the sentence stands spelled twice, and it
+/// passes on the gathered tree.
+#[test]
+fn test_the_packs_disagreement_sentence_stands_spelled_once_in_the_ledger_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ledger.rs"),
+    )
+    .expect("the ledger source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the evidence packs disagree with the ledger\"")
+            .count(),
+        1,
+        "the disagreement sentence stands spelled once in the ledger source"
+    );
+    assert!(
+        source.matches("PACKS_DISAGREEMENT_WORDING").count() >= 3,
+        "the disagreement definition stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 21. The packs read
+/// sentence of the main module, the words the evidence
+/// packs could not be read, stands spelled once in the
+/// main source, in the one definition the two map error
+/// seats of the check packs branch of the door read on
+/// the reading expression form, and this pin reads that
+/// source and counts the spellings. It fails on the
+/// tree slice 21 starts from, where the sentence stands
+/// spelled twice, and it passes on the gathered tree.
+#[test]
+fn test_the_evidence_packs_read_sentence_stands_spelled_once_in_the_main_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("main.rs"),
+    )
+    .expect("the main source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the evidence packs could not be read\"")
+            .count(),
+        1,
+        "the packs read sentence stands spelled once in the main source"
+    );
+    assert!(
+        source.matches("EVIDENCE_PACKS_READ").count() >= 3,
+        "the packs read definition stands named at its definition and at the two places that read it"
+    );
+}

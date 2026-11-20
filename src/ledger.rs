@@ -20,6 +20,8 @@ use crate::models::{CommitRecord, RunRecord};
 pub const LEDGER_FORMAT: &str = "catchledger-ledger/1";
 pub const PACK_FORMAT: &str = "catchledger-pack/1";
 pub const DEFAULT_COST_PER_MINUTE: &str = "0.008";
+const NONNEGATIVE_PRICE_WORDING: &str = "the price per minute must be nonnegative";
+const PACKS_DISAGREEMENT_WORDING: &str = "the evidence packs disagree with the ledger";
 
 // ---------------------------------------------------------------------
 // The decimal pipeline of the Python ledger module
@@ -36,18 +38,12 @@ fn pricing(cost_per_minute: &str) -> Result<(JsonValue, DecimalValue), Catchledg
         }
     };
     match &rate {
-        DecimalValue::NonFinite => {
-            return Err(CatchledgerError::new(
-                "the price per minute must be nonnegative",
-            ))
-        }
+        DecimalValue::NonFinite => return Err(CatchledgerError::new(NONNEGATIVE_PRICE_WORDING)),
         DecimalValue::Finite {
             negative, coeff, ..
         } => {
             if *negative && !coeff.is_zero() {
-                return Err(CatchledgerError::new(
-                    "the price per minute must be nonnegative",
-                ));
+                return Err(CatchledgerError::new(NONNEGATIVE_PRICE_WORDING));
             }
         }
     }
@@ -696,18 +692,14 @@ pub fn validate_evidence_packs(
 ) -> Result<bool, PackValidationError> {
     let expected_packs = build_evidence_packs(ledger)?;
     if supplied.len() != expected_packs.len() {
-        return Err(PackValidationError::new(
-            "the evidence packs disagree with the ledger",
-        ));
+        return Err(PackValidationError::new(PACKS_DISAGREEMENT_WORDING));
     }
     for (filename, expected) in &expected_packs {
         let stands = supplied
             .iter()
             .any(|(name, pack)| name == filename && pack == expected);
         if !stands {
-            return Err(PackValidationError::new(
-                "the evidence packs disagree with the ledger",
-            ));
+            return Err(PackValidationError::new(PACKS_DISAGREEMENT_WORDING));
         }
     }
     Ok(true)
