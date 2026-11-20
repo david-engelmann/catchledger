@@ -8,7 +8,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use catchledger::decimal::parse_decimal;
+use catchledger::decimal::{decimal_div, decimal_mul, parse_decimal, DecimalValue};
 use catchledger::jsonvalue::JsonValue;
 use catchledger::models::RunRecord;
 use catchledger::reader::read_json_document;
@@ -491,4 +491,117 @@ fn test_a_token_count_past_the_signed_width_refuses_in_the_outgrow_sentence() {
         "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"7\", \"input_tokens\": 99999999999999999999999999, \"output_tokens\": 2}]}",
     ));
     assert_eq!(error.message(), "the token counts outgrow the ledger");
+}
+
+/// The structural pin of slice 25. The context
+/// rounding tail stands spelled once in the decimal
+/// source, in the one helper context rounding and
+/// division read at their tails, and this pin reads
+/// that source and counts the spellings. It fails on
+/// the tree slice 25 starts from, at its spelling
+/// count, the tail standing spelled at the two tails
+/// while the gathered name stands at no standing,
+/// and it passes on the gathered tree.
+#[test]
+fn test_the_rounding_tail_stands_spelled_once_in_the_decimal_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("decimal.rs"),
+    )
+    .expect("the decimal source stands in the tree");
+    assert_eq!(
+        source.matches("dropped.cmp(&half)").count(),
+        1,
+        "the rounding tail stands spelled once in the decimal source"
+    );
+    assert!(
+        source.matches("round_digit_text").count() >= 3,
+        "the rounding helper stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The spelling of a decimal result for the pin of
+/// slice 25, its coefficient text and its power of
+/// ten exponent read through the public surface.
+fn rounded_spelling(value: &DecimalValue) -> (String, i64) {
+    match value {
+        DecimalValue::Finite { coeff, exp10, .. } => (coeff.to_decimal_string(), *exp10),
+        DecimalValue::NonFinite => panic!("a finite value stands"),
+    }
+}
+
+/// The behavioural pin of slice 25. The context
+/// rounding of the decimal module rounds exact ties
+/// to even under the bare digit test and rounds an
+/// exact tie up where a remainder stands beyond it
+/// at division, and this pin drives multiplication
+/// and division at exact tie values in both sticky
+/// postures through the public surface and asserts
+/// the rounded coefficient and the exponent at each
+/// cell. It passes on the tree slice 25 starts from,
+/// the tail standing correct there at both of its
+/// spellings, and it fails the moment either spelling
+/// parts from the stated rounding, so it binds the
+/// tie cells no recorded answer reaches.
+#[test]
+fn test_decimal_ties_round_as_the_context_states_at_multiplication_and_division() {
+    let one = parse_decimal("1").expect("one parses");
+    let two = parse_decimal("2").expect("two parses");
+    // An exact tie at multiplication on an even kept
+    // digit rounds to even, the kept digit standing.
+    let product = decimal_mul(
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+        &one,
+    );
+    assert_eq!(
+        rounded_spelling(&product),
+        ("1000000000000000000000000002".to_string(), 1)
+    );
+    // An exact tie at multiplication on an odd kept
+    // digit rounds up.
+    let product = decimal_mul(
+        &parse_decimal("10000000000000000000000000035").expect("the operand parses"),
+        &one,
+    );
+    assert_eq!(
+        rounded_spelling(&product),
+        ("1000000000000000000000000004".to_string(), 1)
+    );
+    // An exact tie at division with no remainder
+    // beyond it rounds to even on an even kept digit,
+    // under the bare digit test.
+    let quotient = decimal_div(
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+        &one,
+    );
+    assert_eq!(
+        rounded_spelling(&quotient),
+        ("1000000000000000000000000002".to_string(), 1)
+    );
+    // An exact tie at division with no remainder
+    // beyond it rounds up on an odd kept digit.
+    let quotient = decimal_div(
+        &parse_decimal("10000000000000000000000000035").expect("the operand parses"),
+        &one,
+    );
+    assert_eq!(
+        rounded_spelling(&quotient),
+        ("1000000000000000000000000004".to_string(), 1)
+    );
+    // An exact tie at division with a remainder
+    // beyond it rounds up on an even kept digit, the
+    // cell the sticky standing alone moves, the bare
+    // digit test at this cell rounding to even. The
+    // quotient digits stand at
+    // 100000000000000000000000000250 with a remainder
+    // of one standing beyond them.
+    let quotient = decimal_div(
+        &parse_decimal("200000000000000000000000000501").expect("the operand parses"),
+        &two,
+    );
+    assert_eq!(
+        rounded_spelling(&quotient),
+        ("1000000000000000000000000003".to_string(), 2)
+    );
 }

@@ -133,6 +133,30 @@ pub fn parse_decimal(text: &str) -> Result<DecimalValue, ()> {
     })
 }
 
+/// Round a digit text to the context digit count, halves to even.
+///
+/// The dropped digits stand in full, so the tie reading is exact.
+/// The sticky standing records a remainder beyond the digit text,
+/// and an exact tie with the standing standing rounds up where
+/// the bare digit test rounds to even. The rounded coefficient
+/// stands returned with the count of dropped digits.
+fn round_digit_text(text: &str, sticky: bool) -> (BigUint, i64) {
+    let drop = text.len() - CONTEXT_DIGITS;
+    let kept = &text[..CONTEXT_DIGITS];
+    let dropped = &text[CONTEXT_DIGITS..];
+    let half = format!("5{}", "0".repeat(drop - 1));
+    let round_up = match dropped.cmp(&half) {
+        Ordering::Greater => true,
+        Ordering::Less => false,
+        Ordering::Equal => sticky || kept.as_bytes()[CONTEXT_DIGITS - 1] % 2 == 1,
+    };
+    let mut kept_value = BigUint::from_decimal_digits(kept);
+    if round_up {
+        kept_value = kept_value.add_u64(1);
+    }
+    (kept_value, drop as i64)
+}
+
 /// Round a coefficient to the context digit count, halves to even.
 ///
 /// The dropped digits stand in full, so the tie reading is exact.
@@ -145,20 +169,8 @@ fn context_round(coeff: BigUint, exp10: i64) -> (BigUint, i64) {
     if text.len() <= CONTEXT_DIGITS {
         return (coeff, exp10);
     }
-    let drop = text.len() - CONTEXT_DIGITS;
-    let kept = &text[..CONTEXT_DIGITS];
-    let dropped = &text[CONTEXT_DIGITS..];
-    let half = format!("5{}", "0".repeat(drop - 1));
-    let round_up = match dropped.cmp(&half) {
-        Ordering::Greater => true,
-        Ordering::Less => false,
-        Ordering::Equal => kept.as_bytes()[CONTEXT_DIGITS - 1] % 2 == 1,
-    };
-    let mut kept_value = BigUint::from_decimal_digits(kept);
-    if round_up {
-        kept_value = kept_value.add_u64(1);
-    }
-    (kept_value, exp10 + drop as i64)
+    let (kept_value, drop) = round_digit_text(&text, false);
+    (kept_value, exp10 + drop)
 }
 
 /// Multiply two finite decimals under the context.
@@ -287,23 +299,11 @@ pub fn decimal_div(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
             exp10: base_exp,
         };
     }
-    let drop = text.len() - CONTEXT_DIGITS;
-    let kept = &text[..CONTEXT_DIGITS];
-    let dropped = &text[CONTEXT_DIGITS..];
-    let half = format!("5{}", "0".repeat(drop - 1));
-    let round_up = match dropped.cmp(&half) {
-        Ordering::Greater => true,
-        Ordering::Less => false,
-        Ordering::Equal => sticky || kept.as_bytes()[CONTEXT_DIGITS - 1] % 2 == 1,
-    };
-    let mut kept_value = BigUint::from_decimal_digits(kept);
-    if round_up {
-        kept_value = kept_value.add_u64(1);
-    }
+    let (kept_value, drop) = round_digit_text(&text, sticky);
     DecimalValue::Finite {
         negative,
         coeff: kept_value,
-        exp10: base_exp + drop as i64,
+        exp10: base_exp + drop,
     }
 }
 
