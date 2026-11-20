@@ -1018,3 +1018,68 @@ fn test_the_currency_word_stands_spelled_nowhere_in_the_token_source() {
         "the currency name stands named at its import and at the place that reads it"
     );
 }
+
+/// The structural pin of slice 23. The check message,
+/// the words the check mode stands on a usage
+/// document, stands spelled once in the main source,
+/// in the one definition the check token cost branch
+/// of the door reads at its two expect seats, and
+/// this pin reads that source and counts the
+/// spellings. It fails on the tree slice 23 starts
+/// from, at its spelling count, the message standing
+/// spelled twice at the two seats while the gathered
+/// name stands at no standing, and it passes on the
+/// gathered tree.
+#[test]
+fn test_the_check_message_stands_spelled_once_in_the_main_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("main.rs"),
+    )
+    .expect("the main source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"the check mode stands on a usage document\"")
+            .count(),
+        1,
+        "the check message stands spelled once in the main source"
+    );
+    assert!(
+        source.matches("CHECK_USAGE_MESSAGE").count() >= 3,
+        "the check message definition stands named at its definition and at the two places that read it"
+    );
+}
+
+/// The structural pin of slice 23. The scientific
+/// message, the words scientific spelling always
+/// carries an exponent, stands spelled once in the
+/// render source, in the one definition the float
+/// spelling function reads at its two expect seats,
+/// and this pin reads that source and counts the
+/// spellings, the first pin of the suite to read
+/// that source. It fails on the tree slice 23 starts
+/// from, at its spelling count, the message standing
+/// spelled twice at the two seats while the gathered
+/// name stands at no standing, and it passes on the
+/// gathered tree.
+#[test]
+fn test_the_scientific_message_stands_spelled_once_in_the_render_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("render.rs"),
+    )
+    .expect("the render source stands in the tree");
+    assert_eq!(
+        source
+            .matches("\"scientific spelling always carries an exponent\"")
+            .count(),
+        1,
+        "the scientific message stands spelled once in the render source"
+    );
+    assert!(
+        source.matches("EXPONENT_MARKER_MESSAGE").count() >= 3,
+        "the scientific message definition stands named at its definition and at the two places that read it"
+    );
+}
