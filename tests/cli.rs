@@ -959,3 +959,62 @@ fn test_the_evidence_packs_read_sentence_stands_spelled_once_in_the_main_source(
         "the packs read definition stands named at its definition and at the two places that read it"
     );
 }
+
+/// The structural pin of slice 22. The currency word
+/// of the pricing, the word USD, stands spelled once
+/// in the ledger source, in the one definition the
+/// pricing function reads at the currency field of the
+/// pricing record it builds, and this pin reads that
+/// source and counts the spellings. It fails on the
+/// tree slice 22 starts from, at its name assertion,
+/// the word already standing spelled once in this
+/// source at the pricing seat itself while the
+/// gathered name stands at no standing, and it passes
+/// on the gathered tree.
+#[test]
+fn test_the_currency_word_stands_spelled_once_in_the_ledger_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ledger.rs"),
+    )
+    .expect("the ledger source stands in the tree");
+    assert_eq!(
+        source.matches("\"USD\"").count(),
+        1,
+        "the currency word stands spelled once in the ledger source"
+    );
+    assert!(
+        source.matches("CURRENCY_WORD").count() >= 2,
+        "the currency definition stands named at its definition and at the place that reads it"
+    );
+}
+
+/// The structural pin of slice 22. The currency word
+/// of the pricing, the word USD, stands spelled
+/// nowhere in the token source, the pricing object of
+/// the token cost document reading the word from the
+/// one definition in the ledger module through its
+/// import, and this pin reads that source and counts
+/// the spellings. It fails on the tree slice 22 starts
+/// from, where the word stands spelled once at the
+/// currency field of the pricing object, and it passes
+/// on the gathered tree.
+#[test]
+fn test_the_currency_word_stands_spelled_nowhere_in_the_token_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("token.rs"),
+    )
+    .expect("the token source stands in the tree");
+    assert_eq!(
+        source.matches("\"USD\"").count(),
+        0,
+        "the currency word stands spelled nowhere in the token source"
+    );
+    assert!(
+        source.matches("CURRENCY_WORD").count() >= 2,
+        "the currency name stands named at its import and at the place that reads it"
+    );
+}
