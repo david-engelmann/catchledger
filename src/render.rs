@@ -5,6 +5,8 @@
 
 use crate::jsonvalue::JsonValue;
 
+const EXPONENT_MARKER_MESSAGE: &str = "scientific spelling always carries an exponent";
+
 pub(crate) fn escape_string(text: &str, out: &mut String) {
     out.push('"');
     for ch in text.chars() {
@@ -48,9 +50,7 @@ pub fn json_float_text(value: f64) -> String {
         return format!("{sign}0.0");
     }
     let scientific = format!("{magnitude:e}");
-    let (mantissa, exponent_text) = scientific
-        .split_once('e')
-        .expect("scientific spelling always carries an exponent");
+    let (mantissa, exponent_text) = scientific.split_once('e').expect(EXPONENT_MARKER_MESSAGE);
     let exponent: i32 = exponent_text
         .parse()
         .expect("scientific exponent always parses");
@@ -70,7 +70,7 @@ pub fn json_float_text(value: f64) -> String {
     let exact = format!("{magnitude:.767e}");
     let exact_digits: String = exact
         .split_once('e')
-        .expect("scientific spelling always carries an exponent")
+        .expect(EXPONENT_MARKER_MESSAGE)
         .0
         .chars()
         .filter(|ch| *ch != '.')

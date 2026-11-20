@@ -51,6 +51,7 @@ struct FlagSpec {
 }
 
 const EVIDENCE_PACKS_READ: &str = "the evidence packs could not be read";
+const CHECK_USAGE_MESSAGE: &str = "the check mode stands on a usage document";
 
 const FLAGS: &[FlagSpec] = &[
     FlagSpec {
@@ -529,8 +530,8 @@ fn door(values: &Values) -> Result<(), String> {
     let ledger_text = render_json(&ledger);
     if let Some(check_path) = values.get("check-token-cost") {
         let (supplied, _supplied_digest) = read_document(&PathBuf::from(check_path), "token cost")?;
-        let figures = figures.expect("the check mode stands on a usage document");
-        let usage_digest = usage_digest.expect("the check mode stands on a usage document");
+        let figures = figures.expect(CHECK_USAGE_MESSAGE);
+        let usage_digest = usage_digest.expect(CHECK_USAGE_MESSAGE);
         validate_token_cost(
             &supplied,
             &figures,
