@@ -20,6 +20,7 @@ use crate::models::{CommitRecord, RunRecord};
 pub const LEDGER_FORMAT: &str = "catchledger-ledger/1";
 pub const PACK_FORMAT: &str = "catchledger-pack/1";
 pub const DEFAULT_COST_PER_MINUTE: &str = "0.008";
+pub const CURRENCY_WORD: &str = "USD";
 const NONNEGATIVE_PRICE_WORDING: &str = "the price per minute must be nonnegative";
 const PACKS_DISAGREEMENT_WORDING: &str = "the evidence packs disagree with the ledger";
 
@@ -48,7 +49,7 @@ fn pricing(cost_per_minute: &str) -> Result<(JsonValue, DecimalValue), Catchledg
         }
     }
     let record = JsonValue::object(vec![
-        ("currency", JsonValue::Text("USD".to_string())),
+        ("currency", JsonValue::Text(CURRENCY_WORD.to_string())),
         ("cost_per_minute", JsonValue::Text(text)),
     ]);
     Ok((record, rate))
