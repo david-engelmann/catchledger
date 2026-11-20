@@ -440,3 +440,31 @@ fn test_the_not_available_spelling_stands_spelled_once_in_the_report_source() {
         "the not available definition stands named at its definition and at the four places that read it"
     );
 }
+
+/// The structural pin of slice 19. The separator line of
+/// the two column tables of the report stands spelled
+/// once in the report source, in the one definition the
+/// totals push and the scorecard push and the canaryfield
+/// counts push inside render_markdown read, and this pin
+/// reads that source and counts the spellings. It fails
+/// on the tree slice 19 starts from, where the line
+/// stands spelled three times, once under each two
+/// column header, and it passes on the gathered tree.
+#[test]
+fn test_the_two_column_separator_stands_spelled_once_in_the_report_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    assert_eq!(
+        source.matches("\"| --- | ---: |\"").count(),
+        1,
+        "the two column separator stands spelled once in the report source"
+    );
+    assert!(
+        source.matches("TWO_COLUMN_SEPARATOR").count() >= 4,
+        "the separator definition stands named at its definition and at the three places that read it"
+    );
+}
