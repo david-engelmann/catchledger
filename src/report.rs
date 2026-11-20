@@ -15,6 +15,13 @@ use crate::token::TokenFigures;
 /// spelling.
 const NOT_AVAILABLE_TEXT: &str = "not available";
 
+/// The separator line of the two column tables of the
+/// report, read at the totals push and at the scorecard
+/// push and at the canaryfield counts push inside
+/// render_markdown, spelled once here so the three
+/// places that write it cannot drift apart in spelling.
+const TWO_COLUMN_SEPARATOR: &str = "| --- | ---: |";
+
 fn render_error() -> CatchledgerError {
     CatchledgerError::new("the ledger cannot be rendered")
 }
@@ -165,7 +172,7 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
     lines.push("## Totals".to_string());
     lines.push(String::new());
     lines.push("| Measure | Value |".to_string());
-    lines.push("| --- | ---: |".to_string());
+    lines.push(TWO_COLUMN_SEPARATOR.to_string());
     let totals = field(ledger, "totals")?;
     let total_rows: Vec<(String, String)> = vec![
         ("Fires".into(), plain_int(field(totals, "fires")?)?),
@@ -210,7 +217,7 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
         lines.push("### Scorecard".to_string());
         lines.push(String::new());
         lines.push("| Field | Value |".to_string());
-        lines.push("| --- | ---: |".to_string());
+        lines.push(TWO_COLUMN_SEPARATOR.to_string());
         for (label, value) in scorecard_rows(field(check, "scorecard")?)? {
             lines.push(format!("| {label} | {} |", cell(&JsonValue::Text(value))?));
         }
@@ -265,7 +272,7 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
             lines.push("No canaryfield results stand for this check.".to_string());
         } else {
             lines.push("| Result | Count |".to_string());
-            lines.push("| --- | ---: |".to_string());
+            lines.push(TWO_COLUMN_SEPARATOR.to_string());
             let counts = field(canary, "counts")?;
             for word in CANARY_RESULT_WORDS {
                 lines.push(format!("| {word} | {} |", plain_int(field(counts, word)?)?));
