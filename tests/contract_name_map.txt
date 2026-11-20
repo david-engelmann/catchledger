@@ -175,3 +175,4 @@ test_the_currency_word_stands_spelled_nowhere_in_the_token_source | rust-test | 
 test_the_currency_word_stands_spelled_nowhere_in_the_report_source | rust-test | tests/report_check.rs | test_the_currency_word_stands_spelled_nowhere_in_the_report_source
 test_the_check_message_stands_spelled_once_in_the_main_source | rust-test | tests/cli.rs | test_the_check_message_stands_spelled_once_in_the_main_source
 test_the_scientific_message_stands_spelled_once_in_the_render_source | rust-test | tests/cli.rs | test_the_scientific_message_stands_spelled_once_in_the_render_source
+test_the_runs_label_stands_spelled_once_in_the_ledger_source | rust-test | tests/cli.rs | test_the_runs_label_stands_spelled_once_in_the_ledger_source
