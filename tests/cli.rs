@@ -588,3 +588,61 @@ fn test_the_default_price_stands_spelled_once_in_the_production_source() {
         "the default price definition stands named in its import and at its fallback"
     );
 }
+
+/// The structural pin of slice 18. The two refusal
+/// wordings of the reader, the wording that a document
+/// could not be read and the wording that a document
+/// is not valid JSON, each stand spelled once in the
+/// production source, inside the wording functions of
+/// the reader module, and the reader reads them at its
+/// refusal helper and at the two arms of its file
+/// reading and the command line door reads them at the
+/// two arms of its read document helper, the names
+/// standing in the reader import of the main module
+/// and at the reading site of each there, and this pin
+/// reads the production source whole and counts the
+/// spellings and the standings of the names in the main
+/// source. It fails on the tree slice 18 starts from,
+/// where the not valid wording stands spelled three
+/// times, at the refusal helper and at the file reading
+/// of the reader and at the read document helper of the
+/// door, and the read wording stands spelled twice, at
+/// the file reading and at the door, and the wording
+/// functions stand named nowhere in the main module,
+/// and it passes on the gathered tree.
+#[test]
+fn test_the_reader_refusal_wordings_stand_spelled_once_in_the_production_source() {
+    let source_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let entries =
+        std::fs::read_dir(&source_dir).expect("the production source stands in the tree");
+    let mut not_valid_spellings = 0;
+    let mut read_spellings = 0;
+    for entry in entries {
+        let path = entry.expect("a production source entry reads").path();
+        if path.to_string_lossy().ends_with(".rs") {
+            let text = std::fs::read_to_string(&path).expect("a production source file reads");
+            not_valid_spellings += text.matches("\"the {label} is not valid JSON\"").count();
+            read_spellings += text.matches("\"the {label} could not be read\"").count();
+        }
+    }
+    assert_eq!(
+        not_valid_spellings, 1,
+        "the not valid JSON wording stands spelled once in the production source"
+    );
+    assert_eq!(
+        read_spellings, 1,
+        "the could not be read wording stands spelled once in the production source"
+    );
+    let main_source = std::fs::read_to_string(source_dir.join("main.rs"))
+        .expect("the main source stands in the tree");
+    assert_eq!(
+        main_source.matches("could_not_be_read_wording").count(),
+        2,
+        "the could not be read wording function stands named in its import and at its reading site"
+    );
+    assert_eq!(
+        main_source.matches("not_valid_json_wording").count(),
+        2,
+        "the not valid JSON wording function stands named in its import and at its reading site"
+    );
+}
