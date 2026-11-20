@@ -474,3 +474,21 @@ fn test_token_cost_document_field_order() {
         ["format", "repo", "pricing", "source", "checks", "totals"]
     );
 }
+
+/// The behavioural pin of slice 21. A token count
+/// standing as a big integer past the signed width in
+/// one entry of a usage document refuses in the outgrow
+/// sentence of the token module, the one sentence of
+/// the gathering of slice 21 no recorded answer and no
+/// standing pin reaches. The pin passes on the tree
+/// slice 21 starts from, the sentence standing correct
+/// there at the arm no witness reaches, and it fails
+/// the moment that seat its wording parts or falls, so
+/// it binds the unwitnessed member of the family.
+#[test]
+fn test_a_token_count_past_the_signed_width_refuses_in_the_outgrow_sentence() {
+    let error = refusal_of(usage_from(
+        "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"7\", \"input_tokens\": 99999999999999999999999999, \"output_tokens\": 2}]}",
+    ));
+    assert_eq!(error.message(), "the token counts outgrow the ledger");
+}
