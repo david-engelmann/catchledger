@@ -27,7 +27,7 @@ use catchledger::ingest::{
 use catchledger::jsonvalue::JsonValue;
 use catchledger::ledger::{
     build_evidence_packs, build_ledger, validate_evidence_pack, validate_evidence_packs,
-    validate_ledger, LedgerInputs,
+    validate_ledger, LedgerInputs, DEFAULT_COST_PER_MINUTE,
 };
 use catchledger::reader::read_json_document;
 use catchledger::render::render_json;
@@ -504,7 +504,7 @@ fn door(values: &Values) -> Result<(), String> {
     };
     let price = match values.get("cost-per-minute") {
         Some(text) => word_text(text),
-        None => "0.008".to_string(),
+        None => DEFAULT_COST_PER_MINUTE.to_string(),
     };
     let inputs = LedgerInputs {
         repo,
