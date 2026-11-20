@@ -302,17 +302,26 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
     Ok(format!("{trimmed}\n"))
 }
 
+/// The opening lines of the token section, the frame the
+/// renderer emits and the frame scan inside validate_report
+/// reads back, spelled once here so the two sides cannot
+/// drift apart in spelling.
+const TOKEN_SECTION_FRAME: [&str; 4] = [
+    "## Token costs",
+    "",
+    "| Check | Input tokens | Output tokens | Token cost |",
+    "| --- | ---: | ---: | ---: |",
+];
+
 /// Render the token costs section the report carries where a
 /// token usage document stood, in the report's own table shape.
 /// The section stands after the standing sections, and the
 /// totals line closes it in the same words as its check lines.
 pub fn render_token_section(figures: &TokenFigures) -> String {
-    let mut lines: Vec<String> = vec![
-        "## Token costs".to_string(),
-        String::new(),
-        "| Check | Input tokens | Output tokens | Token cost |".to_string(),
-        "| --- | ---: | ---: | ---: |".to_string(),
-    ];
+    let mut lines: Vec<String> = TOKEN_SECTION_FRAME
+        .iter()
+        .map(|line| line.to_string())
+        .collect();
     for check in &figures.checks {
         lines.push(format!(
             "| {} | {} | {} | {} |",
@@ -368,11 +377,10 @@ pub fn validate_report(
         let lines: Vec<&[u8]> = supplied.split(|byte| *byte == b'\n').collect();
         let token_side = figures.is_some()
             || lines.windows(4).any(|frame| {
-                frame[0] == "## Token costs".as_bytes()
-                    && frame[1].is_empty()
-                    && frame[2]
-                        == "| Check | Input tokens | Output tokens | Token cost |".as_bytes()
-                    && frame[3] == "| --- | ---: | ---: | ---: |".as_bytes()
+                frame
+                    .iter()
+                    .zip(TOKEN_SECTION_FRAME.iter())
+                    .all(|(line, member)| *line == member.as_bytes())
             });
         if token_side {
             return Err(CatchledgerError::new(
