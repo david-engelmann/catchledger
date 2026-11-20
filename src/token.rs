@@ -21,6 +21,14 @@ use crate::models::RunRecord;
 pub const TOKEN_USAGE_FORMAT: &str = "catchledger-token-usage/1";
 pub const TOKEN_COST_FORMAT: &str = "catchledger-token-cost/1";
 
+const TOKEN_COUNTS_OUTGROW: &str = "the token counts outgrow the ledger";
+
+/// The wording of the refusal that a token price stands
+/// below zero or not finite, under the price named.
+fn nonnegative_price_wording(which: &str) -> String {
+    format!("the {which} price per token must be nonnegative")
+}
+
 /// Read one token price text the way the price reading of
 /// PORT-4 reads the minute price, refusing a text that is not a
 /// decimal number and a value that stands below zero or is not
@@ -36,14 +44,10 @@ pub fn read_token_price(text: &str, which: &str) -> Result<DecimalValue, Catchle
         }
     };
     match &rate {
-        DecimalValue::NonFinite => Err(refusal(&format!(
-            "the {which} price per token must be nonnegative"
-        ))),
+        DecimalValue::NonFinite => Err(refusal(&nonnegative_price_wording(which))),
         DecimalValue::Finite {
             negative, coeff, ..
-        } if *negative && !coeff.is_zero() => Err(refusal(&format!(
-            "the {which} price per token must be nonnegative"
-        ))),
+        } if *negative && !coeff.is_zero() => Err(refusal(&nonnegative_price_wording(which))),
         _ => Ok(rate),
     }
 }
@@ -64,7 +68,7 @@ fn read_count(entry: &JsonValue, field: &str) -> Result<i64, CatchledgerError> {
         Some(JsonValue::Int(_)) => Err(refusal(&format!(
             "the {field} of a token usage entry must not be negative"
         ))),
-        Some(JsonValue::BigInt(_)) => Err(refusal("the token counts outgrow the ledger")),
+        Some(JsonValue::BigInt(_)) => Err(refusal(TOKEN_COUNTS_OUTGROW)),
         _ => Err(refusal(&format!(
             "the {field} of a token usage entry must be an integer"
         ))),
@@ -192,7 +196,7 @@ pub fn build_token_figures(
             }
         }
         if input_sum > i64::MAX as i128 || output_sum > i64::MAX as i128 {
-            return Err(refusal("the token counts outgrow the ledger"));
+            return Err(refusal(TOKEN_COUNTS_OUTGROW));
         }
         let (input_tokens, output_tokens) = (input_sum as i64, output_sum as i64);
         total_input += input_sum;
@@ -209,7 +213,7 @@ pub fn build_token_figures(
         });
     }
     if total_input > i64::MAX as i128 || total_output > i64::MAX as i128 {
-        return Err(refusal("the token counts outgrow the ledger"));
+        return Err(refusal(TOKEN_COUNTS_OUTGROW));
     }
     Ok(TokenFigures {
         checks,
