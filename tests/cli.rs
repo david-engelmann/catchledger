@@ -613,8 +613,7 @@ fn test_the_default_price_stands_spelled_once_in_the_production_source() {
 #[test]
 fn test_the_reader_refusal_wordings_stand_spelled_once_in_the_production_source() {
     let source_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let entries =
-        std::fs::read_dir(&source_dir).expect("the production source stands in the tree");
+    let entries = std::fs::read_dir(&source_dir).expect("the production source stands in the tree");
     let mut not_valid_spellings = 0;
     let mut read_spellings = 0;
     for entry in entries {

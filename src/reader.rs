@@ -36,8 +36,8 @@ pub fn read_json_document(text: &str, label: &str) -> Result<JsonValue, Catchled
 
 /// Read and decode a JSON document from a local file.
 pub fn read_json_file(path: &Path, label: &str) -> Result<JsonValue, CatchledgerError> {
-    let data = std::fs::read(path)
-        .map_err(|_| CatchledgerError::new(could_not_be_read_wording(label)))?;
+    let data =
+        std::fs::read(path).map_err(|_| CatchledgerError::new(could_not_be_read_wording(label)))?;
     let text = String::from_utf8(data)
         .map_err(|_| CatchledgerError::new(not_valid_json_wording(label)))?;
     read_json_document(&text, label)
