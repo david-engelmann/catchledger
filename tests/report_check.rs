@@ -7,6 +7,9 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use catchledger::jsonvalue::JsonValue;
+use catchledger::render_markdown;
+
 const USAGE_DOCUMENT: &str = "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}";
 
 struct ScratchDir(PathBuf);
@@ -466,5 +469,182 @@ fn test_the_two_column_separator_stands_spelled_once_in_the_report_source() {
     assert!(
         source.matches("TWO_COLUMN_SEPARATOR").count() >= 4,
         "the separator definition stands named at its definition and at the three places that read it"
+    );
+}
+
+/// The structural pin of slice 20. The special spellings
+/// of a float in a report cell stand spelled once in the
+/// report source, in the one shared helper the plain cell
+/// helper and the six place helper read at their heads,
+/// and this pin reads that source and counts the
+/// spellings. It fails on the tree slice 20 starts from,
+/// where each spelling stands twice, once in each helper,
+/// and it passes on the gathered tree.
+#[test]
+fn test_the_float_special_spellings_stand_spelled_once_in_the_report_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    for spelling in ["\"nan\"", "\"inf\"", "\"-inf\""] {
+        assert_eq!(
+            source.matches(spelling).count(),
+            1,
+            "the float special spelling {spelling} stands spelled once in the report source"
+        );
+    }
+    assert!(
+        source.matches("special_float_text").count() >= 3,
+        "the shared helper stands named at its definition and at the two places that read it"
+    );
+}
+
+/// Build the crafted ledger the behavioural pin of slice
+/// 20 renders, a ledger whose one check carries a catch
+/// record of three entries whose started_at fields carry
+/// the three special floats, a not a number value and a
+/// positive infinite value and a negative infinite value,
+/// every other field standing at a plain standing.
+fn crafted_ledger_with_special_started_at() -> JsonValue {
+    let entry = |started: JsonValue| {
+        JsonValue::object(vec![
+            ("block_run_id", JsonValue::Text("run-1".to_string())),
+            ("blocked_commit", JsonValue::Text("commit-1".to_string())),
+            ("started_at", started),
+            ("outcome", JsonValue::Text("blocked".to_string())),
+            (
+                "evidence",
+                JsonValue::object(vec![
+                    ("fix_commits", JsonValue::List(Vec::new())),
+                    ("validating_run_id", JsonValue::Text("run-2".to_string())),
+                    ("reason", JsonValue::Text("synthetic reason".to_string())),
+                ]),
+            ),
+        ])
+    };
+    JsonValue::object(vec![
+        ("repo", JsonValue::Text("synthetic/repo".to_string())),
+        (
+            "totals",
+            JsonValue::object(vec![
+                ("fires", JsonValue::Int(3)),
+                ("blocks", JsonValue::Int(3)),
+                ("catches", JsonValue::Int(0)),
+                ("false_blocks", JsonValue::Int(0)),
+                ("unattributed_blocks", JsonValue::Int(0)),
+                ("false_block_rate", JsonValue::Int(0)),
+                ("runtime_seconds", JsonValue::Int(0)),
+                ("runtime_minutes", JsonValue::Int(0)),
+                ("total_cost_usd", JsonValue::Int(0)),
+            ]),
+        ),
+        (
+            "checks",
+            JsonValue::List(vec![JsonValue::object(vec![
+                ("name", JsonValue::Text("unit checks".to_string())),
+                (
+                    "scorecard",
+                    JsonValue::object(vec![
+                        ("fires", JsonValue::Int(3)),
+                        ("blocks", JsonValue::Int(3)),
+                        ("judged_commits", JsonValue::Int(3)),
+                        ("flaky_commits", JsonValue::Int(0)),
+                        ("flake_rate", JsonValue::Int(0)),
+                        ("runtime_seconds", JsonValue::Int(0)),
+                        ("runtime_minutes", JsonValue::Int(0)),
+                        ("catches", JsonValue::Int(0)),
+                        ("false_blocks", JsonValue::Int(0)),
+                        ("unattributed_blocks", JsonValue::Int(0)),
+                        ("false_block_rate", JsonValue::Int(0)),
+                        ("total_cost_usd", JsonValue::Int(0)),
+                        ("cost_per_catch_usd", JsonValue::Int(0)),
+                    ]),
+                ),
+                (
+                    "catch_record",
+                    JsonValue::List(vec![
+                        entry(JsonValue::Float(f64::NAN)),
+                        entry(JsonValue::Float(f64::INFINITY)),
+                        entry(JsonValue::Float(f64::NEG_INFINITY)),
+                    ]),
+                ),
+                ("canaryfield_results", JsonValue::Null),
+            ])]),
+        ),
+    ])
+}
+
+/// The behavioural pin of slice 20. A special float
+/// carried into a plain cell of the report, at the
+/// started_at field of a catch record entry the cell
+/// reading serves, renders in the plain spellings the
+/// cell helper speaks, and not in the JSON spellings the
+/// document rendering speaks at the same seats. The pin
+/// passes on the tree slice 20 starts from, the plain
+/// arms standing correct there, and it fails the moment
+/// the arms part or fall to the JSON spelling, so it
+/// binds the half of the float family no recorded answer
+/// reaches.
+#[test]
+fn test_a_catch_record_cell_carrying_a_special_float_renders_the_plain_spellings() {
+    let report = render_markdown(&crafted_ledger_with_special_started_at())
+        .expect("the crafted ledger renders");
+    for row in [
+        "| run-1 | commit-1 | nan | blocked | none | run-2 | synthetic reason |",
+        "| run-1 | commit-1 | inf | blocked | none | run-2 | synthetic reason |",
+        "| run-1 | commit-1 | -inf | blocked | none | run-2 | synthetic reason |",
+    ] {
+        assert!(
+            report.contains(row),
+            "the rendered catch record carries the plain row {row}: {report}"
+        );
+    }
+    assert!(
+        !report.contains("NaN"),
+        "no cell of the report carries the JSON not a number spelling: {report}"
+    );
+    assert!(
+        !report.contains("Infinity"),
+        "no cell of the report carries the JSON infinite spelling: {report}"
+    );
+}
+
+/// A rider pin of Round 20, carrying no obligation text
+/// of its own. The reading expressions of the three
+/// gatherings of the report stand at their counted seats
+/// in the report source, the expression that turns the
+/// not available constant to text at the four places that
+/// read it and the expression that turns the separator
+/// constant to text at the three pushes and the zipped
+/// comparison that reads the token section frame back at
+/// its one validation seat, and this pin reads that
+/// source and counts the expressions, so a reading place
+/// that stops reading its constant, or a seat that reads
+/// it in another dress, fails here where the name floors
+/// of the standing pins cannot see it.
+#[test]
+fn test_the_report_gathering_reading_expressions_stand_at_their_seats() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    assert_eq!(
+        source.matches("NOT_AVAILABLE_TEXT.to_string()").count(),
+        4,
+        "the not available constant stands read at its four reading places"
+    );
+    assert_eq!(
+        source.matches("TWO_COLUMN_SEPARATOR.to_string()").count(),
+        3,
+        "the separator constant stands read at its three pushes"
+    );
+    assert_eq!(
+        source.matches(".zip(TOKEN_SECTION_FRAME.iter())").count(),
+        1,
+        "the frame stands read back at its one validation seat"
     );
 }

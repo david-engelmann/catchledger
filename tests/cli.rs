@@ -645,3 +645,43 @@ fn test_the_reader_refusal_wordings_stand_spelled_once_in_the_production_source(
         "the not valid JSON wording function stands named in its import and at its reading site"
     );
 }
+
+/// A rider pin of Round 20, carrying no obligation text
+/// of its own. The fallback of the command line door
+/// reads the default price definition in the one
+/// expression that turns it to text, standing once in
+/// the main source, and the wording functions of the
+/// reader stand at their seats inside the reader source,
+/// the could not be read wording at its definition and
+/// at the file reading arm and the not valid wording at
+/// its definition and at the refusal helper and at the
+/// file reading arm, and this pin reads those sources
+/// and counts the standings, so a reading place that
+/// stops reading its definition, or a seat that reads it
+/// in another dress, fails here where the name counts of
+/// the standing pins cannot see it.
+#[test]
+fn test_the_door_and_reader_reading_expressions_stand_at_their_seats() {
+    let source_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let main_source = std::fs::read_to_string(source_dir.join("main.rs"))
+        .expect("the main source stands in the tree");
+    assert_eq!(
+        main_source
+            .matches("DEFAULT_COST_PER_MINUTE.to_string()")
+            .count(),
+        1,
+        "the default price definition stands read at its one fallback"
+    );
+    let reader_source = std::fs::read_to_string(source_dir.join("reader.rs"))
+        .expect("the reader source stands in the tree");
+    assert_eq!(
+        reader_source.matches("could_not_be_read_wording").count(),
+        2,
+        "the could not be read wording stands at its definition and at its file reading seat"
+    );
+    assert_eq!(
+        reader_source.matches("not_valid_json_wording").count(),
+        3,
+        "the not valid JSON wording stands at its definition and at its two reading seats"
+    );
+}
