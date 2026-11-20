@@ -7,6 +7,14 @@ use crate::jsonvalue::JsonValue;
 use crate::render::json_float_text;
 use crate::token::TokenFigures;
 
+/// The spelling of a figure that cannot be given in a cell
+/// of the report, read by the rate helper and the money
+/// helper at their null arms and by the two fallback sites
+/// inside render_token_section, spelled once here so the
+/// four places that write it cannot drift apart in
+/// spelling.
+const NOT_AVAILABLE_TEXT: &str = "not available";
+
 fn render_error() -> CatchledgerError {
     CatchledgerError::new("the ledger cannot be rendered")
 }
@@ -79,14 +87,14 @@ fn number(value: &JsonValue) -> Result<f64, CatchledgerError> {
 
 fn rate(value: &JsonValue) -> Result<String, CatchledgerError> {
     match value {
-        JsonValue::Null => Ok("not available".to_string()),
+        JsonValue::Null => Ok(NOT_AVAILABLE_TEXT.to_string()),
         _ => Ok(fixed6(number(value)?)),
     }
 }
 
 fn money(value: &JsonValue) -> Result<String, CatchledgerError> {
     match value {
-        JsonValue::Null => Ok("not available".to_string()),
+        JsonValue::Null => Ok(NOT_AVAILABLE_TEXT.to_string()),
         _ => Ok(format!("USD {}", fixed6(number(value)?))),
     }
 }
@@ -329,7 +337,7 @@ pub fn render_token_section(figures: &TokenFigures) -> String {
             check.input_tokens,
             check.output_tokens,
             money(&JsonValue::Float(check.token_cost_usd))
-                .unwrap_or_else(|_| "not available".to_string())
+                .unwrap_or_else(|_| NOT_AVAILABLE_TEXT.to_string())
         ));
     }
     lines.push(format!(
@@ -337,7 +345,7 @@ pub fn render_token_section(figures: &TokenFigures) -> String {
         figures.input_tokens,
         figures.output_tokens,
         money(&JsonValue::Float(figures.token_cost_usd))
-            .unwrap_or_else(|_| "not available".to_string())
+            .unwrap_or_else(|_| NOT_AVAILABLE_TEXT.to_string())
     ));
     let joined = lines.join("\n");
     format!("{joined}\n")
