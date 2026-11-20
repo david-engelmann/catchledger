@@ -1083,3 +1083,32 @@ fn test_the_scientific_message_stands_spelled_once_in_the_render_source() {
         "the scientific message definition stands named at its definition and at the two places that read it"
     );
 }
+
+/// The structural pin of slice 24. The runs label,
+/// the one word runs, stands spelled once in the
+/// ledger source, in the one definition the history
+/// window of build_ledger reads at its two expect
+/// seats, and this pin reads that source and counts
+/// the spellings. It fails on the tree slice 24
+/// starts from, at its spelling count, the label
+/// standing spelled twice at the two seats while
+/// the gathered name stands at no standing, and it
+/// passes on the gathered tree.
+#[test]
+fn test_the_runs_label_stands_spelled_once_in_the_ledger_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ledger.rs"),
+    )
+    .expect("the ledger source stands in the tree");
+    assert_eq!(
+        source.matches("\"runs\"").count(),
+        1,
+        "the runs label stands spelled once in the ledger source"
+    );
+    assert!(
+        source.matches("RUNS_LABEL").count() >= 3,
+        "the runs label definition stands named at its definition and at the two places that read it"
+    );
+}
