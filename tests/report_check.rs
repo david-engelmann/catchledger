@@ -376,3 +376,37 @@ fn test_a_token_report_for_a_check_named_token_costs_checked_against_a_tampered_
         "the refusal names the documents its comparison reads: {stderr}"
     );
 }
+
+/// The structural pin of slice 15. The frame of the token
+/// section stands spelled once in the report source, in the
+/// one definition the renderer opens the section from and
+/// the frame scan reads a supplied report against, and this
+/// pin reads that source and counts the spellings. It fails
+/// on the tree slice 15 starts from, where each spelled
+/// frame line stands twice, once where the section is
+/// emitted and once where the scan reads it back, and it
+/// passes on the gathered tree.
+#[test]
+fn test_the_token_section_frame_stands_spelled_once_in_the_report_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    for line in [
+        "\"## Token costs\"",
+        "\"| Check | Input tokens | Output tokens | Token cost |\"",
+        "\"| --- | ---: | ---: | ---: |\"",
+    ] {
+        assert_eq!(
+            source.matches(line).count(),
+            1,
+            "the frame line {line} stands spelled once in the report source"
+        );
+    }
+    assert!(
+        source.matches("TOKEN_SECTION_FRAME").count() >= 3,
+        "the frame definition stands named at its definition and at both places that read it"
+    );
+}
