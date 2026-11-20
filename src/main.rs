@@ -29,7 +29,7 @@ use catchledger::ledger::{
     build_evidence_packs, build_ledger, validate_evidence_pack, validate_evidence_packs,
     validate_ledger, LedgerInputs, DEFAULT_COST_PER_MINUTE,
 };
-use catchledger::reader::read_json_document;
+use catchledger::reader::{could_not_be_read_wording, not_valid_json_wording, read_json_document};
 use catchledger::render::render_json;
 use catchledger::report::{build_report, validate_report};
 use catchledger::{
@@ -415,9 +415,9 @@ fn refusal(error: CatchledgerError) -> String {
 /// failure and a decode failure in the reader wordings, and
 /// returning the document beside the digest of its bytes.
 fn read_document(path: &std::path::Path, label: &str) -> Result<(JsonValue, String), String> {
-    let data = std::fs::read(path).map_err(|_| format!("the {label} could not be read"))?;
+    let data = std::fs::read(path).map_err(|_| could_not_be_read_wording(label))?;
     let digest = sha256_bytes(&data);
-    let text = String::from_utf8(data).map_err(|_| format!("the {label} is not valid JSON"))?;
+    let text = String::from_utf8(data).map_err(|_| not_valid_json_wording(label))?;
     let document = read_json_document(&text, label).map_err(refusal)?;
     Ok((document, digest))
 }
