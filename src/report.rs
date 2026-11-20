@@ -4,6 +4,7 @@ use crate::canary::CANARY_RESULT_WORDS;
 use crate::dates::py_whitespace;
 use crate::errors::CatchledgerError;
 use crate::jsonvalue::JsonValue;
+use crate::ledger::CURRENCY_WORD;
 use crate::render::json_float_text;
 use crate::token::TokenFigures;
 
@@ -110,7 +111,7 @@ fn rate(value: &JsonValue) -> Result<String, CatchledgerError> {
 fn money(value: &JsonValue) -> Result<String, CatchledgerError> {
     match value {
         JsonValue::Null => Ok(NOT_AVAILABLE_TEXT.to_string()),
-        _ => Ok(format!("USD {}", fixed6(number(value)?))),
+        _ => Ok(format!("{} {}", CURRENCY_WORD, fixed6(number(value)?))),
     }
 }
 

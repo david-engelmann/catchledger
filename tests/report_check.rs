@@ -648,3 +648,37 @@ fn test_the_report_gathering_reading_expressions_stand_at_their_seats() {
         "the frame stands read back at its one validation seat"
     );
 }
+
+/// The structural pin of slice 22. The currency word
+/// of the pricing, the word USD, stands spelled
+/// nowhere in the report source, the money helper
+/// reading the word from the one definition in the
+/// ledger module through its import as the first
+/// argument of its format call, and this pin reads
+/// that source and counts the spellings. It fails on
+/// the tree slice 22 starts from, where the money
+/// format opens with the word spelled inside it, and
+/// it passes on the gathered tree.
+#[test]
+fn test_the_currency_word_stands_spelled_nowhere_in_the_report_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    assert_eq!(
+        source.matches("\"USD {}\"").count(),
+        0,
+        "the money format opening stands spelled nowhere in the report source"
+    );
+    assert_eq!(
+        source.matches("\"USD\"").count(),
+        0,
+        "the currency word stands spelled nowhere in the report source"
+    );
+    assert!(
+        source.matches("CURRENCY_WORD").count() >= 2,
+        "the currency name stands named at its import and at the place that reads it"
+    );
+}
