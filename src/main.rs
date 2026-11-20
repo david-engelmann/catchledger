@@ -50,6 +50,8 @@ struct FlagSpec {
     required: bool,
 }
 
+const EVIDENCE_PACKS_READ: &str = "the evidence packs could not be read";
+
 const FLAGS: &[FlagSpec] = &[
     FlagSpec {
         name: "ci-history",
@@ -549,10 +551,10 @@ fn door(values: &Values) -> Result<(), String> {
     }
     if let Some(check_dir) = values.get("check-packs") {
         let entries = std::fs::read_dir(PathBuf::from(check_dir))
-            .map_err(|_| "the evidence packs could not be read".to_string())?;
+            .map_err(|_| EVIDENCE_PACKS_READ.to_string())?;
         let mut supplied = Vec::new();
         for entry in entries {
-            let entry = entry.map_err(|_| "the evidence packs could not be read".to_string())?;
+            let entry = entry.map_err(|_| EVIDENCE_PACKS_READ.to_string())?;
             let filename = entry.file_name().to_string_lossy().into_owned();
             if filename.ends_with(".json") {
                 let (document, _digest) = read_document(&entry.path(), "evidence pack")?;

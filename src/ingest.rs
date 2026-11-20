@@ -20,6 +20,11 @@ use crate::jsonvalue::JsonValue;
 use crate::models::{CommitChange, CommitRecord, RunRecord};
 
 const GIT_LOG_FORMAT: &str = "commit %H%nparents %P%ndate %cI%nsubject %s";
+const CHANGE_LINE_MALFORMED: &str = "a Git history change line is malformed";
+const WORKFLOW_RUN_EXPORT_SHAPE: &str =
+    "the workflow run export must be a list or an object with workflow runs";
+const COMPLETED_RUN_NEEDS_IDENTIFIER: &str = "a completed workflow run needs an identifier";
+const LOCAL_GIT_REPOSITORY_READ: &str = "the local Git repository could not be read";
 
 /// The allowed time of one clone reading's git subprocess, the
 /// stated limit the bound of slice 7 gives the reading. The door
@@ -98,17 +103,9 @@ pub fn parse_ci_document(document: &JsonValue) -> Result<Vec<RunRecord>, Catchle
         JsonValue::List(items) => items,
         JsonValue::Object(_) => match document.get("workflow_runs") {
             Some(JsonValue::List(items)) => items,
-            _ => {
-                return Err(CatchledgerError::new(
-                    "the workflow run export must be a list or an object with workflow runs",
-                ))
-            }
+            _ => return Err(CatchledgerError::new(WORKFLOW_RUN_EXPORT_SHAPE)),
         },
-        _ => {
-            return Err(CatchledgerError::new(
-                "the workflow run export must be a list or an object with workflow runs",
-            ))
-        }
+        _ => return Err(CatchledgerError::new(WORKFLOW_RUN_EXPORT_SHAPE)),
     };
 
     let missing = JsonValue::Null;
@@ -132,17 +129,11 @@ pub fn parse_ci_document(document: &JsonValue) -> Result<Vec<RunRecord>, Catchle
             Some(JsonValue::Text(text)) => text.clone(),
             Some(JsonValue::Int(integer)) => integer.to_string(),
             Some(JsonValue::BigInt(text)) => text.clone(),
-            _ => {
-                return Err(CatchledgerError::new(
-                    "a completed workflow run needs an identifier",
-                ))
-            }
+            _ => return Err(CatchledgerError::new(COMPLETED_RUN_NEEDS_IDENTIFIER)),
         };
         let identifier = py_strip(&identifier).to_string();
         if identifier.is_empty() {
-            return Err(CatchledgerError::new(
-                "a completed workflow run needs an identifier",
-            ));
+            return Err(CatchledgerError::new(COMPLETED_RUN_NEEDS_IDENTIFIER));
         }
         let check = required_text(raw, "name", "check name")?;
         let commit = required_text(raw, "head_sha", "head commit")?.to_lowercase();
@@ -257,7 +248,7 @@ fn finish_record(
 /// shape reads as it stands. A quoting that does not stand
 /// refuses as a malformed change line.
 fn decode_git_path(field: &str) -> Result<String, CatchledgerError> {
-    let malformed = || CatchledgerError::new("a Git history change line is malformed");
+    let malformed = || CatchledgerError::new(CHANGE_LINE_MALFORMED);
     if !field.starts_with('"') {
         return Ok(field.to_string());
     }
@@ -393,26 +384,20 @@ pub fn parse_git_log(text: &str) -> Result<Vec<CommitRecord>, CatchledgerError> 
             continue;
         }
         if !line.contains('\t') {
-            return Err(CatchledgerError::new(
-                "a Git history change line is malformed",
-            ));
+            return Err(CatchledgerError::new(CHANGE_LINE_MALFORMED));
         }
         let parts: Vec<&str> = line.split('\t').collect();
         let status = py_strip(parts[0]);
         let paths = &parts[1..];
         if status.is_empty() || paths.iter().any(|path| path.is_empty()) {
-            return Err(CatchledgerError::new(
-                "a Git history change line is malformed",
-            ));
+            return Err(CatchledgerError::new(CHANGE_LINE_MALFORMED));
         }
         let mut decoded_paths: Vec<String> = Vec::new();
         for path in paths {
             decoded_paths.push(decode_git_path(path)?);
         }
         if decoded_paths.iter().any(|path| path.is_empty()) {
-            return Err(CatchledgerError::new(
-                "a Git history change line is malformed",
-            ));
+            return Err(CatchledgerError::new(CHANGE_LINE_MALFORMED));
         }
         partial.changes.push(CommitChange {
             status: status.to_string(),
@@ -471,17 +456,13 @@ pub fn read_git_history_from_clone(
                 std::thread::sleep(Duration::from_millis(10));
             }
             Err(_) => {
-                return Err(CatchledgerError::new(
-                    "the local Git repository could not be read",
-                ));
+                return Err(CatchledgerError::new(LOCAL_GIT_REPOSITORY_READ));
             }
         }
     };
     let stdout = drain.join().unwrap_or_default();
     if !status.success() {
-        return Err(CatchledgerError::new(
-            "the local Git repository could not be read",
-        ));
+        return Err(CatchledgerError::new(LOCAL_GIT_REPOSITORY_READ));
     }
     let text = String::from_utf8(stdout)
         .map_err(|_| CatchledgerError::new("the Git history output is not UTF-8 text"))?;
