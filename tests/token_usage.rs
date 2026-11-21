@@ -1119,4 +1119,39 @@ fn test_decimal_small_folds_keep_tonights_values_at_the_gathered_seats() {
         matches!(closed, Quantized::Value(value) if value == 0.000001),
         "the padded branch rounds the exact half up at the quantize step"
     );
+    // The tie arm of the gap sum under opposite
+    // signs. The dropped text stands at the tie
+    // itself, and the smaller term stands against
+    // the larger, so the kept value stands as it
+    // stands, where the same signs at the same tie
+    // round the kept value up.
+    let sum = decimal_add(
+        &parse_decimal("123456789012345678901234567850").expect("the operand parses"),
+        &parse_decimal("-1e-50").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1234567890123456789012345678".to_string(), 2)
+    );
+    // The zero arm of the addition read with its
+    // sign. A zero first operand returns the second
+    // operand rounded whole under its own sign, and
+    // this cell reads the sign beside the
+    // coefficient and the exponent, where the
+    // spelling the other cells read drops it.
+    let sum = decimal_add(
+        &parse_decimal("0").expect("the operand parses"),
+        &parse_decimal("-987654321098765432109876543210").expect("the operand parses"),
+    );
+    assert_eq!(
+        match &sum {
+            DecimalValue::Finite {
+                negative,
+                coeff,
+                exp10,
+            } => (*negative, coeff.to_decimal_string(), *exp10),
+            DecimalValue::NonFinite => panic!("a finite value stands"),
+        },
+        (true, "9876543210987654321098765432".to_string(), 2)
+    );
 }
