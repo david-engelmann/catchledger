@@ -133,6 +133,14 @@ pub fn parse_decimal(text: &str) -> Result<DecimalValue, ()> {
     })
 }
 
+/// The half string of a dropped digit run, a five followed
+/// by zeros one fewer than the digits dropped, the string
+/// the tie readings of the rounding seats compare a dropped
+/// run against.
+fn half_text(dropped: usize) -> String {
+    format!("5{}", "0".repeat(dropped - 1))
+}
+
 /// Round a digit text to the context digit count, halves to even.
 ///
 /// The dropped digits stand in full, so the tie reading is exact.
@@ -144,7 +152,7 @@ fn round_digit_text(text: &str, sticky: bool) -> (BigUint, i64) {
     let drop = text.len() - CONTEXT_DIGITS;
     let kept = &text[..CONTEXT_DIGITS];
     let dropped = &text[CONTEXT_DIGITS..];
-    let half = format!("5{}", "0".repeat(drop - 1));
+    let half = half_text(drop);
     let round_up = match dropped.cmp(&half) {
         Ordering::Greater => true,
         Ordering::Less => false,
@@ -171,6 +179,21 @@ fn context_round(coeff: BigUint, exp10: i64) -> (BigUint, i64) {
     }
     let (kept_value, drop) = round_digit_text(&text, false);
     (kept_value, exp10 + drop)
+}
+
+/// A finite value standing as the context rounding of an
+/// operand under a sign, the value the seats that round
+/// the one operand they return build where they stand, the
+/// surviving operand of a zero arm of the addition and the
+/// larger term of the gap sum at its head and at its borrow
+/// arm.
+fn context_rounded(negative: bool, coeff: BigUint, exp10: i64) -> DecimalValue {
+    let (coeff, exp10) = context_round(coeff, exp10);
+    DecimalValue::Finite {
+        negative,
+        coeff,
+        exp10,
+    }
 }
 
 /// Multiply two finite decimals under the context.
@@ -209,20 +232,10 @@ pub fn decimal_add(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
     let (neg_a, coeff_a, exp_a) = a.parts();
     let (neg_b, coeff_b, exp_b) = b.parts();
     if coeff_a.is_zero() {
-        let (coeff, exp10) = context_round(coeff_b.clone(), exp_b);
-        return DecimalValue::Finite {
-            negative: neg_b,
-            coeff,
-            exp10,
-        };
+        return context_rounded(neg_b, coeff_b.clone(), exp_b);
     }
     if coeff_b.is_zero() {
-        let (coeff, exp10) = context_round(coeff_a.clone(), exp_a);
-        return DecimalValue::Finite {
-            negative: neg_a,
-            coeff,
-            exp10,
-        };
+        return context_rounded(neg_a, coeff_a.clone(), exp_a);
     }
     let adjusted_a = coeff_a.decimal_digits() as i64 + exp_a;
     let adjusted_b = coeff_b.decimal_digits() as i64 + exp_b;
@@ -284,12 +297,7 @@ fn gap_sum(
 ) -> DecimalValue {
     let big_text = big_coeff.to_decimal_string();
     if big_text.len() <= CONTEXT_DIGITS {
-        let (coeff, exp10) = context_round(big_coeff.clone(), big_exp);
-        return DecimalValue::Finite {
-            negative: big_negative,
-            coeff,
-            exp10,
-        };
+        return context_rounded(big_negative, big_coeff.clone(), big_exp);
     }
     let kept_text = &big_text[..CONTEXT_DIGITS];
     let dropped_text = &big_text[CONTEXT_DIGITS..];
@@ -301,7 +309,7 @@ fn gap_sum(
     let big_shift = big_exp - common;
     let same_signs = big_negative == small_negative;
     let round_up = if big_shift >= small_height {
-        let tie = format!("5{}", "0".repeat(dropped_text.len() - 1));
+        let tie = half_text(dropped_text.len());
         match dropped_text.cmp(&tie) {
             Ordering::Greater => true,
             Ordering::Less => false,
@@ -313,7 +321,7 @@ fn gap_sum(
         let low_value =
             BigUint::from_decimal_digits(&dropped_text[split..]).mul_pow10(big_shift as u32);
         let small_value = small_coeff.mul_pow10((small_exp - common) as u32);
-        let half_head = BigUint::from_decimal_digits(&format!("5{}", "0".repeat(split - 1)));
+        let half_head = BigUint::from_decimal_digits(&half_text(split));
         let field = BigUint::from_u64(1).mul_pow10(small_height as u32);
         let (head_value, tail, borrow) = if same_signs {
             let tail = low_value.add_big(&small_value);
@@ -325,12 +333,7 @@ fn gap_sum(
         } else if small_value.cmp_big(&low_value) != Ordering::Greater {
             (head_value, low_value.sub_big(&small_value), false)
         } else if head_value.is_zero() {
-            let (coeff, exp10) = context_round(big_coeff.clone(), big_exp);
-            return DecimalValue::Finite {
-                negative: big_negative,
-                coeff,
-                exp10,
-            };
+            return context_rounded(big_negative, big_coeff.clone(), big_exp);
         } else {
             (
                 head_value.sub_big(&BigUint::from_u64(1)),
@@ -434,7 +437,7 @@ fn quantize(coeff: &BigUint, exp10: i64, negative: bool, capped: bool) -> Quanti
         let text = coeff.to_decimal_string();
         if drop >= text.len() {
             let padded = format!("{}{}", "0".repeat(drop - text.len()), text);
-            let half = format!("5{}", "0".repeat(drop - 1));
+            let half = half_text(drop);
             if padded.as_str() >= half.as_str() {
                 BigUint::from_u64(1)
             } else {
@@ -443,7 +446,7 @@ fn quantize(coeff: &BigUint, exp10: i64, negative: bool, capped: bool) -> Quanti
         } else {
             let kept = &text[..text.len() - drop];
             let dropped = &text[text.len() - drop..];
-            let half = format!("5{}", "0".repeat(drop - 1));
+            let half = half_text(drop);
             let mut kept_value = BigUint::from_decimal_digits(kept);
             if dropped >= half.as_str() {
                 kept_value = kept_value.add_u64(1);
