@@ -384,10 +384,6 @@ impl<'a> Parser<'a> {
                 self.pos += "Infinity".len();
                 return Ok(JsonValue::Float(f64::NEG_INFINITY));
             }
-            if self.bytes[self.pos..].starts_with(b"NaN") {
-                self.pos += "NaN".len();
-                return Ok(JsonValue::Float(f64::NAN));
-            }
         }
         // Integer part: a single zero or a nonzero digit run.
         match self.peek() {
