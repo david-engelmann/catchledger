@@ -8,7 +8,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use catchledger::decimal::{decimal_div, decimal_mul, parse_decimal, DecimalValue};
+use catchledger::decimal::{decimal_add, decimal_div, decimal_mul, parse_decimal, DecimalValue};
 use catchledger::jsonvalue::JsonValue;
 use catchledger::models::RunRecord;
 use catchledger::reader::read_json_document;
@@ -603,5 +603,213 @@ fn test_decimal_ties_round_as_the_context_states_at_multiplication_and_division(
     assert_eq!(
         rounded_spelling(&quotient),
         ("1000000000000000000000000003".to_string(), 2)
+    );
+}
+
+/// The parting pin of slice 26. Past an adjusted gap
+/// of sixty four the larger term its own dropped text
+/// stands at the rounding boundary where its
+/// coefficient carries twenty nine digits or more,
+/// and the smaller term decides that boundary at the
+/// tie standings and at the carry and borrow
+/// standings. This pin drives addition through the
+/// public surface at one cell of each family and at
+/// the reproducing tie shape and asserts the
+/// coefficient and the exponent exact alignment
+/// returns at each cell. It fails on the tree slice
+/// 26 starts from at every cell, the gap arm there
+/// returning the larger term rounded on its own
+/// dropped text alone, and it passes on the repaired
+/// tree.
+#[test]
+fn test_decimal_add_past_the_gap_rounds_with_exact_alignment_at_the_parting_shapes() {
+    // The tie family under the same signs, the kept
+    // part ending even. The dropped digit stands
+    // exactly five and a nonzero smaller term stands
+    // beyond it, so exact alignment rounds up where
+    // the bare tie reading rounds to even.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+        &parse_decimal("1e-40").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000003".to_string(), 1)
+    );
+    // The tie family under opposite signs, the kept
+    // part ending odd. The subtraction pulls the
+    // dropped text below the tie, so exact alignment
+    // rounds down where the bare tie reading rounds
+    // up.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000035").expect("the operand parses"),
+        &parse_decimal("-1e-40").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000003".to_string(), 1)
+    );
+    // The carry family. The dropped text stands at a
+    // four followed by a run of nines reaching the
+    // smaller term its first digit, and the addition
+    // carries through the run and lifts the dropped
+    // text past the tie.
+    let sum = decimal_add(
+        &parse_decimal("1000000000000000000000000002499999999999999999999999999999999999999999999999999999999999999999999999")
+            .expect("the operand parses"),
+        &parse_decimal("10000000000000000000000000000000000").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000003".to_string(), 72)
+    );
+    // The borrow family. The dropped text stands at
+    // a five followed by a run of zeros with a
+    // nonzero tail, and the subtraction borrows
+    // through the run and pulls the dropped text
+    // below the tie.
+    let sum = decimal_add(
+        &parse_decimal("1000000000000000000000000002500000000000000000000000000000000000000000000000000000000000000000000001")
+            .expect("the operand parses"),
+        &parse_decimal("-10000000000000000000000000000000000").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000002".to_string(), 72)
+    );
+    // The reaching bare tie. The dropped text
+    // stands at a five followed by a run of zeros
+    // reaching out to the smaller term its first
+    // digit, and the smaller term cancels what
+    // stands below that head exactly, so the tie
+    // arm reads an empty tail and no borrow and
+    // the kept part its parity decides alone. The
+    // kept part ends even and the sum stands,
+    // where the larger term its own dropped text
+    // runs past the tie and rounds up.
+    let sum = decimal_add(
+        &parse_decimal("1000000000000000000000000002500000000000000000000000000000000000010000000000000000000000000000000000")
+            .expect("the operand parses"),
+        &parse_decimal("-10000000000000000000000000000000000").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000002".to_string(), 72)
+    );
+}
+
+/// The agreement pin of slice 26. At the standings
+/// the repair leaves unmoved, the gaps at and below
+/// sixty four where the arm stands silent, the
+/// agreeing shapes past the boundary, the carry
+/// form, the zero operands, and the multiplication
+/// output pairs the pricing seat adds, this pin
+/// asserts tonight its values through the public
+/// surface. It passes on the tree slice 26 starts
+/// from and on the repaired tree, and it fails the
+/// moment a standing the slice states as unmoved
+/// moves.
+#[test]
+fn test_decimal_add_past_the_gap_keeps_tonights_values_at_the_agreeing_shapes() {
+    // A gap of sixty four, where the arm stands
+    // silent and the alignment runs. The tie shape
+    // rounds up under the smaller term beyond it.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+        &parse_decimal("1e-36").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000003".to_string(), 1)
+    );
+    // A gap of sixty three, aligned the same way.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+        &parse_decimal("1e-35").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000003".to_string(), 1)
+    );
+    // A larger coefficient of twenty eight digits
+    // past the boundary, whose sum has no dropped
+    // text of its own for the smaller term to
+    // decide, standing exactly as it stands.
+    let sum = decimal_add(
+        &parse_decimal("1000000000000000000000000002").expect("the operand parses"),
+        &parse_decimal("1e-40").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000002".to_string(), 0)
+    );
+    // A short larger term past the boundary standing
+    // in its own representation, the value alignment
+    // returns in the context rounded representation
+    // standing unmoved in the representation the arm
+    // returns tonight.
+    let sum = decimal_add(
+        &parse_decimal("123e5").expect("the operand parses"),
+        &parse_decimal("1e-58").expect("the operand parses"),
+    );
+    assert_eq!(rounded_spelling(&sum), ("123".to_string(), 5));
+    // The carry form past the boundary, one followed
+    // by twenty eight zeros, its dropped digit
+    // standing at zero.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000000").expect("the operand parses"),
+        &parse_decimal("1e-40").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000000".to_string(), 1)
+    );
+    // A zero operand on each side, returning the
+    // context rounding of the other through the zero
+    // arms the slice does not touch.
+    let sum = decimal_add(
+        &parse_decimal("0").expect("the operand parses"),
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000002".to_string(), 1)
+    );
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000025").expect("the operand parses"),
+        &parse_decimal("0").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000002".to_string(), 1)
+    );
+    // Multiplication outputs standing past the
+    // boundary, the shape the pricing seat adds. The
+    // larger output stands as the sum.
+    let first = decimal_mul(
+        &parse_decimal("1e40").expect("the operand parses"),
+        &parse_decimal("1e40").expect("the operand parses"),
+    );
+    let second = decimal_mul(
+        &parse_decimal("3").expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    let sum = decimal_add(&first, &second);
+    assert_eq!(rounded_spelling(&sum), ("1".to_string(), 80));
+    // A twenty eight digit multiplication output
+    // standing past the boundary against a unit
+    // output, standing exactly as it stands.
+    let first = decimal_mul(
+        &parse_decimal("1000000000000005").expect("the operand parses"),
+        &parse_decimal("1000000000000005").expect("the operand parses"),
+    );
+    let second = decimal_mul(
+        &parse_decimal("1e-40").expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    let sum = decimal_add(&first, &second);
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000010000000000000".to_string(), 3)
     );
 }
