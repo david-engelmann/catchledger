@@ -186,7 +186,8 @@ fn context_round(coeff: BigUint, exp10: i64) -> (BigUint, i64) {
 /// the one operand they return build where they stand, the
 /// surviving operand of a zero arm of the addition and the
 /// larger term of the gap sum at its head and at its borrow
-/// arm.
+/// arm and the product of the multiplication and the
+/// aligned sum of the addition at their tails.
 fn context_rounded(negative: bool, coeff: BigUint, exp10: i64) -> DecimalValue {
     let (coeff, exp10) = context_round(coeff, exp10);
     DecimalValue::Finite {
@@ -208,12 +209,7 @@ pub fn decimal_mul(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
             exp10: exp_a + exp_b,
         };
     }
-    let (coeff, exp10) = context_round(coeff_a.mul_big(coeff_b), exp_a + exp_b);
-    DecimalValue::Finite {
-        negative,
-        coeff,
-        exp10,
-    }
+    context_rounded(negative, coeff_a.mul_big(coeff_b), exp_a + exp_b)
 }
 
 /// Add two finite decimals under the context.
@@ -264,12 +260,7 @@ pub fn decimal_add(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
             }
         }
     };
-    let (coeff, exp10) = context_round(coeff, common);
-    DecimalValue::Finite {
-        negative,
-        coeff,
-        exp10,
-    }
+    context_rounded(negative, coeff, common)
 }
 
 /// The sum of two nonzero finite decimals whose adjusted
