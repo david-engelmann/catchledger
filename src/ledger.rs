@@ -9,10 +9,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::canary::normalize_canary_document;
 use crate::dates::{format_timestamp, py_strip};
-use crate::decimal::{
-    decimal_div, decimal_mul, parse_decimal, quantize_six, quantize_six_full, DecimalValue,
-    Quantized,
-};
+use crate::decimal::{close_six, decimal_div, decimal_mul, parse_decimal, DecimalValue};
 use crate::errors::{CatchledgerError, PackValidationError};
 use crate::jsonvalue::JsonValue;
 use crate::models::{CommitRecord, RunRecord};
@@ -56,16 +53,6 @@ fn pricing(cost_per_minute: &str) -> Result<(JsonValue, DecimalValue), Catchledg
     Ok((record, rate))
 }
 
-/// Close a pipeline value at six decimal places the way the Python
-/// rounding step closes it, taking the stated side where that step
-/// raises on the Python side and the port builds in full.
-fn rounded_decimal(value: DecimalValue) -> f64 {
-    match quantize_six(&value) {
-        Quantized::Value(closed) => closed,
-        Quantized::Overflow => quantize_six_full(&value),
-    }
-}
-
 fn ratio(numerator: i64, denominator: i64) -> JsonValue {
     if denominator == 0 {
         return JsonValue::Null;
@@ -74,7 +61,7 @@ fn ratio(numerator: i64, denominator: i64) -> JsonValue {
         &DecimalValue::from_i64(numerator),
         &DecimalValue::from_i64(denominator),
     );
-    JsonValue::Float(rounded_decimal(quotient))
+    JsonValue::Float(close_six(&quotient))
 }
 
 fn money(runtime_seconds: i64, rate: &DecimalValue, catches: Option<i64>) -> f64 {
@@ -86,11 +73,11 @@ fn money(runtime_seconds: i64, rate: &DecimalValue, catches: Option<i64>) -> f64
     if let Some(count) = catches {
         value = decimal_div(&value, &DecimalValue::from_i64(count));
     }
-    rounded_decimal(value)
+    close_six(&value)
 }
 
 fn runtime_minutes(runtime_seconds: i64) -> f64 {
-    rounded_decimal(decimal_div(
+    close_six(&decimal_div(
         &DecimalValue::from_i64(runtime_seconds),
         &DecimalValue::from_i64(60),
     ))
