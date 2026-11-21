@@ -8,7 +8,9 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use catchledger::decimal::{decimal_add, decimal_div, decimal_mul, parse_decimal, DecimalValue};
+use catchledger::decimal::{
+    decimal_add, decimal_div, decimal_mul, parse_decimal, quantize_six, DecimalValue, Quantized,
+};
 use catchledger::jsonvalue::JsonValue;
 use catchledger::models::RunRecord;
 use catchledger::reader::read_json_document;
@@ -923,4 +925,41 @@ fn test_token_cost_stands_as_the_full_build_past_the_closing_line() {
     .expect("the figures build");
     assert_eq!(figures.checks[0].token_cost_usd, 1e21);
     assert_eq!(figures.token_cost_usd, 1e21);
+    // The capped step itself, read at the sums the
+    // seat closes. The floats above cannot tell the
+    // capped value from the full build, the two
+    // standing as one computation at these operands,
+    // so this pin reads the variant the capped step
+    // returns at the sum the seat builds across the
+    // line and at the same shape one power below it,
+    // the sums built as the seat builds them, from
+    // the count and the price of each product.
+    let above = decimal_add(
+        &decimal_mul(
+            &DecimalValue::from_i64(1000000),
+            &parse_decimal("10000000000000000").expect("the price parses"),
+        ),
+        &decimal_mul(
+            &DecimalValue::from_i64(0),
+            &parse_decimal("0").expect("zero parses"),
+        ),
+    );
+    assert!(
+        matches!(quantize_six(&above), Quantized::Overflow),
+        "the sum past the closing line stands Overflow at the capped step"
+    );
+    let below = decimal_add(
+        &decimal_mul(
+            &DecimalValue::from_i64(1000000),
+            &parse_decimal("1000000000000000").expect("the price parses"),
+        ),
+        &decimal_mul(
+            &DecimalValue::from_i64(0),
+            &parse_decimal("0").expect("zero parses"),
+        ),
+    );
+    assert!(
+        matches!(quantize_six(&below), Quantized::Value(_)),
+        "the sum below the closing line stands as the capped value at the capped step"
+    );
 }
