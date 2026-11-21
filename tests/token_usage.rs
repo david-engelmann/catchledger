@@ -963,3 +963,160 @@ fn test_token_cost_stands_as_the_full_build_past_the_closing_line() {
         "the sum below the closing line stands as the capped value at the capped step"
     );
 }
+
+/// The structural pin of slice 29. The half string
+/// of a dropped digit run stands spelled once in
+/// the decimal source, in the one helper the slice
+/// gathers it into, and the round and return
+/// construction stands spelled in its helper and at
+/// the two tail seats the slice leaves standing,
+/// and this pin reads the decimal source by the
+/// manifest directory route and counts the
+/// spellings. It fails on the tree slice 29 starts
+/// from, at its format count, the half spelling
+/// standing five times against the once required,
+/// and at its let count, the round and return let
+/// spelling standing six times against the three
+/// required, and it passes on the gathered tree.
+#[test]
+fn test_the_decimal_small_folds_stand_spelled_once_in_the_decimal_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("decimal.rs"),
+    )
+    .expect("the decimal source stands in the tree");
+    assert_eq!(
+        source.matches("format!(\"5{}\", \"0\".repeat(").count(),
+        1,
+        "the half string stands spelled once in the decimal source"
+    );
+    assert!(
+        source.matches("half_text").count() >= 6,
+        "the half helper stands named at its definition and at the five places that read it"
+    );
+    assert!(
+        source.matches("context_rounded").count() >= 5,
+        "the round and return helper stands at its definition and at its four reading places"
+    );
+    assert_eq!(
+        source
+            .matches("let (coeff, exp10) = context_round(")
+            .count(),
+        3,
+        "the round and return let spelling stands at its helper and at the two tail seats"
+    );
+}
+
+/// The behavioural pin of slice 29. The small folds
+/// of the decimal module stand gathered into the
+/// two helpers of the slice, half_text at the five
+/// half string seats and context_rounded at the
+/// four round and return seats, and this pin drives
+/// the public decimal surface at one cell for each
+/// gathered seat family and asserts tonight its
+/// values at each cell. It passes on the tree slice
+/// 29 starts from, the folds standing correct there
+/// at every spelling, and on the gathered tree
+/// alike, and it fails the moment a gathered seat
+/// parts from the standing its spelling carries.
+#[test]
+fn test_decimal_small_folds_keep_tonights_values_at_the_gathered_seats() {
+    // The rounding seat of round_digit_text through
+    // the multiplication door. An exact tie on an
+    // odd kept digit rounds up.
+    let product = decimal_mul(
+        &parse_decimal("10000000000000000000000000035").expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&product),
+        ("1000000000000000000000000004".to_string(), 1)
+    );
+    // The tie arm of the gap sum under the same
+    // signs. The dropped text stands past the tie,
+    // so the kept value rounds up.
+    let sum = decimal_add(
+        &parse_decimal("123456789012345678901234567890").expect("the operand parses"),
+        &parse_decimal("1e-50").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1234567890123456789012345679".to_string(), 2)
+    );
+    // The contrary arm of the gap sum under the
+    // same signs. The smaller term carries through
+    // the low field into the head, and the head
+    // stands past the half head, so the kept value
+    // rounds up.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000026000000000000000000000000000000000000000009999999999999999999999999999999999999999")
+            .expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000003".to_string(), 82)
+    );
+    // The borrow arm of the gap sum under opposite
+    // signs. The head of the dropped text stands at
+    // zero and the smaller term stands past the low
+    // field, so the seat returns the larger term
+    // rounded whole, its dropped text standing
+    // below the half.
+    let sum = decimal_add(
+        &parse_decimal("30000000000000000000000000050000000000000000000000000000000000000000001000000000000000000000000000000000000000")
+            .expect("the operand parses"),
+        &parse_decimal("-1000000000000000000000000000000000000001").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("3000000000000000000000000005".to_string(), 82)
+    );
+    // The zero arm pair of the addition. A zero
+    // first operand returns the second rounded
+    // whole, and a zero second operand returns the
+    // first standing as it stands.
+    let sum = decimal_add(
+        &parse_decimal("0").expect("the operand parses"),
+        &parse_decimal("987654321098765432109876543210").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("9876543210987654321098765432".to_string(), 2)
+    );
+    let sum = decimal_add(
+        &parse_decimal("5").expect("the operand parses"),
+        &parse_decimal("0").expect("the operand parses"),
+    );
+    assert_eq!(rounded_spelling(&sum), ("5".to_string(), 0));
+    // The head seat of the gap sum. The larger term
+    // stands at the context count and the gap
+    // stands past the boundary, so the larger term
+    // stands returned rounded whole.
+    let sum = decimal_add(
+        &parse_decimal("1234567890123456789012345678").expect("the operand parses"),
+        &parse_decimal("1e-100").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1234567890123456789012345678".to_string(), 0)
+    );
+    // The kept branch of the quantize step at the
+    // exact half. The dropped digit stands at the
+    // half, so the kept value rounds up.
+    let closed = quantize_six(&parse_decimal("0.0000015").expect("the operand parses"));
+    assert!(
+        matches!(closed, Quantized::Value(value) if value == 0.000002),
+        "the kept branch rounds the exact half up at the quantize step"
+    );
+    // The padded branch of the quantize step at the
+    // exact half. The padded text stands at the
+    // half, so the step returns the unit at the
+    // sixth place.
+    let closed = quantize_six(&parse_decimal("0.0000005").expect("the operand parses"));
+    assert!(
+        matches!(closed, Quantized::Value(value) if value == 0.000001),
+        "the padded branch rounds the exact half up at the quantize step"
+    );
+}
