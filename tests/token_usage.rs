@@ -813,3 +813,114 @@ fn test_decimal_add_past_the_gap_keeps_tonights_values_at_the_agreeing_shapes() 
         ("1000000000000010000000000000".to_string(), 3)
     );
 }
+
+/// The structural pin of slice 28. The six place
+/// closing match stands spelled once in the production
+/// tree, in the one shared closing the decimal module
+/// carries beside its quantize pair, and this pin reads
+/// the three sources the gathering moves and counts the
+/// spellings. It fails on the tree slice 28 starts
+/// from, at its match count, the match standing spelled
+/// at the ledger wrapper and at the token wrapper while
+/// the shared name stands at no standing, and it passes
+/// on the gathered tree.
+#[test]
+fn test_the_closing_match_stands_spelled_once_in_the_production_sources() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let decimal = std::fs::read_to_string(root.join("decimal.rs"))
+        .expect("the decimal source stands in the tree");
+    let ledger = std::fs::read_to_string(root.join("ledger.rs"))
+        .expect("the ledger source stands in the tree");
+    let token = std::fs::read_to_string(root.join("token.rs"))
+        .expect("the token source stands in the tree");
+    let fallback = "Quantized::Overflow => quantize_six_full(";
+    assert_eq!(
+        decimal.matches(fallback).count()
+            + ledger.matches(fallback).count()
+            + token.matches(fallback).count(),
+        1,
+        "the closing fallback stands spelled once in the production sources"
+    );
+    assert!(
+        decimal.matches("close_six").count()
+            + ledger.matches("close_six").count()
+            + token.matches("close_six").count()
+            >= 5,
+        "the shared closing stands named at its definition and at the four places that read it"
+    );
+}
+
+/// The behavioural pin of slice 28, standing as the
+/// rider the inheritance has carried since the scoping
+/// of Round 26. The token seat its overflow standing
+/// stands witnessed by no recording and no pin before
+/// this round, and this pin drives the token figures
+/// over the fabricated ledger and a fabricated usage at
+/// a price and a count whose product stands across the
+/// closing line, the six place rounded coefficient of
+/// the sum passing the twenty eight digit context
+/// count, and asserts the token cost stands as the full
+/// build the capped step refuses, at the check seat and
+/// at the totals seat and in both product shapes, with
+/// the same shape one power below the line standing as
+/// the capped value. It passes on the tree slice 28
+/// starts from, the closing standing correct there at
+/// both of its spellings, and on the gathered tree
+/// alike, and it fails the moment the closing line or
+/// the full build parts at either seat.
+#[test]
+fn test_token_cost_stands_as_the_full_build_past_the_closing_line() {
+    // The input shape across the line. One million
+    // input tokens at 1e16 sum to 1e22, whose six
+    // place rounded coefficient carries twenty nine
+    // digits, so the capped step stands Overflow and
+    // the seat returns the full build.
+    let usage = usage_from(
+        "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"r1\", \"input_tokens\": 1000000, \"output_tokens\": 0}]}",
+    )
+    .expect("the usage document reads");
+    let figures = build_token_figures(
+        &fabricated_ledger(),
+        &fabricated_runs(),
+        &usage,
+        &parse_decimal("10000000000000000").expect("the price parses"),
+        &parse_decimal("0").expect("zero parses"),
+    )
+    .expect("the figures build");
+    assert_eq!(figures.checks[0].token_cost_usd, 1e22);
+    assert_eq!(figures.token_cost_usd, 1e22);
+    // The output shape across the line, the same sum
+    // standing in the second product of the seat.
+    let usage = usage_from(
+        "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"r1\", \"input_tokens\": 0, \"output_tokens\": 1000000}]}",
+    )
+    .expect("the usage document reads");
+    let figures = build_token_figures(
+        &fabricated_ledger(),
+        &fabricated_runs(),
+        &usage,
+        &parse_decimal("0").expect("zero parses"),
+        &parse_decimal("10000000000000000").expect("the price parses"),
+    )
+    .expect("the figures build");
+    assert_eq!(figures.checks[0].token_cost_usd, 1e22);
+    assert_eq!(figures.token_cost_usd, 1e22);
+    // One power below the line the same shape stands
+    // as the capped value, its six place rounded
+    // coefficient carrying twenty eight digits, so the
+    // pin binds the line from both sides.
+    let usage = usage_from(
+        "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"r1\", \"input_tokens\": 1000000, \"output_tokens\": 0}]}",
+    )
+    .expect("the usage document reads");
+    let figures = build_token_figures(
+        &fabricated_ledger(),
+        &fabricated_runs(),
+        &usage,
+        &parse_decimal("1000000000000000").expect("the price parses"),
+        &parse_decimal("0").expect("zero parses"),
+    )
+    .expect("the figures build");
+    assert_eq!(figures.checks[0].token_cost_usd, 1e21);
+    assert_eq!(figures.token_cost_usd, 1e21);
+}
