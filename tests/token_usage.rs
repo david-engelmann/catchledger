@@ -677,6 +677,25 @@ fn test_decimal_add_past_the_gap_rounds_with_exact_alignment_at_the_parting_shap
         rounded_spelling(&sum),
         ("1000000000000000000000000002".to_string(), 72)
     );
+    // The reaching bare tie. The dropped text
+    // stands at a five followed by a run of zeros
+    // reaching out to the smaller term its first
+    // digit, and the smaller term cancels what
+    // stands below that head exactly, so the tie
+    // arm reads an empty tail and no borrow and
+    // the kept part its parity decides alone. The
+    // kept part ends even and the sum stands,
+    // where the larger term its own dropped text
+    // runs past the tie and rounds up.
+    let sum = decimal_add(
+        &parse_decimal("1000000000000000000000000002500000000000000000000000000000000000010000000000000000000000000000000000")
+            .expect("the operand parses"),
+        &parse_decimal("-10000000000000000000000000000000000").expect("the operand parses"),
+    );
+    assert_eq!(
+        rounded_spelling(&sum),
+        ("1000000000000000000000000002".to_string(), 72)
+    );
 }
 
 /// The agreement pin of slice 26. At the standings
