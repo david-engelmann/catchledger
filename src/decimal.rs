@@ -196,12 +196,15 @@ pub fn decimal_mul(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
 /// Add two finite decimals under the context.
 ///
 /// The coefficients are aligned at the smaller exponent before
-/// they meet. An adjusted gap past sixty four digits cannot
-/// move the twenty eight digit rounding of the sum, because the
-/// smaller term's first significant digit lands past the
-/// ninetieth digit of the larger, so the larger term stands as
-/// the sum in that case and every smaller gap is aligned
-/// exactly.
+/// they meet. An adjusted gap past sixty four digits leaves
+/// the smaller term standing wholly inside the dropped text of
+/// the sum, where it moves the twenty eight digit rounding
+/// only at the tie standings and at the carry and borrow
+/// standings the gap decision reads, the larger term its own
+/// dropped text standing at the boundary where its coefficient
+/// carries twenty nine digits or more. At every other standing
+/// past the boundary the larger term stands as the sum exactly
+/// as it stands, and every smaller gap is aligned exactly.
 pub fn decimal_add(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
     let (neg_a, coeff_a, exp_a) = a.parts();
     let (neg_b, coeff_b, exp_b) = b.parts();
@@ -224,16 +227,10 @@ pub fn decimal_add(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
     let adjusted_a = coeff_a.decimal_digits() as i64 + exp_a;
     let adjusted_b = coeff_b.decimal_digits() as i64 + exp_b;
     if (adjusted_a - adjusted_b).abs() > 64 {
-        let (negative, coeff, exp10) = if adjusted_a > adjusted_b {
-            (neg_a, coeff_a.clone(), exp_a)
+        return if adjusted_a > adjusted_b {
+            gap_sum(neg_a, coeff_a, exp_a, neg_b, coeff_b, exp_b)
         } else {
-            (neg_b, coeff_b.clone(), exp_b)
-        };
-        let (coeff, exp10) = context_round(coeff, exp10);
-        return DecimalValue::Finite {
-            negative,
-            coeff,
-            exp10,
+            gap_sum(neg_b, coeff_b, exp_b, neg_a, coeff_a, exp_a)
         };
     }
     let common = exp_a.min(exp_b);
@@ -259,6 +256,103 @@ pub fn decimal_add(a: &DecimalValue, b: &DecimalValue) -> DecimalValue {
         negative,
         coeff,
         exp10,
+    }
+}
+
+/// The sum of two nonzero finite decimals whose adjusted
+/// exponents part by more than sixty four, decided from the
+/// operands their own digit texts.
+///
+/// The smaller term stands wholly inside the dropped text of
+/// the aligned sum, past the thirty seventh dropped digit at
+/// the nearest, so the rounding of the sum stands decided by
+/// the larger term its dropped text read against the tie,
+/// moved by the smaller term only where the two standings
+/// meet inside that text, at the tie standings and at the
+/// carry and borrow standings. Where the smaller term cannot
+/// move the rounding, the larger term stands returned as the
+/// context rounding returns it, in value and in
+/// representation, and no alignment as long as the gap stands
+/// built at any standing.
+fn gap_sum(
+    big_negative: bool,
+    big_coeff: &BigUint,
+    big_exp: i64,
+    small_negative: bool,
+    small_coeff: &BigUint,
+    small_exp: i64,
+) -> DecimalValue {
+    let big_text = big_coeff.to_decimal_string();
+    if big_text.len() <= CONTEXT_DIGITS {
+        let (coeff, exp10) = context_round(big_coeff.clone(), big_exp);
+        return DecimalValue::Finite {
+            negative: big_negative,
+            coeff,
+            exp10,
+        };
+    }
+    let kept_text = &big_text[..CONTEXT_DIGITS];
+    let dropped_text = &big_text[CONTEXT_DIGITS..];
+    let kept_value = BigUint::from_decimal_digits(kept_text);
+    let kept_odd = kept_text.as_bytes()[CONTEXT_DIGITS - 1] % 2 == 1;
+    let result_exp = big_exp + dropped_text.len() as i64;
+    let common = big_exp.min(small_exp);
+    let small_height = small_coeff.decimal_digits() as i64 + small_exp - common;
+    let big_shift = big_exp - common;
+    let same_signs = big_negative == small_negative;
+    let round_up = if big_shift >= small_height {
+        let tie = format!("5{}", "0".repeat(dropped_text.len() - 1));
+        match dropped_text.cmp(&tie) {
+            Ordering::Greater => true,
+            Ordering::Less => false,
+            Ordering::Equal => same_signs,
+        }
+    } else {
+        let split = dropped_text.len() - (small_height - big_shift) as usize;
+        let head_value = BigUint::from_decimal_digits(&dropped_text[..split]);
+        let low_value =
+            BigUint::from_decimal_digits(&dropped_text[split..]).mul_pow10(big_shift as u32);
+        let small_value = small_coeff.mul_pow10((small_exp - common) as u32);
+        let half_head = BigUint::from_decimal_digits(&format!("5{}", "0".repeat(split - 1)));
+        let field = BigUint::from_u64(1).mul_pow10(small_height as u32);
+        let (head_value, tail, borrow) = if same_signs {
+            let tail = low_value.add_big(&small_value);
+            if tail.cmp_big(&field) != Ordering::Less {
+                (head_value.add_u64(1), tail.sub_big(&field), false)
+            } else {
+                (head_value, tail, false)
+            }
+        } else if small_value.cmp_big(&low_value) != Ordering::Greater {
+            (head_value, low_value.sub_big(&small_value), false)
+        } else if head_value.is_zero() {
+            let (coeff, exp10) = context_round(big_coeff.clone(), big_exp);
+            return DecimalValue::Finite {
+                negative: big_negative,
+                coeff,
+                exp10,
+            };
+        } else {
+            (
+                head_value.sub_big(&BigUint::from_u64(1)),
+                field.add_big(&low_value).sub_big(&small_value),
+                true,
+            )
+        };
+        match head_value.cmp_big(&half_head) {
+            Ordering::Greater => true,
+            Ordering::Less => false,
+            Ordering::Equal => borrow || !tail.is_zero() || kept_odd,
+        }
+    };
+    let coeff = if round_up {
+        kept_value.add_u64(1)
+    } else {
+        kept_value
+    };
+    DecimalValue::Finite {
+        negative: big_negative,
+        coeff,
+        exp10: result_exp,
     }
 }
 
