@@ -11,9 +11,7 @@
 
 use std::collections::HashMap;
 
-use crate::decimal::{
-    decimal_add, decimal_mul, quantize_six, quantize_six_full, DecimalValue, Quantized,
-};
+use crate::decimal::{close_six, decimal_add, decimal_mul, DecimalValue};
 use crate::errors::CatchledgerError;
 use crate::jsonvalue::JsonValue;
 use crate::ledger::CURRENCY_WORD;
@@ -132,15 +130,6 @@ pub struct TokenFigures {
     pub token_cost_usd: f64,
 }
 
-/// Close a pipeline value at six decimal places, as the ledger
-/// closing closes its money values.
-fn close_money(value: DecimalValue) -> f64 {
-    match quantize_six(&value) {
-        Quantized::Value(closed) => closed,
-        Quantized::Overflow => quantize_six_full(&value),
-    }
-}
-
 /// Price one pair of token sums through the decimal pipeline.
 fn price_tokens(
     input_tokens: i64,
@@ -150,7 +139,7 @@ fn price_tokens(
 ) -> f64 {
     let input_cost = decimal_mul(&DecimalValue::from_i64(input_tokens), input_price);
     let output_cost = decimal_mul(&DecimalValue::from_i64(output_tokens), output_price);
-    close_money(decimal_add(&input_cost, &output_cost))
+    close_six(&decimal_add(&input_cost, &output_cost))
 }
 
 /// Build the token figures from the built ledger, the runs, and
