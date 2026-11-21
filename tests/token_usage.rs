@@ -964,20 +964,25 @@ fn test_token_cost_stands_as_the_full_build_past_the_closing_line() {
     );
 }
 
-/// The structural pin of slice 29. The half string
-/// of a dropped digit run stands spelled once in
-/// the decimal source, in the one helper the slice
-/// gathers it into, and the round and return
-/// construction stands spelled in its helper and at
-/// the two tail seats the slice leaves standing,
-/// and this pin reads the decimal source by the
-/// manifest directory route and counts the
-/// spellings. It fails on the tree slice 29 starts
-/// from, at its format count, the half spelling
-/// standing five times against the once required,
-/// and at its let count, the round and return let
-/// spelling standing six times against the three
-/// required, and it passes on the gathered tree.
+/// The structural pin of slice 29, restated by
+/// slice 30 at its round and return counts. The
+/// half string of a dropped digit run stands
+/// spelled once in the decimal source, in the one
+/// helper slice 29 gathers it into, and the round
+/// and return construction stands spelled in its
+/// helper alone, the two tail seats standing
+/// gathered into the helper by slice 30, and this
+/// pin reads the decimal source by the manifest
+/// directory route and counts the spellings. It
+/// fails on the tree slice 29 starts from, at its
+/// format count, the half spelling standing five
+/// times against the once required, and on the
+/// tree slice 30 starts from, at its let count,
+/// the round and return let spelling standing
+/// three times against the one required, the
+/// helper name standing five times against the
+/// seven its floor requires there, and it passes
+/// on the tree slice 30 gathers.
 #[test]
 fn test_the_decimal_small_folds_stand_spelled_once_in_the_decimal_source() {
     let source = std::fs::read_to_string(
@@ -996,15 +1001,15 @@ fn test_the_decimal_small_folds_stand_spelled_once_in_the_decimal_source() {
         "the half helper stands named at its definition and at the five places that read it"
     );
     assert!(
-        source.matches("context_rounded").count() >= 5,
-        "the round and return helper stands at its definition and at its four reading places"
+        source.matches("context_rounded").count() >= 7,
+        "the round and return helper stands at its definition and at its six reading places"
     );
     assert_eq!(
         source
             .matches("let (coeff, exp10) = context_round(")
             .count(),
-        3,
-        "the round and return let spelling stands at its helper and at the two tail seats"
+        1,
+        "the round and return let spelling stands at its helper alone"
     );
 }
 
@@ -1154,4 +1159,118 @@ fn test_decimal_small_folds_keep_tonights_values_at_the_gathered_seats() {
         },
         (true, "9876543210987654321098765432".to_string(), 2)
     );
+}
+
+/// The whole reading of a decimal result for the pin
+/// of slice 30, its sign beside its coefficient text
+/// beside its power of ten exponent, read through
+/// the public surface, where the spelling the pins
+/// of slices 25 and 29 read drops the sign the tail
+/// seats pass.
+fn whole_spelling(value: &DecimalValue) -> (bool, String, i64) {
+    match value {
+        DecimalValue::Finite {
+            negative,
+            coeff,
+            exp10,
+        } => (*negative, coeff.to_decimal_string(), *exp10),
+        DecimalValue::NonFinite => panic!("a finite value stands"),
+    }
+}
+
+/// The behavioural pin of slice 30. The two tail
+/// seats of the round and return construction, at
+/// the tail of decimal_mul and at the tail of
+/// decimal_add, stand gathered into the helper of
+/// slice 29 by this slice, and this pin drives the
+/// multiplication and the addition at the tail
+/// shapes and reads each result whole, its sign
+/// beside its coefficient text beside its exponent.
+/// It passes on the tree slice 30 starts from, the
+/// tails standing correct there at their spelled
+/// form, and on the gathered tree alike, and it
+/// fails the moment either tail parts from tonight
+/// its value at its sign or its exponent or its
+/// rounding.
+#[test]
+fn test_decimal_tails_keep_tonights_values_at_the_gathered_seats() {
+    // The multiplication tail at an exact tie on
+    // an odd kept digit under opposite signs. The
+    // kept value rounds up under the computed sign,
+    // and the cell fails where the tail passes the
+    // unrounded pair or the wrong sign or the
+    // exponent unshifted by the drop.
+    let product = decimal_mul(
+        &parse_decimal("-10000000000000000000000000035").expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    assert_eq!(
+        whole_spelling(&product),
+        (true, "1000000000000000000000000004".to_string(), 1)
+    );
+    // The multiplication tail below the half on a
+    // genuine product. The kept value stands as it
+    // stands, at the exponent the drop shifts.
+    let product = decimal_mul(
+        &parse_decimal("1111111111111111111111111111").expect("the operand parses"),
+        &parse_decimal("9.5").expect("the operand parses"),
+    );
+    assert_eq!(
+        whole_spelling(&product),
+        (false, "1055555555555555555555555555".to_string(), 1)
+    );
+    // The multiplication tail carrying past the
+    // kept width. The rounded coefficient shortens
+    // to the carried form at the shifted exponent.
+    let product = decimal_mul(
+        &parse_decimal("9999999999999999999999999999").expect("the operand parses"),
+        &parse_decimal("1.5").expect("the operand parses"),
+    );
+    assert_eq!(
+        whole_spelling(&product),
+        (false, "1500000000000000000000000000".to_string(), 1)
+    );
+    // The addition tail past the half with a
+    // negative survivor. The kept value rounds up
+    // under the survivor its sign, read whole here
+    // where the spelling drops it.
+    let sum = decimal_add(
+        &parse_decimal("-50000000000000000000000000007").expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    assert_eq!(
+        whole_spelling(&sum),
+        (true, "5000000000000000000000000001".to_string(), 1)
+    );
+    // The addition tail at an exact tie on an even
+    // kept digit. The kept value stands as it
+    // stands, and the cell fails under any half up
+    // reading of the tail.
+    let sum = decimal_add(
+        &parse_decimal("25000000000000000000000000000").expect("the operand parses"),
+        &parse_decimal("5").expect("the operand parses"),
+    );
+    assert_eq!(
+        whole_spelling(&sum),
+        (false, "2500000000000000000000000000".to_string(), 1)
+    );
+    // The addition tail inside the context count.
+    // The sum stands at its own exponent, and the
+    // cell fails where the tail shifts a sum the
+    // rounding leaves standing.
+    let sum = decimal_add(
+        &parse_decimal("1234567890123456789012345678").expect("the operand parses"),
+        &parse_decimal("1").expect("the operand parses"),
+    );
+    assert_eq!(
+        whole_spelling(&sum),
+        (false, "1234567890123456789012345679".to_string(), 0)
+    );
+    // The addition tail cancelling to one digit.
+    // The single digit stands at exponent zero.
+    let sum = decimal_add(
+        &parse_decimal("10000000000000000000000000000").expect("the operand parses"),
+        &parse_decimal("-9999999999999999999999999999").expect("the operand parses"),
+    );
+    assert_eq!(whole_spelling(&sum), (false, "1".to_string(), 0));
 }
