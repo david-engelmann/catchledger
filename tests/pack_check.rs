@@ -8,6 +8,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use catchledger::jsonvalue::parse_json;
+use catchledger::jsonvalue::JsonValue;
+use catchledger::normalize_canary_document;
+use catchledger::read_json_document;
 use catchledger::validate_evidence_pack;
 
 const USAGE_DOCUMENT: &str = "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}";
@@ -362,5 +365,100 @@ fn test_two_nan_values_stand_unequal_under_the_model_comparison() {
     assert!(
         one != two,
         "documents carrying NaN stand unequal across a parse boundary"
+    );
+}
+#[test]
+fn test_canaryfield_row_requirements_stand_over_every_row_ahead_of_any_match() {
+    let lacking = parse_json(
+        "{\"gates\": [\"unit checks\", \"style checks\"], \"rows\": [{\"seed\": \"seed-00\", \"name\": \"first synthetic row\", \"defect_class\": \"synthetic class\", \"gates\": {\"style checks\": \"caught\"}}, {\"seed\": \"seed-01\", \"name\": \"second synthetic row\", \"defect_class\": \"synthetic class\", \"gates\": {\"unit checks\": \"caught\"}}]}",
+    )
+    .expect("the pin document parses");
+    let lacking_error = normalize_canary_document(Some(&lacking), "unit checks")
+        .expect_err("a row lacking the matched gate result refuses the document whole");
+    assert_eq!(
+        lacking_error.message(),
+        "a canaryfield row lacks the matched gate result",
+        "the refusal carries the matched gate result words"
+    );
+    let seedless = parse_json("{\"gates\": [\"unit checks\"], \"rows\": [{\"gates\": {}}]}")
+        .expect("the pin document parses");
+    let seedless_error = normalize_canary_document(Some(&seedless), "style checks")
+        .expect_err("a row lacking its seed data refuses ahead of any gate match");
+    assert_eq!(
+        seedless_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
+    let nameless = parse_json(
+        "{\"gates\": [\"unit checks\"], \"rows\": [{\"seed\": \"seed-00\", \"defect_class\": \"synthetic class\", \"gates\": {}}]}",
+    )
+    .expect("the pin document parses");
+    let nameless_error = normalize_canary_document(Some(&nameless), "style checks")
+        .expect_err("a row lacking its name refuses ahead of any gate match");
+    assert_eq!(
+        nameless_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
+    let classless = parse_json(
+        "{\"gates\": [\"unit checks\"], \"rows\": [{\"seed\": \"seed-00\", \"name\": \"first synthetic row\", \"gates\": {}}]}",
+    )
+    .expect("the pin document parses");
+    let classless_error = normalize_canary_document(Some(&classless), "style checks")
+        .expect_err("a row lacking its defect class refuses ahead of any gate match");
+    assert_eq!(
+        classless_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
+    let unseeded = parse_json(
+        "{\"gates\": [\"unit checks\"], \"rows\": [{\"name\": \"first synthetic row\", \"defect_class\": \"synthetic class\", \"gates\": {}}]}",
+    )
+    .expect("the pin document parses");
+    let unseeded_error = normalize_canary_document(Some(&unseeded), "style checks")
+        .expect_err("a row lacking its seed refuses ahead of any gate match");
+    assert_eq!(
+        unseeded_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
+}
+
+#[test]
+fn test_the_negative_nan_spelling_refuses_at_every_value_position() {
+    for text in ["-NaN", "[-NaN]", "{\"value\": -NaN}"] {
+        let error = read_json_document(text, "pin document")
+            .expect_err("the negative NaN spelling refuses at every value position");
+        assert_eq!(
+            error.message(),
+            "the pin document is not valid JSON",
+            "the refusal carries the reader words under the label"
+        );
+    }
+    let nan = read_json_document("NaN", "pin document").expect("the bare NaN spelling reads");
+    assert!(
+        matches!(nan, JsonValue::Float(value) if value.is_nan()),
+        "the bare NaN spelling reads as a not a number float"
+    );
+    let infinity =
+        read_json_document("Infinity", "pin document").expect("the bare Infinity spelling reads");
+    assert_eq!(
+        infinity,
+        JsonValue::Float(f64::INFINITY),
+        "the bare Infinity spelling reads as a positive infinite float"
+    );
+    let negative_infinity = read_json_document("-Infinity", "pin document")
+        .expect("the negative Infinity spelling reads");
+    assert_eq!(
+        negative_infinity,
+        JsonValue::Float(f64::NEG_INFINITY),
+        "the negative Infinity spelling reads as a negative infinite float"
+    );
+    let negative_integer =
+        read_json_document("-42", "pin document").expect("a negative integer token reads");
+    assert_eq!(
+        negative_integer,
+        JsonValue::Int(-42),
+        "a negative integer token reads as the integer it spells"
     );
 }
