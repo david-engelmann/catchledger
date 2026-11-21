@@ -171,6 +171,31 @@ fn scorecard_rows(scorecard: &JsonValue) -> Result<Vec<(String, String)>, Catchl
     ])
 }
 
+/// Join the text entries of a list into the spelling a
+/// report cell carries, the word none where the list
+/// stands empty and the items with comma and space
+/// standing between each two where it stands full, and
+/// refuse the rendering whole where an entry stands as
+/// any other kind, spelled once here so the two seats
+/// inside render_markdown that build that spelling read
+/// it from this one place and cannot drift apart in
+/// spelling.
+fn joined_texts(entries: &[JsonValue]) -> Result<String, CatchledgerError> {
+    let mut texts: Vec<String> = Vec::new();
+    for entry in entries {
+        match entry {
+            JsonValue::Text(text) => texts.push(text.clone()),
+            _ => return Err(render_error()),
+        }
+    }
+    let joined = if texts.is_empty() {
+        "none".to_string()
+    } else {
+        texts.join(", ")
+    };
+    Ok(joined)
+}
+
 /// Render the markdown report for a ledger document.
 pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
     let mut lines: Vec<String> = Vec::new();
@@ -249,18 +274,8 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
                 let fix_commits = field(evidence, "fix_commits")?
                     .as_list()
                     .ok_or_else(render_error)?;
-                let mut fix_texts: Vec<String> = Vec::new();
-                for hash in fix_commits {
-                    match hash {
-                        JsonValue::Text(text) => fix_texts.push(text.clone()),
-                        _ => return Err(render_error()),
-                    }
-                }
-                let fix_joined = if fix_texts.is_empty() {
-                    "none".to_string()
-                } else {
-                    fix_texts.join(", ")
-                };
+                let fix_joined = joined_texts(fix_commits)?;
+
                 let cells = [
                     cell(field(item, "block_run_id")?)?,
                     cell(field(item, "blocked_commit")?)?,
@@ -296,18 +311,8 @@ pub fn render_markdown(ledger: &JsonValue) -> Result<String, CatchledgerError> {
                 let planted = field(row, "planted_files")?
                     .as_list()
                     .ok_or_else(render_error)?;
-                let mut planted_texts: Vec<String> = Vec::new();
-                for path in planted {
-                    match path {
-                        JsonValue::Text(text) => planted_texts.push(text.clone()),
-                        _ => return Err(render_error()),
-                    }
-                }
-                let planted_joined = if planted_texts.is_empty() {
-                    "none".to_string()
-                } else {
-                    planted_texts.join(", ")
-                };
+                let planted_joined = joined_texts(planted)?;
+
                 let cells = [
                     cell(field(row, "seed")?)?,
                     cell(field(row, "name")?)?,

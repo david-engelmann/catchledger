@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use catchledger::jsonvalue::JsonValue;
+use catchledger::read_json_document;
 use catchledger::render_markdown;
 
 const USAGE_DOCUMENT: &str = "{\"format\": \"catchledger-token-usage/1\", \"runs\": [{\"run\": \"102\", \"input_tokens\": 1200, \"output_tokens\": 300}, {\"run\": \"101\", \"input_tokens\": 5000, \"output_tokens\": 0}, {\"run\": \"999\", \"input_tokens\": 777, \"output_tokens\": 777}]}";
@@ -681,4 +682,132 @@ fn test_the_currency_word_stands_spelled_nowhere_in_the_report_source() {
         source.matches("CURRENCY_WORD").count() >= 2,
         "the currency name stands named at its import and at the place that reads it"
     );
+}
+
+/// The structural pin of slice 27. The joining of a
+/// text list into the spelling a report cell carries
+/// stands spelled once in the report source, in the one
+/// helper the fix commits seat and the planted files
+/// seat of render_markdown read, and this pin reads that
+/// source and counts the spellings. It fails on the tree
+/// slice 27 starts from, where the comma and space join
+/// stands spelled at the two seats themselves, and it
+/// passes on the gathered tree.
+#[test]
+fn test_the_text_list_join_stands_spelled_once_in_the_report_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("report.rs"),
+    )
+    .expect("the report source stands in the tree");
+    assert_eq!(
+        source.matches("join(\", \")").count(),
+        1,
+        "the text list join stands spelled once in the report source"
+    );
+    assert!(
+        source.matches("joined_texts").count() >= 3,
+        "the joined texts helper stands named at its definition and at the two places that read it"
+    );
+}
+
+/// Build the crafted ledger the behavioural pin of
+/// slice 27 renders, a ledger whose one check carries
+/// one catch record entry and one canaryfield results
+/// row, the fix commits list of the entry and the
+/// planted files list of the row standing in the shapes
+/// the pin hands over as document text, every other
+/// field standing at a plain standing.
+fn text_list_document(fix_commits: &str, planted_files: &str) -> JsonValue {
+    let text = format!(
+        r#"{{"repo": "synthetic-repo", "totals": {{"fires": 1, "blocks": 1, "catches": 1, "false_blocks": 0, "unattributed_blocks": 0, "false_block_rate": 0.5, "runtime_seconds": 60, "runtime_minutes": 1.5, "total_cost_usd": 0.25}}, "checks": [{{"name": "unit checks", "scorecard": {{"fires": 1, "blocks": 1, "judged_commits": 2, "flaky_commits": 0, "flake_rate": 0.5, "runtime_seconds": 60, "runtime_minutes": 1.5, "catches": 1, "false_blocks": 0, "unattributed_blocks": 0, "false_block_rate": 0.5, "total_cost_usd": 0.25, "cost_per_catch_usd": 0.25}}, "catch_record": [{{"block_run_id": "run-1", "blocked_commit": "commit-1", "started_at": "2026-01-01", "outcome": "catch", "evidence": {{"fix_commits": {fix_commits}, "validating_run_id": "run-9", "reason": "reason-1"}}}}], "canaryfield_results": {{"counts": {{"caught": 1, "waved-through": 0, "not-applicable": 0, "gate-broken": 0}}, "results": [{{"seed": "seed-1", "name": "name-1", "defect_class": "class-1", "result": "caught", "planted_files": {planted_files}}}]}}}}]}}"#
+    );
+    read_json_document(&text, "pin document").expect("the pin document parses")
+}
+
+/// Render the crafted ledger and hand back its catch
+/// record row and its canaryfield results row whole.
+fn text_list_rows(fix_commits: &str, planted_files: &str) -> (String, String) {
+    let rendered = render_markdown(&text_list_document(fix_commits, planted_files))
+        .expect("the crafted ledger renders");
+    let catch_row = rendered
+        .lines()
+        .find(|line| line.starts_with("| run-1 |"))
+        .expect("the catch record row stands")
+        .to_string();
+    let canary_row = rendered
+        .lines()
+        .find(|line| line.starts_with("| seed-1 |"))
+        .expect("the canaryfield row stands")
+        .to_string();
+    (catch_row, canary_row)
+}
+
+/// The two rows the crafted ledger renders where its
+/// joined spelling stands as handed over.
+fn expected_text_list_rows(joined: &str) -> (String, String) {
+    (
+        format!("| run-1 | commit-1 | 2026-01-01 | catch | {joined} | run-9 | reason-1 |"),
+        format!("| seed-1 | name-1 | class-1 | caught | {joined} |"),
+    )
+}
+
+/// The behavioural pin of slice 27. The two text lists
+/// of the report, the fix commits of a catch record
+/// entry and the planted files of a canaryfield results
+/// row, render joined under the one shape at both
+/// seats, the empty list reading none and a full list
+/// reading its items with comma and space between each
+/// two and no mark at either end, one empty text item
+/// reading the empty spelling, the joined text still
+/// passing through the cell reading at both seats, and
+/// a non text entry at either seat and a field standing
+/// as no list at either seat refusing the whole
+/// rendering. The pin passes on the tree slice 27
+/// starts from, the joining standing correct there at
+/// both spellings, and it fails the moment either seat
+/// parts from the stated shape, so it binds the joining
+/// at the standings the gathering moves.
+#[test]
+fn test_text_lists_render_joined_at_the_fix_commits_and_planted_files_seats() {
+    assert_eq!(text_list_rows("[]", "[]"), expected_text_list_rows("none"));
+    assert_eq!(
+        text_list_rows(r#"["aaa"]"#, r#"["aaa"]"#),
+        expected_text_list_rows("aaa")
+    );
+    assert_eq!(
+        text_list_rows(r#"["aaa", "bbb"]"#, r#"["aaa", "bbb"]"#),
+        expected_text_list_rows("aaa, bbb")
+    );
+    assert_eq!(
+        text_list_rows(r#"["a", "b", "c"]"#, r#"["a", "b", "c"]"#),
+        expected_text_list_rows("a, b, c")
+    );
+    assert_eq!(
+        text_list_rows(r#"[""]"#, r#"[""]"#),
+        expected_text_list_rows("")
+    );
+    assert_eq!(
+        text_list_rows(r#"["a|b"]"#, r#"["a|b"]"#),
+        expected_text_list_rows("a\\|b")
+    );
+    assert_eq!(
+        text_list_rows(r#"["a\nb"]"#, r#"["a\nb"]"#),
+        expected_text_list_rows("a b")
+    );
+    for (fix_commits, planted_files) in [
+        ("[7]", "[]"),
+        ("[]", "[7]"),
+        (r#""abc""#, "[]"),
+        ("[]", r#""abc""#),
+    ] {
+        let error = render_markdown(&text_list_document(fix_commits, planted_files))
+            .expect_err("the rendering refuses");
+        assert_eq!(
+            error.to_string(),
+            "the ledger cannot be rendered",
+            "the refusal stands whole at either seat"
+        );
+    }
 }
