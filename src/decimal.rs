@@ -479,3 +479,16 @@ pub fn quantize_six_full(value: &DecimalValue) -> f64 {
         Quantized::Overflow => unreachable!("the uncapped quantize cannot overflow"),
     }
 }
+
+/// Close a finite decimal at six decimal places, half up,
+/// taking the capped value where the capped step stands
+/// Value and the full build where it stands Overflow, the
+/// closing the money seats of the ledger and the token
+/// join read, spelled once here beside the quantize pair
+/// it joins.
+pub fn close_six(value: &DecimalValue) -> f64 {
+    match quantize_six(value) {
+        Quantized::Value(closed) => closed,
+        Quantized::Overflow => quantize_six_full(value),
+    }
+}
