@@ -389,6 +389,39 @@ fn test_canaryfield_row_requirements_stand_over_every_row_ahead_of_any_match() {
         "each canaryfield row needs its seed data",
         "the refusal carries the seed data words"
     );
+    let nameless = parse_json(
+        "{\"gates\": [\"unit checks\"], \"rows\": [{\"seed\": \"seed-00\", \"defect_class\": \"synthetic class\", \"gates\": {}}]}",
+    )
+    .expect("the pin document parses");
+    let nameless_error = normalize_canary_document(Some(&nameless), "style checks")
+        .expect_err("a row lacking its name refuses ahead of any gate match");
+    assert_eq!(
+        nameless_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
+    let classless = parse_json(
+        "{\"gates\": [\"unit checks\"], \"rows\": [{\"seed\": \"seed-00\", \"name\": \"first synthetic row\", \"gates\": {}}]}",
+    )
+    .expect("the pin document parses");
+    let classless_error = normalize_canary_document(Some(&classless), "style checks")
+        .expect_err("a row lacking its defect class refuses ahead of any gate match");
+    assert_eq!(
+        classless_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
+    let unseeded = parse_json(
+        "{\"gates\": [\"unit checks\"], \"rows\": [{\"name\": \"first synthetic row\", \"defect_class\": \"synthetic class\", \"gates\": {}}]}",
+    )
+    .expect("the pin document parses");
+    let unseeded_error = normalize_canary_document(Some(&unseeded), "style checks")
+        .expect_err("a row lacking its seed refuses ahead of any gate match");
+    assert_eq!(
+        unseeded_error.message(),
+        "each canaryfield row needs its seed data",
+        "the refusal carries the seed data words"
+    );
 }
 
 #[test]
