@@ -38,7 +38,7 @@ pub use ledger::{
     validate_ledger, LedgerInputs, LEDGER_FORMAT, PACK_FORMAT,
 };
 pub use models::{CommitChange, CommitRecord, RunRecord};
-pub use reader::{read_json_document, read_json_file};
+pub use reader::read_json_document;
 pub use render::render_json;
 pub use report::{build_report, render_markdown, validate_report};
 pub use token::{
