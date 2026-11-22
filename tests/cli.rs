@@ -1634,9 +1634,16 @@ fn test_ambiguous_long_flag_prefixes_refuse_at_the_point_they_stand() {
 /// help prefixes h and he and hel standing alone
 /// reads the help answer, and at two equals form
 /// cells at the output boundary and the token cost
-/// check boundary reads the help answer, and at one
-/// whole invocation cell spelling the flags of a
-/// standing run at their boundary prefixes over the
+/// check boundary reads the help answer, and at ten
+/// further cells at the boundary spellings the whole
+/// invocation does not carry, the two token flags
+/// and the two price flags and the four check flags
+/// and the repository history source and the output,
+/// each standing directly ahead of the help flag
+/// with no value between, reads the usage refusal,
+/// and at one whole invocation cell spelling the
+/// flags of a standing run at their boundary
+/// prefixes over the
 /// recorded export and the recorded history reads
 /// the run completing with its outputs standing
 /// written and the ledger carrying the label word
@@ -1645,9 +1652,13 @@ fn test_ambiguous_long_flag_prefixes_refuse_at_the_point_they_stand() {
 /// name, that name its cell refusing or standing set
 /// aside with the help not answering, and on the day
 /// a reading dropped the help flag from the prefix
-/// space, the three help cells failing, and it
-/// passes on the tree as landed, the statement of
-/// the slice moving no code.
+/// space, the three help cells failing, and on the
+/// day a boundary spelling stood unknown to the
+/// reading, that spelling standing set aside with
+/// its direct cell answering the help flag where
+/// the pin reads the usage refusal, and it passes
+/// on the tree as landed, the statement of the
+/// slice moving no code.
 #[test]
 fn test_unique_long_flag_prefixes_resolve_to_their_flags() {
     let help_of = |name: &str, args: &[&str]| {
@@ -1700,6 +1711,53 @@ fn test_unique_long_flag_prefixes_resolve_to_their_flags() {
     help_of("catchledger-cli-help-hel", &["--hel"]);
     help_of("catchledger-cli-equals-output", &["--o=x", "--help"]);
     help_of("catchledger-cli-equals-check", &["--check-t=x", "--help"]);
+    let refusal_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .arg("--help")
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "a boundary spelling standing directly ahead of the help flag refuses the reading"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "a boundary spelling standing directly ahead of the help flag writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "a boundary spelling standing directly ahead of the help flag writes nothing to standard output"
+        );
+        assert_eq!(
+            std::fs::read_dir(&dir)
+                .expect("the pin directory reads")
+                .count(),
+            0,
+            "a boundary spelling standing directly ahead of the help flag writes nothing"
+        );
+    };
+    let directs = [
+        "--token-u",
+        "--token-o",
+        "--price-per-i",
+        "--price-per-o",
+        "--check-t",
+        "--check-r",
+        "--check-p",
+        "--check-l",
+        "--git-r",
+        "--o",
+    ];
+    for (index, spelling) in directs.iter().enumerate() {
+        let name = format!("catchledger-cli-direct-{index}");
+        refusal_of(&name, spelling);
+    }
     let runs = recorded_input("deterministic outputs over the examples", "runs.json");
     let log = recorded_input("deterministic outputs over the examples", "gitlog.txt");
     let canary = recorded_input("deterministic outputs over the examples", "canary.json");
