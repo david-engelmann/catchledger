@@ -1274,3 +1274,192 @@ fn test_decimal_tails_keep_tonights_values_at_the_gathered_seats() {
     );
     assert_eq!(whole_spelling(&sum), (false, "1".to_string(), 0));
 }
+
+/// The first mixed pin of slice 34. Where only the
+/// input price stands passed beside a usage
+/// document, the output price takes the default at
+/// its own site, and this pin runs the door with
+/// the input price passed and asserts the pricing
+/// texts of the token cost document and the cost of
+/// the run. The output text stands at the default 0
+/// and the cost stands at the input sum priced
+/// alone. It fails on the day the default text
+/// moves to any nonzero value, which parts the
+/// cost, and on the day the default spelling moves
+/// to another zero spelling, which parts the
+/// document text while the cost stands, and on the
+/// day the two arms stand crossed at the door,
+/// which parts the texts and the cost together.
+#[test]
+fn test_the_output_price_defaults_to_zero_where_only_the_input_price_stands_passed() {
+    let (_scratch, dir) = staged("default-output-price");
+    let mut args = base_args(&dir);
+    args.push("--token-usage".into());
+    args.push(dir.join("usage.json").to_string_lossy().into_owned());
+    args.push("--token-output".into());
+    args.push(dir.join("tokens.json").to_string_lossy().into_owned());
+    args.push("--price-per-input-token".into());
+    args.push("0.000003".into());
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 0, "the mixed run stands, stderr {stderr}");
+    let text = std::fs::read_to_string(dir.join("tokens.json")).expect("the document stands");
+    let document = read_json_document(&text, "token cost").expect("the document parses");
+    let pricing = document.get("pricing").expect("the pricing stands");
+    assert_eq!(
+        pricing
+            .get("input_token_price")
+            .and_then(JsonValue::as_text),
+        Some("0.000003"),
+        "the input price text stands as it was given"
+    );
+    assert_eq!(
+        pricing
+            .get("output_token_price")
+            .and_then(JsonValue::as_text),
+        Some("0"),
+        "the output price text stands at the default"
+    );
+    let totals = document.get("totals").expect("the totals stand");
+    assert_eq!(
+        totals.get("token_cost_usd"),
+        Some(&JsonValue::Float(0.0186)),
+        "the cost stands at the input sum priced alone"
+    );
+}
+
+/// The second mixed pin of slice 34. Where only
+/// the output price stands passed beside a usage
+/// document, the input price takes the default at
+/// its own site, and this pin runs the door with
+/// the output price passed and asserts the pricing
+/// texts of the token cost document and the cost of
+/// the run. The input text stands at the default 0
+/// and the cost stands at the output sum priced
+/// alone. It fails on the day the default text
+/// moves to any nonzero value, which parts the
+/// cost, and on the day the default spelling moves
+/// to another zero spelling, which parts the
+/// document text while the cost stands, and on the
+/// day the two arms stand crossed at the door,
+/// which parts the texts and the cost together.
+#[test]
+fn test_the_input_price_defaults_to_zero_where_only_the_output_price_stands_passed() {
+    let (_scratch, dir) = staged("default-input-price");
+    let mut args = base_args(&dir);
+    args.push("--token-usage".into());
+    args.push(dir.join("usage.json").to_string_lossy().into_owned());
+    args.push("--token-output".into());
+    args.push(dir.join("tokens.json").to_string_lossy().into_owned());
+    args.push("--price-per-output-token".into());
+    args.push("0.000015".into());
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 0, "the mixed run stands, stderr {stderr}");
+    let text = std::fs::read_to_string(dir.join("tokens.json")).expect("the document stands");
+    let document = read_json_document(&text, "token cost").expect("the document parses");
+    let pricing = document.get("pricing").expect("the pricing stands");
+    assert_eq!(
+        pricing
+            .get("input_token_price")
+            .and_then(JsonValue::as_text),
+        Some("0"),
+        "the input price text stands at the default"
+    );
+    assert_eq!(
+        pricing
+            .get("output_token_price")
+            .and_then(JsonValue::as_text),
+        Some("0.000015"),
+        "the output price text stands as it was given"
+    );
+    let totals = document.get("totals").expect("the totals stand");
+    assert_eq!(
+        totals.get("token_cost_usd"),
+        Some(&JsonValue::Float(0.0045)),
+        "the cost stands at the output sum priced alone"
+    );
+}
+
+/// The no usage pin of slice 34. A price text
+/// standing beside no usage document refuses
+/// nothing, the texts standing unparsed and the
+/// prices standing built as decimal zero, and this
+/// pin runs the door with a non decimal input
+/// price and a negative output price and no token
+/// flags and asserts the run stands and writes its
+/// outputs and writes no token cost document. It
+/// fails on the day the parse seat moves ahead of
+/// the usage match, either bad text then refusing
+/// a run the slice states stands.
+#[test]
+fn test_a_price_text_standing_without_a_usage_document_refuses_nothing() {
+    let (_scratch, dir) = staged("prices-without-usage");
+    let mut args = base_args(&dir);
+    args.push("--price-per-input-token".into());
+    args.push("many".into());
+    args.push("--price-per-output-token=-1".into());
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 0, "the run without usage stands, stderr {stderr}");
+    assert!(dir.join("ledger.json").exists(), "the ledger is written");
+    assert!(dir.join("report.md").exists(), "the report is written");
+    assert!(
+        !dir.join("tokens.json").exists(),
+        "no token cost document is written"
+    );
+}
+
+/// The refusal order pin of slice 34. Where both
+/// price texts stand bad beside a usage document,
+/// the input refusal names first, the door reading
+/// the input text ahead of the output text, and
+/// this pin runs the door with a non decimal input
+/// text and a negative output text and asserts the
+/// refusal carries the input name under the decimal
+/// sentence. It fails on the day the reading order
+/// parts, the output refusal then naming first
+/// under its own sentence.
+#[test]
+fn test_the_input_price_refusal_names_first_where_both_price_texts_stand_bad() {
+    let (_scratch, dir) = staged("bad-prices-with-usage");
+    let mut args = base_args(&dir);
+    args.push("--token-usage".into());
+    args.push(dir.join("usage.json").to_string_lossy().into_owned());
+    args.push("--token-output".into());
+    args.push(dir.join("tokens.json").to_string_lossy().into_owned());
+    args.push("--price-per-input-token".into());
+    args.push("many".into());
+    args.push("--price-per-output-token=-1".into());
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 2);
+    assert_eq!(
+        stderr,
+        "catchledger error: the input price per token must be a decimal number\n"
+    );
+}
+
+/// The empty text pin of slice 34. A price flag
+/// standing with an empty text takes no default,
+/// the flag standing, and the price reading refuses
+/// the empty text as no decimal number where a
+/// usage document stands, and this pin runs the
+/// door with the input flag standing with an empty
+/// text and asserts the refusal names the input
+/// price under the decimal sentence. It fails on
+/// the day the empty standing takes the default,
+/// the run then standing where the slice states it
+/// refuses.
+#[test]
+fn test_a_price_flag_standing_with_an_empty_text_refuses_as_no_decimal_number() {
+    let (_scratch, dir) = staged("empty-price-text");
+    let mut args = base_args(&dir);
+    args.push("--token-usage".into());
+    args.push(dir.join("usage.json").to_string_lossy().into_owned());
+    args.push("--token-output".into());
+    args.push(dir.join("tokens.json").to_string_lossy().into_owned());
+    args.push("--price-per-input-token=".into());
+    let (exit, _stdout, stderr) = run_binary(&args);
+    assert_eq!(exit, 2);
+    assert_eq!(
+        stderr,
+        "catchledger error: the input price per token must be a decimal number\n"
+    );
+}
