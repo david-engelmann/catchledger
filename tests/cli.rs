@@ -1563,3 +1563,231 @@ fn test_a_repo_label_flag_of_spaces_alone_stands_verbatim() {
         "a label of a single newline stands verbatim in the report"
     );
 }
+
+/// The first door pin of slice 36. An ambiguous long
+/// flag prefix refuses the reading at the point it
+/// stands, ahead of any help flag standing later in
+/// the line, and this pin drives the door at one cell
+/// for each ambiguous family at its longest ambiguous
+/// spelling, the spellings --c and --check- and
+/// --git- and --p and --price-per- and --repo and
+/// --token-, each followed by a value shaped word and
+/// then by the help flag, and reads the usage refusal
+/// at every cell, the refusal standing as exit code 2
+/// with the usage line on standard error and nothing
+/// on standard output and nothing written. It fails
+/// on the day a reading resolved an ambiguous prefix
+/// to a first match, the scan proceeding at that cell
+/// and the later help answering, and it passes on the
+/// tree as landed, the statement of the slice moving
+/// no code.
+#[test]
+fn test_ambiguous_long_flag_prefixes_refuse_at_the_point_they_stand() {
+    let refusal_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .arg("x")
+            .arg("--help")
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "an ambiguous prefix refuses the reading"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "an ambiguous prefix writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "an ambiguous prefix writes nothing to standard output"
+        );
+        assert_eq!(
+            std::fs::read_dir(&dir)
+                .expect("the pin directory reads")
+                .count(),
+            0,
+            "an ambiguous prefix writes nothing"
+        );
+    };
+    refusal_of("catchledger-cli-ambiguous-c", "--c");
+    refusal_of("catchledger-cli-ambiguous-check", "--check-");
+    refusal_of("catchledger-cli-ambiguous-git", "--git-");
+    refusal_of("catchledger-cli-ambiguous-p", "--p");
+    refusal_of("catchledger-cli-ambiguous-price", "--price-per-");
+    refusal_of("catchledger-cli-ambiguous-repo", "--repo");
+    refusal_of("catchledger-cli-ambiguous-token", "--token-");
+}
+
+/// The second door pin of slice 36. A long flag
+/// prefix at or past the boundary of its name reads
+/// as that name, and this pin drives the door at one
+/// cell for each of the seventeen boundaries in the
+/// help adjacency shape, the boundary prefix followed
+/// by its value and then by the help flag, and reads
+/// the help answer at every cell, and at the three
+/// help prefixes h and he and hel standing alone
+/// reads the help answer, and at two equals form
+/// cells at the output boundary and the token cost
+/// check boundary reads the help answer, and at one
+/// whole invocation cell spelling the flags of a
+/// standing run at their boundary prefixes over the
+/// recorded export and the recorded history reads
+/// the run completing with its outputs standing
+/// written and the ledger carrying the label word
+/// the boundary spelling gave it. It fails on the
+/// day a boundary stood one letter longer at any
+/// name, that name its cell refusing or standing set
+/// aside with the help not answering, and on the day
+/// a reading dropped the help flag from the prefix
+/// space, the three help cells failing, and it
+/// passes on the tree as landed, the statement of
+/// the slice moving no code.
+#[test]
+fn test_unique_long_flag_prefixes_resolve_to_their_flags() {
+    let help_of = |name: &str, args: &[&str]| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .args(args)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a resolving prefix reaches the help answer"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a resolving prefix answers the help flag on standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a resolving prefix writes nothing to standard error"
+        );
+    };
+    let boundaries = [
+        "--ci",
+        "--git-l",
+        "--git-r",
+        "--ca",
+        "--o",
+        "--repor",
+        "--pa",
+        "--repo-",
+        "--co",
+        "--token-u",
+        "--token-o",
+        "--price-per-i",
+        "--price-per-o",
+        "--check-t",
+        "--check-r",
+        "--check-p",
+        "--check-l",
+    ];
+    for (index, spelling) in boundaries.iter().enumerate() {
+        let name = format!("catchledger-cli-boundary-{index}");
+        help_of(&name, &[*spelling, "x", "--help"]);
+    }
+    help_of("catchledger-cli-help-h", &["--h"]);
+    help_of("catchledger-cli-help-he", &["--he"]);
+    help_of("catchledger-cli-help-hel", &["--hel"]);
+    help_of("catchledger-cli-equals-output", &["--o=x", "--help"]);
+    help_of("catchledger-cli-equals-check", &["--check-t=x", "--help"]);
+    let runs = recorded_input("deterministic outputs over the examples", "runs.json");
+    let log = recorded_input("deterministic outputs over the examples", "gitlog.txt");
+    let canary = recorded_input("deterministic outputs over the examples", "canary.json");
+    let dir = pin_dir("catchledger-cli-boundary-run");
+    let _scratch = ScratchDir::hold(&dir);
+    let runs_path = dir.join("runs.json");
+    std::fs::write(&runs_path, runs.as_bytes()).expect("the export stands");
+    let log_path = dir.join("gitlog.txt");
+    std::fs::write(&log_path, log.as_bytes()).expect("the history stands");
+    let canary_path = dir.join("canary.json");
+    std::fs::write(&canary_path, canary.as_bytes()).expect("the results stand");
+    let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+        .arg("--ci")
+        .arg(&runs_path)
+        .arg("--git-l")
+        .arg(&log_path)
+        .arg("--ca")
+        .arg(&canary_path)
+        .arg("--o")
+        .arg(dir.join("out/ledger.json"))
+        .arg("--repor")
+        .arg(dir.join("out/report.md"))
+        .arg("--pa")
+        .arg(dir.join("out/packs"))
+        .arg("--repo-")
+        .arg("boundary-label")
+        .arg("--co")
+        .arg("0.01")
+        .output()
+        .expect("the binary runs");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "a run spelled at boundary prefixes completes"
+    );
+    let ledger_text =
+        std::fs::read_to_string(dir.join("out/ledger.json")).expect("the ledger stands");
+    let ledger = read_json_document(&ledger_text, "ledger").expect("the ledger parses");
+    assert_eq!(
+        text_of(ledger.get("repo").expect("the ledger carries its label")),
+        "boundary-label",
+        "the boundary spelling of the label flag gives the ledger its label"
+    );
+    assert!(
+        dir.join("out/report.md").exists(),
+        "the boundary run writes its report"
+    );
+    assert!(
+        dir.join("out/packs").is_dir(),
+        "the boundary run writes its packs"
+    );
+}
+
+/// The third door pin of slice 36. A prefix of the
+/// help flag carrying an equals value refuses, as
+/// the help flag carrying an explicit value refuses,
+/// and this pin drives the door at the spellings
+/// --hel and --help each carrying an equals value
+/// and reads the usage refusal at both cells. It
+/// fails on the day a reading answered a valued help
+/// prefix with the help text, and it passes on the
+/// tree as landed, the statement of the slice moving
+/// no code.
+#[test]
+fn test_a_prefix_of_the_help_flag_carrying_a_value_refuses() {
+    let refusal_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "a valued help prefix refuses the reading"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "a valued help prefix writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "a valued help prefix writes nothing to standard output"
+        );
+    };
+    refusal_of("catchledger-cli-valued-help-prefix", "--hel=x");
+    refusal_of("catchledger-cli-valued-help-full", "--help=x");
+}
