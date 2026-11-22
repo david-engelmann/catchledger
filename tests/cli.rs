@@ -1336,3 +1336,53 @@ fn test_the_document_reading_stands_whole_at_the_library_door() {
         "the duplicate key refusal names the key under its label"
     );
 }
+
+/// The structural pin of slice 34. The two token
+/// price defaults of the door stand spelled as the
+/// one fallback text at two sites in the main
+/// source, one site under each price flag, with no
+/// constant naming either default, and this pin
+/// reads the main source by the manifest directory
+/// route and counts the fallback arm at exactly two
+/// standings and the reading seat of each price flag
+/// at exactly one standing. It fails on the day
+/// either default stands respelled at its site, on
+/// the day one site stands removed, and on the day
+/// a third spelling of the arm appears, and it
+/// passes on the tree as landed, the statement of
+/// the slice moving no code. A text count cannot
+/// prove that the two arms stand paired to their
+/// own flags rather than crossed, and the pin
+/// answers that limit by pairing the arm count with
+/// the two seat counts and leaving the last step to
+/// the words of the section and the diff reviews,
+/// the behavioural pins of this slice proving the
+/// pairing at the door in both mixed standings.
+#[test]
+fn test_the_token_price_default_text_stands_spelled_twice_in_the_main_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("main.rs"),
+    )
+    .expect("the main source stands in the tree");
+    assert_eq!(
+        source.matches("None => \"0\".to_string(),").count(),
+        2,
+        "the token price default text stands spelled at the two price sites of the main source"
+    );
+    assert_eq!(
+        source
+            .matches("values.get(\"price-per-input-token\")")
+            .count(),
+        1,
+        "the input price flag stands read at one seat in the main source"
+    );
+    assert_eq!(
+        source
+            .matches("values.get(\"price-per-output-token\")")
+            .count(),
+        1,
+        "the output price flag stands read at one seat in the main source"
+    );
+}

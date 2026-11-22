@@ -29,7 +29,7 @@ fn test_seed_files_present() {
 #[test]
 fn test_readme_records_the_closed_round_count() {
     let readme = read("README.md");
-    assert!(readme.contains("Closed rounds stand at 33 of 100"));
+    assert!(readme.contains("Closed rounds stand at 34 of 100"));
 }
 
 #[test]
