@@ -1386,3 +1386,180 @@ fn test_the_token_price_default_text_stands_spelled_twice_in_the_main_source() {
         "the output price flag stands read at one seat in the main source"
     );
 }
+
+/// The first door pin of slice 35. The repository label
+/// flag standing as UTF-8 text carrying no characters
+/// falls to the document label exactly as an absent flag
+/// does, at every shape the label reading of PORT2-3
+/// carries, and this pin drives the door with an empty
+/// label over three export documents, one carrying the
+/// repo field standing, one carrying the full name
+/// inside a repository object with no field ahead of
+/// it, and one carrying no label field at all, and
+/// reads the label the written ledger carries at each
+/// cell. It fails on the day the empty flag stands
+/// taken as the label itself, the ledger carrying an
+/// empty label at all three cells, and on the day the
+/// empty flag stands refused, the door writing nothing
+/// at all three cells, and it passes on the tree as
+/// landed, the statement of the slice moving no code.
+#[test]
+fn test_an_empty_repo_label_flag_reads_the_document_label() {
+    let runs = recorded_input("deterministic outputs over the examples", "runs.json");
+    let log = recorded_input("deterministic outputs over the examples", "gitlog.txt");
+    let full_name_runs = runs.replacen(
+        "{\"repo\":\"synthetic-ledger-repo\",",
+        "{\"repository\":{\"full_name\":\"synthetic/full-name\"},",
+        1,
+    );
+    assert!(
+        full_name_runs.starts_with("{\"repository\":"),
+        "the full name document carries the repository object at its head"
+    );
+    let bare_runs = runs.replacen("{\"repo\":\"synthetic-ledger-repo\",", "{", 1);
+    assert!(
+        bare_runs.starts_with("{\"workflow_runs\":"),
+        "the bare document carries no label field at its head"
+    );
+    let label_of = |name: &str, document: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let runs_path = dir.join("runs.json");
+        std::fs::write(&runs_path, document.as_bytes()).expect("the export stands");
+        let log_path = dir.join("gitlog.txt");
+        std::fs::write(&log_path, log.as_bytes()).expect("the history stands");
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg("--ci-history")
+            .arg(&runs_path)
+            .arg("--git-log")
+            .arg(&log_path)
+            .arg("--repo-label")
+            .arg("")
+            .arg("--output")
+            .arg(dir.join("out/ledger.json"))
+            .arg("--report")
+            .arg(dir.join("out/report.md"))
+            .arg("--packs-dir")
+            .arg(dir.join("out/packs"))
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "an empty label flag runs the door"
+        );
+        let ledger_text =
+            std::fs::read_to_string(dir.join("out/ledger.json")).expect("the ledger stands");
+        let ledger = read_json_document(&ledger_text, "ledger").expect("the ledger parses");
+        text_of(ledger.get("repo").expect("the ledger carries its label")).to_string()
+    };
+    assert_eq!(
+        label_of("catchledger-cli-empty-label-repo", &runs),
+        "synthetic-ledger-repo",
+        "an empty label flag reads the repo field of the document"
+    );
+    assert_eq!(
+        label_of("catchledger-cli-empty-label-full-name", &full_name_runs),
+        "synthetic/full-name",
+        "an empty label flag reads the full name inside the repository object"
+    );
+    assert_eq!(
+        label_of("catchledger-cli-empty-label-bare", &bare_runs),
+        "unknown",
+        "an empty label flag reads the word unknown where no label field stands"
+    );
+}
+
+/// The second door pin of slice 35. The emptiness the
+/// label resolution names is of the flag word as the
+/// operating system handed it over, ahead of any
+/// stripping, and a flag word of whitespace alone
+/// carries characters and takes the label verbatim,
+/// and this pin drives the door with a label of three
+/// spaces over the recorded export and with a label
+/// of a single tab over the recorded export and with
+/// a label of a single newline over the recorded
+/// export, and reads the label the written ledger
+/// and the written report carry at each cell, the
+/// report carrying the newline word in its own
+/// spelling of that character, a space standing in
+/// its place. It fails on the day the flag word
+/// stands stripped ahead of the emptiness test, the
+/// spaces and the tab and the newline falling to the
+/// document label, and on the day a strip confined
+/// to the tab alone stands ahead of that test, the
+/// tab falling while the spaces and the newline
+/// stand, and on the day a strip confined to the
+/// newline alone stands ahead of that test, the
+/// newline falling while the spaces and the tab
+/// stand, and it passes on the tree as landed, the
+/// statement of the slice moving no code.
+#[test]
+fn test_a_repo_label_flag_of_spaces_alone_stands_verbatim() {
+    let runs = recorded_input("deterministic outputs over the examples", "runs.json");
+    let log = recorded_input("deterministic outputs over the examples", "gitlog.txt");
+    let verbatim_of = |name: &str, word: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let runs_path = dir.join("runs.json");
+        std::fs::write(&runs_path, runs.as_bytes()).expect("the export stands");
+        let log_path = dir.join("gitlog.txt");
+        std::fs::write(&log_path, log.as_bytes()).expect("the history stands");
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg("--ci-history")
+            .arg(&runs_path)
+            .arg("--git-log")
+            .arg(&log_path)
+            .arg("--repo-label")
+            .arg(word)
+            .arg("--output")
+            .arg(dir.join("out/ledger.json"))
+            .arg("--report")
+            .arg(dir.join("out/report.md"))
+            .arg("--packs-dir")
+            .arg(dir.join("out/packs"))
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a label of whitespace alone runs the door"
+        );
+        let ledger_text =
+            std::fs::read_to_string(dir.join("out/ledger.json")).expect("the ledger stands");
+        let ledger = read_json_document(&ledger_text, "ledger").expect("the ledger parses");
+        let report_text =
+            std::fs::read_to_string(dir.join("out/report.md")).expect("the report stands");
+        (
+            text_of(ledger.get("repo").expect("the ledger carries its label")).to_string(),
+            report_text,
+        )
+    };
+    let (label, report) = verbatim_of("catchledger-cli-spaces-label", "   ");
+    assert_eq!(
+        label, "   ",
+        "a label of spaces alone stands verbatim in the ledger"
+    );
+    assert!(
+        report.contains("Repository    \n"),
+        "a label of spaces alone stands verbatim in the report"
+    );
+    let (label, report) = verbatim_of("catchledger-cli-tab-label", "\t");
+    assert_eq!(
+        label, "\t",
+        "a label of a single tab stands verbatim in the ledger"
+    );
+    assert!(
+        report.contains("Repository \t\n"),
+        "a label of a single tab stands verbatim in the report"
+    );
+    let (label, report) = verbatim_of("catchledger-cli-newline-label", "\n");
+    assert_eq!(
+        label, "\n",
+        "a label of a single newline stands verbatim in the ledger"
+    );
+    assert!(
+        report.contains("Repository  \n"),
+        "a label of a single newline stands verbatim in the report"
+    );
+}
