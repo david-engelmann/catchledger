@@ -1112,3 +1112,153 @@ fn test_the_runs_label_stands_spelled_once_in_the_ledger_source() {
         "the runs label definition stands named at its definition and at the two places that read it"
     );
 }
+
+/// The structural pin of slice 32. The three outcome
+/// counts of the ledger builder, the catches and the
+/// false blocks and the unattributed, each stand as a
+/// filter and count over the catch record parting only
+/// in the outcome word, and each reads the outcome of
+/// its item by the one reading spelling of the ledger
+/// source. This pin reads the ledger source and counts
+/// that spelling, which stands at the three counts and
+/// at no other seat of the file. It fails on the day a
+/// fourth outcome count stands added in the idiom or
+/// one of the three counts stands respelled into a
+/// helper, the silent drift the slice states as this
+/// family its live risk, and it passes on the tree as
+/// landed, the statement of the slice moving no code.
+#[test]
+fn test_the_outcome_filter_counts_stand_at_three_standings_in_the_ledger_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("ledger.rs"),
+    )
+    .expect("the ledger source stands in the tree");
+    assert_eq!(
+        source.matches("item.get(\"outcome\")").count(),
+        3,
+        "the outcome reading stands at the three outcome filter counts in the ledger source"
+    );
+}
+
+/// The structural pin of slice 32. The two render
+/// writers spell the six scalar arms of the value
+/// reading identically, the null arm and the boolean
+/// arm and the integer arm and the big integer arm and
+/// the float arm and the text arm, the writers parting
+/// only in their container arms on layout alone. This
+/// pin reads the render source and counts each scalar
+/// arm line and the object key sort step line, each
+/// standing in both writers and at no third seat. It
+/// fails on the day one writer its scalar arm or its
+/// sort step line stands respelled apart from its pair, the
+/// silent parting the slice states as this family its
+/// live risk, and it passes on the tree as landed, the
+/// statement of the slice moving no code.
+#[test]
+fn test_the_render_scalar_arms_stand_spelled_twice_in_the_render_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("render.rs"),
+    )
+    .expect("the render source stands in the tree");
+    assert_eq!(
+        source
+            .matches("JsonValue::Null => out.push_str(\"null\"),")
+            .count(),
+        2,
+        "the null arm of the render writers stands spelled in both writers"
+    );
+    assert_eq!(
+        source
+            .matches(
+                "JsonValue::Bool(flag) => out.push_str(if *flag { \"true\" } else { \"false\" }),"
+            )
+            .count(),
+        2,
+        "the boolean arm of the render writers stands spelled in both writers"
+    );
+    assert_eq!(
+        source
+            .matches("JsonValue::Int(integer) => out.push_str(&integer.to_string()),")
+            .count(),
+        2,
+        "the integer arm of the render writers stands spelled in both writers"
+    );
+    assert_eq!(
+        source
+            .matches("JsonValue::BigInt(text) => out.push_str(text),")
+            .count(),
+        2,
+        "the big integer arm of the render writers stands spelled in both writers"
+    );
+    assert_eq!(
+        source
+            .matches("JsonValue::Float(number) => out.push_str(&json_float_text(*number)),")
+            .count(),
+        2,
+        "the float arm of the render writers stands spelled in both writers"
+    );
+    assert_eq!(
+        source
+            .matches("JsonValue::Text(text) => escape_string(text, out),")
+            .count(),
+        2,
+        "the text arm of the render writers stands spelled in both writers"
+    );
+    assert_eq!(
+        source
+            .matches("sorted.sort_by(|a, b| a.0.cmp(&b.0));")
+            .count(),
+        2,
+        "the object key sort step of the render writers stands spelled in both writers"
+    );
+}
+
+/// The structural pin of slice 32. The two error types
+/// of the errors source stand as siblings in the port,
+/// the pack error standing beside the base error where
+/// the Python original carried it as a subclass, and
+/// the two types carry their shared shape in mirrored
+/// spellings, the message field and the constructor and
+/// the display reading and the error trait standing
+/// spelled in both. This pin reads the errors source
+/// and counts the four spellings, each standing in both
+/// types and at no third seat. It fails on the day one
+/// type its shape stands parted from the other at any
+/// of the four spellings, and it passes on the tree
+/// as landed, the
+/// statement of the slice moving no code.
+#[test]
+fn test_the_twin_error_types_stand_mirrored_in_the_errors_source() {
+    let source = std::fs::read_to_string(
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("errors.rs"),
+    )
+    .expect("the errors source stands in the tree");
+    assert_eq!(
+        source.matches("    message: String,").count(),
+        2,
+        "the message field of the twin error types stands spelled in both types"
+    );
+    assert_eq!(
+        source
+            .matches("    pub fn new(message: impl Into<String>) -> Self {")
+            .count(),
+        2,
+        "the constructor of the twin error types stands spelled in both types"
+    );
+    assert_eq!(
+        source.matches("impl std::error::Error for ").count(),
+        2,
+        "the error trait of the twin error types stands implemented for both types"
+    );
+    assert_eq!(
+        source.matches("f.write_str(&self.message)").count(),
+        2,
+        "the display reading of the twin error types stands spelled in both types"
+    );
+}
