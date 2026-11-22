@@ -3,8 +3,6 @@
 //! Every refusal names the document by the label the reader was
 //! given, matching the Python command line reader.
 
-use std::path::Path;
-
 use crate::errors::CatchledgerError;
 use crate::jsonvalue::{parse_json, JsonValue, ParseFailure};
 
@@ -32,13 +30,4 @@ fn refusal(failure: ParseFailure, label: &str) -> CatchledgerError {
 /// Decode a JSON document from text under the given label.
 pub fn read_json_document(text: &str, label: &str) -> Result<JsonValue, CatchledgerError> {
     parse_json(text).map_err(|failure| refusal(failure, label))
-}
-
-/// Read and decode a JSON document from a local file.
-pub fn read_json_file(path: &Path, label: &str) -> Result<JsonValue, CatchledgerError> {
-    let data =
-        std::fs::read(path).map_err(|_| CatchledgerError::new(could_not_be_read_wording(label)))?;
-    let text = String::from_utf8(data)
-        .map_err(|_| CatchledgerError::new(not_valid_json_wording(label)))?;
-    read_json_document(&text, label)
 }

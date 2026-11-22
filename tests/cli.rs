@@ -652,11 +652,12 @@ fn test_the_reader_refusal_wordings_stand_spelled_once_in_the_production_source(
 /// expression that turns it to text, standing once in
 /// the main source, and the wording functions of the
 /// reader stand at their seats inside the reader source,
-/// the could not be read wording at its definition and
-/// at the file reading arm and the not valid wording at
-/// its definition and at the refusal helper and at the
-/// file reading arm, and this pin reads those sources
-/// and counts the standings, so a reading place that
+/// the could not be read wording at its definition alone
+/// and the not valid wording at its definition and at
+/// the refusal helper, the file reading arm of each
+/// wording standing retired by slice 33, and this pin
+/// reads those sources and counts the standings, so a
+/// reading place that
 /// stops reading its definition, or a seat that reads it
 /// in another dress, fails here where the name counts of
 /// the standing pins cannot see it.
@@ -676,13 +677,13 @@ fn test_the_door_and_reader_reading_expressions_stand_at_their_seats() {
         .expect("the reader source stands in the tree");
     assert_eq!(
         reader_source.matches("could_not_be_read_wording").count(),
-        2,
-        "the could not be read wording stands at its definition and at its file reading seat"
+        1,
+        "the could not be read wording stands at its definition alone in the reader source"
     );
     assert_eq!(
         reader_source.matches("not_valid_json_wording").count(),
-        3,
-        "the not valid JSON wording stands at its definition and at its two reading seats"
+        2,
+        "the not valid JSON wording stands at its definition and at its refusal helper seat"
     );
 }
 
@@ -1260,5 +1261,78 @@ fn test_the_twin_error_types_stand_mirrored_in_the_errors_source() {
         source.matches("f.write_str(&self.message)").count(),
         2,
         "the display reading of the twin error types stands spelled in both types"
+    );
+}
+
+/// The structural pin of slice 33. The file reading
+/// of the reader, retired by this slice, stands at no
+/// seat in the reader source or in the crate root, and
+/// this pin reads those two sources by the manifest
+/// directory route and counts the standings of its
+/// name in each. It fails on the contract tree of this
+/// round in the designed shape, where the function
+/// still stands defined in the reader and re-exported
+/// at the root, and it passes on the build tree, and
+/// it fails on the day the name stands respelled at
+/// either seat, whether as a restored function or as
+/// a fresh reading.
+#[test]
+fn test_the_file_reading_function_stands_at_no_seat_in_the_reader_or_the_crate_root() {
+    let source_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let reader_source = std::fs::read_to_string(source_dir.join("reader.rs"))
+        .expect("the reader source stands in the tree");
+    assert_eq!(
+        reader_source.matches("read_json_file").count(),
+        0,
+        "the file reading stands at no seat in the reader source"
+    );
+    let root_source = std::fs::read_to_string(source_dir.join("lib.rs"))
+        .expect("the crate root stands in the tree");
+    assert_eq!(
+        root_source.matches("read_json_file").count(),
+        0,
+        "the file reading stands at no seat in the crate root"
+    );
+}
+
+/// The behavioural pin of slice 33. The document
+/// reading of the reader stands whole at the library
+/// door after the retirement of the file reading
+/// beside it, and this pin drives that reading over a
+/// sound document and asserts the value it returns
+/// through the rendering, and over an invalid text
+/// and asserts the refusal carries the not valid JSON
+/// wording under its label, and over a text carrying
+/// a key twice and asserts the refusal names the key
+/// under its label. It passes on the tree as landed,
+/// binding the surface the retirement must not move,
+/// and it fails on the day the removal or any later
+/// hand parts the document reading or either wording
+/// or the duplicate refusal.
+#[test]
+fn test_the_document_reading_stands_whole_at_the_library_door() {
+    let document = read_json_document("{\"count\": 2, \"name\": \"ledger\"}", "checked document")
+        .expect("a sound document reads at the library door");
+    assert_eq!(
+        catchledger::render_json(&document),
+        "{\n  \"count\": 2,\n  \"name\": \"ledger\"\n}\n",
+        "the document reading returns the document whole"
+    );
+    let error = read_json_document("not a document", "checked document")
+        .expect_err("an invalid text refuses at the library door");
+    assert_eq!(
+        error.message(),
+        "the checked document is not valid JSON",
+        "the invalid text refuses in the not valid JSON wording under its label"
+    );
+    let error = read_json_document(
+        "{\"name\": \"ledger\", \"name\": \"again\"}",
+        "checked document",
+    )
+    .expect_err("a key carried twice refuses at the library door");
+    assert_eq!(
+        error.message(),
+        "the checked document carries the key name more than once",
+        "the duplicate key refusal names the key under its label"
     );
 }
