@@ -1849,3 +1849,237 @@ fn test_a_prefix_of_the_help_flag_carrying_a_value_refuses() {
     refusal_of("catchledger-cli-valued-help-prefix", "--hel=x");
     refusal_of("catchledger-cli-valued-help-full", "--help=x");
 }
+
+/// The first door pin of slice 37. A single dash
+/// token whose second byte is the letter h and whose
+/// third byte is not an equals sign answers with the
+/// help at the point it stands, the letters after
+/// the h never read, and this pin drives the door at
+/// the spellings -hx and -help and -h1 standing
+/// alone and reads the help answer at every cell,
+/// the answer standing as exit code 0 with the help
+/// text on standard output. It fails on the day a
+/// reading answered only the exact spelling -h, or
+/// read the letters after the h and refused the
+/// letters it does not know, and it passes on the
+/// tree as landed, the statement of the slice moving
+/// no code.
+#[test]
+fn test_single_dash_help_clusters_answer_with_the_help_text() {
+    let help_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a firing help cluster answers with the help"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a firing help cluster writes the help text to standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a firing help cluster writes nothing to standard error"
+        );
+    };
+    help_of("catchledger-cli-single-dash-hx", "-hx");
+    help_of("catchledger-cli-single-dash-help", "-help");
+    help_of("catchledger-cli-single-dash-h1", "-h1");
+    let help_pair_of = |name: &str, first: &str, second: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(first)
+            .arg(second)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a firing help cluster answers with the help at the point it stands"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a firing help cluster writes the help text to standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a firing help cluster writes nothing to standard error"
+        );
+    };
+    help_pair_of(
+        "catchledger-cli-single-dash-aside-then-cluster",
+        "-x",
+        "-hx",
+    );
+    help_pair_of(
+        "catchledger-cli-single-dash-cluster-then-valued-help",
+        "-hx",
+        "--help=x",
+    );
+}
+
+/// The second door pin of slice 37. Every other
+/// single dash token stands set aside in the
+/// deferred discipline of the scan and refuses at
+/// the end of the scan, a help flag standing later
+/// in the line still answering over it, and this
+/// pin drives the door at the spellings -xh and -x
+/// and the lone dash and -5 standing alone and
+/// reads the usage refusal at every cell, the
+/// refusal standing as exit code 2 with the usage
+/// line on standard error and nothing on standard
+/// output, and at the same four spellings each
+/// followed by the long help flag and reads the
+/// help answer at every cell. It fails on the day
+/// a reading fired the help wherever the letter h
+/// stands in a cluster, the reversed spelling cell
+/// answering, and on the day a reading refused a
+/// standing aside token at the point it stands,
+/// the four help adjacency cells failing, and it
+/// passes on the tree as landed, the statement of
+/// the slice moving no code.
+#[test]
+fn test_single_dash_tokens_that_do_not_fire_the_help_refuse_at_the_end_of_the_scan() {
+    let refusal_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "a standing aside token refuses at the end of the scan"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "a standing aside token writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "a standing aside token writes nothing to standard output"
+        );
+        assert_eq!(
+            std::fs::read_dir(&dir)
+                .expect("the pin directory reads")
+                .count(),
+            0,
+            "a standing aside token writes nothing"
+        );
+    };
+    let help_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .arg("--help")
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a later help flag answers over a standing aside token"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a later help flag writes the help text to standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a later help flag writes nothing to standard error"
+        );
+    };
+    refusal_of("catchledger-cli-standing-aside-xh", "-xh");
+    refusal_of("catchledger-cli-standing-aside-x", "-x");
+    refusal_of("catchledger-cli-standing-aside-lone", "-");
+    refusal_of("catchledger-cli-standing-aside-neg", "-5");
+    refusal_of("catchledger-cli-standing-aside-upper-h", "-H");
+    help_of("catchledger-cli-standing-aside-xh-help", "-xh");
+    help_of("catchledger-cli-standing-aside-x-help", "-x");
+    help_of("catchledger-cli-standing-aside-lone-help", "-");
+    help_of("catchledger-cli-standing-aside-neg-help", "-5");
+    help_of("catchledger-cli-standing-aside-upper-h-help", "-H");
+}
+
+/// The third door pin of slice 37. A help cluster
+/// carrying an equals sign directly after the h
+/// stands set aside and does not refuse at the
+/// point it stands, parting from the valued long
+/// help forms, which refuse at their point, and
+/// this pin drives the door at the spellings -h=x
+/// and -h= standing alone and reads the usage
+/// refusal at both cells, and at the same two
+/// spellings each followed by the long help flag
+/// and reads the help answer at both cells. It
+/// fails on the day a reading refused a valued
+/// help cluster at its point as the long form
+/// refuses, the two help adjacency cells failing,
+/// and on the day a reading fired a valued
+/// cluster, the two standing alone cells failing,
+/// and it passes on the tree as landed, the
+/// statement of the slice moving no code.
+#[test]
+fn test_a_help_cluster_carrying_an_equals_value_stands_set_aside() {
+    let refusal_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "a valued help cluster refuses at the end of the scan"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "a valued help cluster writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "a valued help cluster writes nothing to standard output"
+        );
+    };
+    let help_of = |name: &str, spelling: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(spelling)
+            .arg("--help")
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a later help flag answers over a valued help cluster"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a later help flag writes the help text to standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a later help flag writes nothing to standard error"
+        );
+    };
+    refusal_of("catchledger-cli-valued-cluster-x", "-h=x");
+    refusal_of("catchledger-cli-valued-cluster-empty", "-h=");
+    help_of("catchledger-cli-valued-cluster-x-help", "-h=x");
+    help_of("catchledger-cli-valued-cluster-empty-help", "-h=");
+}
