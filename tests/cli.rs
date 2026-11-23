@@ -1891,6 +1891,39 @@ fn test_single_dash_help_clusters_answer_with_the_help_text() {
     help_of("catchledger-cli-single-dash-hx", "-hx");
     help_of("catchledger-cli-single-dash-help", "-help");
     help_of("catchledger-cli-single-dash-h1", "-h1");
+    let help_pair_of = |name: &str, first: &str, second: &str| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .arg(first)
+            .arg(second)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a firing help cluster answers with the help at the point it stands"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a firing help cluster writes the help text to standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a firing help cluster writes nothing to standard error"
+        );
+    };
+    help_pair_of(
+        "catchledger-cli-single-dash-aside-then-cluster",
+        "-x",
+        "-hx",
+    );
+    help_pair_of(
+        "catchledger-cli-single-dash-cluster-then-valued-help",
+        "-hx",
+        "--help=x",
+    );
 }
 
 /// The second door pin of slice 37. Every other
@@ -1972,10 +2005,12 @@ fn test_single_dash_tokens_that_do_not_fire_the_help_refuse_at_the_end_of_the_sc
     refusal_of("catchledger-cli-standing-aside-x", "-x");
     refusal_of("catchledger-cli-standing-aside-lone", "-");
     refusal_of("catchledger-cli-standing-aside-neg", "-5");
+    refusal_of("catchledger-cli-standing-aside-upper-h", "-H");
     help_of("catchledger-cli-standing-aside-xh-help", "-xh");
     help_of("catchledger-cli-standing-aside-x-help", "-x");
     help_of("catchledger-cli-standing-aside-lone-help", "-");
     help_of("catchledger-cli-standing-aside-neg-help", "-5");
+    help_of("catchledger-cli-standing-aside-upper-h-help", "-H");
 }
 
 /// The third door pin of slice 37. A help cluster
