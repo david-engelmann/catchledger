@@ -205,3 +205,6 @@ test_a_repo_label_flag_of_spaces_alone_stands_verbatim | rust-test | tests/cli.r
 test_ambiguous_long_flag_prefixes_refuse_at_the_point_they_stand | rust-test | tests/cli.rs | test_ambiguous_long_flag_prefixes_refuse_at_the_point_they_stand
 test_unique_long_flag_prefixes_resolve_to_their_flags | rust-test | tests/cli.rs | test_unique_long_flag_prefixes_resolve_to_their_flags
 test_a_prefix_of_the_help_flag_carrying_a_value_refuses | rust-test | tests/cli.rs | test_a_prefix_of_the_help_flag_carrying_a_value_refuses
+test_single_dash_help_clusters_answer_with_the_help_text | rust-test | tests/cli.rs | test_single_dash_help_clusters_answer_with_the_help_text
+test_single_dash_tokens_that_do_not_fire_the_help_refuse_at_the_end_of_the_scan | rust-test | tests/cli.rs | test_single_dash_tokens_that_do_not_fire_the_help_refuse_at_the_end_of_the_scan
+test_a_help_cluster_carrying_an_equals_value_stands_set_aside | rust-test | tests/cli.rs | test_a_help_cluster_carrying_an_equals_value_stands_set_aside
