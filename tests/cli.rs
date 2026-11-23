@@ -2083,3 +2083,309 @@ fn test_a_help_cluster_carrying_an_equals_value_stands_set_aside() {
     help_of("catchledger-cli-valued-cluster-x-help", "-h=x");
     help_of("catchledger-cli-valued-cluster-empty-help", "-h=");
 }
+
+/// The first door pin of slice 38. A token of
+/// exactly two dashes standing in argument position
+/// ends the option reading and marks the refusal at
+/// its own seat, and this pin drives the door at
+/// the separator standing alone and at the separator
+/// followed by the short help flag and by the long
+/// help flag and by the single dash help cluster
+/// and by the help prefix and reads the usage
+/// refusal at every cell, the refusal standing as
+/// exit code 2 with the usage line on standard
+/// error and nothing on standard output and
+/// nothing written, and at one whole invocation
+/// cell spelling the complete standing invocation
+/// of the door over the recorded inputs with the
+/// separator standing last and reads the usage
+/// refusal with nothing written. It fails on the
+/// day a reading answered a help form standing
+/// after a separator, every help adjacency cell
+/// failing, and on the day a reading under which
+/// the separator refused nothing of its own and
+/// merely ended the option reading, the whole
+/// invocation cell running the door and writing
+/// its outputs, and it passes on the tree as
+/// landed, the statement of the slice moving
+/// no code.
+#[test]
+fn test_separator_token_refuses_at_its_own_seat_and_suppresses_the_help_after_it() {
+    let refusal_of = |name: &str, args: &[&str]| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .args(args)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "a separator refuses at the end of the scan"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "a separator writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "a separator writes nothing to standard output"
+        );
+        assert_eq!(
+            std::fs::read_dir(&dir)
+                .expect("the pin directory reads")
+                .count(),
+            0,
+            "a separator writes nothing"
+        );
+    };
+    refusal_of("catchledger-cli-separator-alone", &["--"]);
+    refusal_of("catchledger-cli-separator-short-help", &["--", "-h"]);
+    refusal_of("catchledger-cli-separator-long-help", &["--", "--help"]);
+    refusal_of("catchledger-cli-separator-help-cluster", &["--", "-hx"]);
+    refusal_of("catchledger-cli-separator-help-prefix", &["--", "--he"]);
+    let runs = recorded_input("deterministic outputs over the examples", "runs.json");
+    let log = recorded_input("deterministic outputs over the examples", "gitlog.txt");
+    let canary = recorded_input("deterministic outputs over the examples", "canary.json");
+    let dir = pin_dir("catchledger-cli-separator-trailing");
+    let _scratch = ScratchDir::hold(&dir);
+    let runs_path = dir.join("runs.json");
+    std::fs::write(&runs_path, runs.as_bytes()).expect("the export stands");
+    let log_path = dir.join("gitlog.txt");
+    std::fs::write(&log_path, log.as_bytes()).expect("the history stands");
+    let canary_path = dir.join("canary.json");
+    std::fs::write(&canary_path, canary.as_bytes()).expect("the results stand");
+    let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+        .arg("--ci-history")
+        .arg(&runs_path)
+        .arg("--git-log")
+        .arg(&log_path)
+        .arg("--canaryfield-results")
+        .arg(&canary_path)
+        .arg("--output")
+        .arg(dir.join("out/ledger.json"))
+        .arg("--report")
+        .arg(dir.join("out/report.md"))
+        .arg("--packs-dir")
+        .arg(dir.join("out/packs"))
+        .arg("--repo-label")
+        .arg("separator-label")
+        .arg("--cost-per-minute")
+        .arg("0.01")
+        .arg("--")
+        .current_dir(&dir)
+        .output()
+        .expect("the binary runs");
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "a trailing separator refuses a complete line whole"
+    );
+    assert_eq!(
+        output.stderr,
+        USAGE_LINE.as_bytes(),
+        "a trailing separator writes the usage line to standard error"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "a trailing separator writes nothing to standard output"
+    );
+    assert!(
+        !dir.join("out/ledger.json").exists(),
+        "a trailing separator writes no ledger"
+    );
+    assert!(
+        !dir.join("out/report.md").exists(),
+        "a trailing separator writes no report"
+    );
+    assert!(
+        !dir.join("out/packs").exists(),
+        "a trailing separator writes no packs"
+    );
+}
+
+/// The second door pin of slice 38. Every token
+/// standing after a separator stands set aside
+/// unread, and this pin drives the door at the
+/// separator followed by a complete invocation of
+/// the door and then the short help flag, and at
+/// the separator followed by an ambiguous prefix
+/// and then the short help flag, and at the
+/// separator followed by a valued help form and
+/// then the short help flag, and at the separator
+/// followed by a flag standing without its value
+/// and then the short help flag, and at the
+/// separator followed by the two history source
+/// flags each with its value and then the short
+/// help flag, and at the separator followed by a
+/// check flag with its value and then the short
+/// help flag, and at the separator followed by a
+/// plain word and then the short help flag, and
+/// reads the usage refusal at every cell, the
+/// refusal standing as exit code 2 with the usage
+/// line on standard error and nothing on standard
+/// output and nothing written. It fails on the
+/// day a reading read any token after a separator
+/// as the token it spells, the closing help flag
+/// of the first cell answering or an earlier token
+/// taking its standing, and it passes on the tree
+/// as landed, the statement of the slice moving
+/// no code.
+#[test]
+fn test_tokens_after_a_separator_stand_set_aside_unread() {
+    let refusal_of = |name: &str, args: &[&str]| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .args(args)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "a token after a separator stands set aside unread"
+        );
+        assert_eq!(
+            output.stderr,
+            USAGE_LINE.as_bytes(),
+            "a token after a separator writes the usage line to standard error"
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "a token after a separator writes nothing to standard output"
+        );
+        assert_eq!(
+            std::fs::read_dir(&dir)
+                .expect("the pin directory reads")
+                .count(),
+            0,
+            "a token after a separator writes nothing"
+        );
+    };
+    refusal_of(
+        "catchledger-cli-after-separator-invocation",
+        &[
+            "--",
+            "--ci-history",
+            "runs.json",
+            "--git-log",
+            "log.txt",
+            "--output",
+            "out.json",
+            "--report",
+            "rep.md",
+            "--packs-dir",
+            "packs",
+            "-h",
+        ],
+    );
+    refusal_of(
+        "catchledger-cli-after-separator-ambiguous",
+        &["--", "--c", "-h"],
+    );
+    refusal_of(
+        "catchledger-cli-after-separator-valued-help",
+        &["--", "--help=x", "-h"],
+    );
+    refusal_of(
+        "catchledger-cli-after-separator-flag-no-value",
+        &["--", "--ci-history", "-h"],
+    );
+    refusal_of(
+        "catchledger-cli-after-separator-history-pair",
+        &["--", "--git-log", "log.txt", "--git-repo", "repo", "-h"],
+    );
+    refusal_of(
+        "catchledger-cli-after-separator-check",
+        &["--", "--check-ledger", "x", "-h"],
+    );
+    refusal_of(
+        "catchledger-cli-after-separator-word",
+        &["--", "word", "-h"],
+    );
+}
+
+/// The third door pin of slice 38. The separator
+/// lookalikes and the separator spellings at the
+/// value seat do not end the reading, and this pin
+/// drives the door at a token of three dashes
+/// followed by the short help flag and at a token
+/// of four dashes followed by the short help flag
+/// and at the two dash equals form followed by the
+/// short help flag and reads the help answer at
+/// every cell, the answer standing as exit code 0
+/// with the help text on standard output, and at
+/// the history flag in equals form carrying the
+/// separator spelling as its value followed by the
+/// short help flag and reads the help answer, and
+/// at the history flag followed by the separator
+/// spelling followed by the short help flag and
+/// reads the usage refusal. It fails on the day a
+/// reading took any longer dash token or the
+/// equals form as the separator, the help cells
+/// refusing, and on the day a reading took the
+/// separator spelling as a spaced value, the last
+/// cell proceeding past the flag and the closing
+/// help answering, and on the day a reading took
+/// the equals form spelling as a separator, the
+/// fourth cell refusing, and it passes on the
+/// tree as landed, the statement of the slice
+/// moving no code.
+#[test]
+fn test_separator_lookalikes_and_separator_spellings_at_the_value_seat_do_not_end_the_reading() {
+    let help_of = |name: &str, args: &[&str]| {
+        let dir = pin_dir(name);
+        let _scratch = ScratchDir::hold(&dir);
+        let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+            .args(args)
+            .current_dir(&dir)
+            .output()
+            .expect("the binary runs");
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "a separator lookalike does not end the reading"
+        );
+        assert!(
+            !output.stdout.is_empty(),
+            "a separator lookalike lets the help flag answer on standard output"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "a separator lookalike writes nothing to standard error"
+        );
+    };
+    help_of("catchledger-cli-three-dashes-help", &["---", "-h"]);
+    help_of("catchledger-cli-four-dashes-help", &["----", "-h"]);
+    help_of("catchledger-cli-dash-equals-help", &["--=x", "-h"]);
+    help_of(
+        "catchledger-cli-equals-separator-value-help",
+        &["--ci-history=--", "-h"],
+    );
+    let dir = pin_dir("catchledger-cli-spaced-separator-value");
+    let _scratch = ScratchDir::hold(&dir);
+    let output = Command::new(env!("CARGO_BIN_EXE_catchledger"))
+        .arg("--ci-history")
+        .arg("--")
+        .arg("-h")
+        .current_dir(&dir)
+        .output()
+        .expect("the binary runs");
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "a flag meeting the separator spelling as its next token refuses at its point"
+    );
+    assert_eq!(
+        output.stderr,
+        USAGE_LINE.as_bytes(),
+        "a flag meeting the separator spelling writes the usage line to standard error"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "a flag meeting the separator spelling writes nothing to standard output"
+    );
+}
