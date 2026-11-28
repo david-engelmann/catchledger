@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 270" width="960" height="270" role="img" aria-label="How catchledger attributes CI blocks conservatively">
+  <title>How catchledger joins CI workflow history and Git ancestry to price checks</title>
+  <rect width="960" height="270" rx="18" fill="#faf9f6" stroke="#d6d3cd" stroke-width="1.5"/>
+  <text x="26" y="36" fill="#0369a1" font-family="'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace" font-size="11.5" font-weight="700" letter-spacing="1.1">CATCHLEDGER PIPELINE  /  CONSERVATIVE POST-BLOCK ATTRIBUTION</text>
+  <text x="26" y="62" fill="#1c1917" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" font-weight="750">Join CI blocks to Git DAG descendants, separate real catches from bare retries, and price each gate</text>
+
+  <rect x="24" y="84" width="212" height="162" rx="12" fill="#ffffff" stroke="#d6d3cd" stroke-width="1.3"/>
+  <text x="38" y="108" fill="#0369a1" font-family="'SFMono-Regular', ui-monospace, Menlo, monospace" font-size="11" font-weight="700">1. LOCAL INGEST</text>
+  <text x="38" y="132" fill="#1c1917" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700">CI runs + Git DAG</text>
+  <text x="38" y="154" fill="#57534e" font-family="system-ui, -apple-system, sans-serif" font-size="12">
+    <tspan x="38" dy="0">Reads workflow_runs JSON</tspan>
+    <tspan x="38" dy="17">and git log or clone with</tspan>
+    <tspan x="38" dy="17">quoted-path decoding and</tspan>
+    <tspan x="38" dy="17">duplicate-key refusal</tspan>
+  </text>
+
+  <rect x="257" y="84" width="212" height="162" rx="12" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="271" y="108" fill="#0369a1" font-family="'SFMono-Regular', ui-monospace, Menlo, monospace" font-size="11" font-weight="700">2. BLOCK ATTRIBUTION</text>
+  <text x="271" y="132" fill="#1c1917" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700">Catch vs bare retry</text>
+  <text x="271" y="154" fill="#44403c" font-family="system-ui, -apple-system, sans-serif" font-size="12">
+    <tspan x="271" dy="0">Fix in flagged paths +</tspan>
+    <tspan x="271" dy="17">descendant green = catch.</tspan>
+    <tspan x="271" dy="17">Same-SHA pass = false</tspan>
+    <tspan x="271" dy="17">block. Rest unattributed</tspan>
+  </text>
+
+  <rect x="490" y="84" width="212" height="162" rx="12" fill="#ffffff" stroke="#d6d3cd" stroke-width="1.3"/>
+  <text x="504" y="108" fill="#0369a1" font-family="'SFMono-Regular', ui-monospace, Menlo, monospace" font-size="11" font-weight="700">3. DECIMAL PRICING</text>
+  <text x="504" y="132" fill="#1c1917" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700">Runtime &amp; token cost</text>
+  <text x="504" y="154" fill="#57534e" font-family="system-ui, -apple-system, sans-serif" font-size="12">
+    <tspan x="504" dy="0">Fixed-point DecimalValue</tspan>
+    <tspan x="504" dy="17">computes flake rate, USD</tspan>
+    <tspan x="504" dy="17">per catch, canary joins,</tspan>
+    <tspan x="504" dy="17">and optional token spend</tspan>
+  </text>
+
+  <rect x="723" y="84" width="213" height="162" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.8"/>
+  <text x="737" y="108" fill="#15803d" font-family="'SFMono-Regular', ui-monospace, Menlo, monospace" font-size="11" font-weight="700">4. EVIDENCE PACKS</text>
+  <text x="737" y="132" fill="#1c1917" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700">Ready for tameshi</text>
+  <text x="737" y="154" fill="#44403c" font-family="system-ui, -apple-system, sans-serif" font-size="12">
+    <tspan x="737" dy="0">Publishes catchledger-</tspan>
+    <tspan x="737" dy="17">ledger/1, Markdown, and</tspan>
+    <tspan x="737" dy="17">per-check catchledger-</tspan>
+    <tspan x="737" dy="17">pack/1 with --check mode</tspan>
+  </text>
+</svg>

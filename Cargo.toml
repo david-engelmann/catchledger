@@ -1,9 +1,29 @@
 [package]
 name = "catchledger"
-version = "0.1.0"
+version = "0.37.0"
 edition = "2021"
+rust-version = "1.70"
 description = "It records fires, blocks, true catches, false blocks, flake rate, runtime, and cost per catch for each gate, joined from CI logs to what happened next."
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/david-engelmann/catchledger"
+homepage = "https://david-engelmann.github.io/catchledger/"
+documentation = "https://david-engelmann.github.io/catchledger/"
+keywords = ["ci", "github-actions", "testing", "scorecard", "verification"]
+categories = ["command-line-utilities", "development-tools"]
+exclude = [
+    "tests/**",
+    "book/**",
+    "docs/media/**",
+    "CONTRACT.md",
+    "AGENTS.md",
+    "CITATION.cff",
+    ".editorconfig",
+    ".gitattributes",
+    ".github/**",
+    "deny.toml",
+    "install.sh",
+]
 
 [lib]
 name = "catchledger"
@@ -12,3 +32,8 @@ path = "src/lib.rs"
 [[bin]]
 name = "catchledger"
 path = "src/main.rs"
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-v{ version }-{ target }.{ archive-format }"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
