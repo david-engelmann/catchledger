@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use catchledger in research or engineering benchmarks, please cite this repository."
+title: "catchledger"
+abstract: "Conservative per-check CI scorecard attributing true catches, false blocks, flake rate, runtime, and cost per catch from local CI and Git history"
+authors:
+  - family-names: "Engelmann"
+    given-names: "David"
+version: "0.37.0"
+date-released: "2026-11-27"
+license: "MIT"
+repository-code: "https://github.com/david-engelmann/catchledger"
+url: "https://david-engelmann.github.io/catchledger/"

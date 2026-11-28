@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 420" width="920" height="420" role="img" aria-label="catchledger terminal run over synthetic examples">
+  <title>catchledger terminal showcase attributing catches and false blocks</title>
+  <rect width="920" height="420" rx="16" fill="#141413" stroke="#33312d" stroke-width="1.5"/>
+  <rect width="920" height="38" rx="16" fill="#1f1e1b"/>
+  <rect y="22" width="920" height="16" fill="#1f1e1b"/>
+  <circle cx="22" cy="19" r="6" fill="#ef4444"/>
+  <circle cx="42" cy="19" r="6" fill="#f59e0b"/>
+  <circle cx="62" cy="19" r="6" fill="#22c55e"/>
+  <text x="460" y="23" text-anchor="middle" fill="#a8a29e" font-family="'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace" font-size="12" font-weight="600">catchledger --ci-history examples/synthetic-runs.json --git-log examples/synthetic-git-log.txt ...</text>
+
+  <g font-family="'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace" font-size="12.5">
+    <text x="24" y="66" fill="#38bdf8">$</text>
+    <text x="40" y="66" fill="#f5f2eb">catchledger --ci-history examples/synthetic-runs.json --git-log examples/synthetic-git-log.txt \</text>
+    <text x="54" y="85" fill="#f5f2eb">--canaryfield-results examples/synthetic-canaryfield-results.json --output out/ledger.json \</text>
+    <text x="54" y="104" fill="#f5f2eb">--report out/report.md --packs-dir out/packs &amp;&amp; cat out/report.md</text>
+
+    <text x="24" y="134" fill="#38bdf8" font-weight="700"># Catchledger report  (Repository synthetic-ledger-repo)</text>
+
+    <text x="24" y="162" fill="#93c5fd" font-weight="700">Check         Fires  Blocks  Catches  False blocks  Unattributed  Flake rate  Total cost    Cost / catch</text>
+    <text x="24" y="184" fill="#e7e5e4">style checks  1      1       0        0             1             0.000000    USD 0.004000  not available</text>
+    <text x="24" y="205" fill="#e7e5e4">unit checks   5      2       1        1             0             0.250000    USD 0.042000  USD 0.042000</text>
+    <line x1="24" y1="220" x2="896" y2="220" stroke="#3f3c37" stroke-width="1.2"/>
+
+    <text x="24" y="244" fill="#fbbf24" font-weight="700">Block attribution evidence</text>
+    <text x="24" y="268" fill="#86efac">run 101  aaaa...  unit checks   catch         fix commit bbbb... + green descendant run 102</text>
+    <text x="24" y="290" fill="#fca5a5">run 103  cccc...  unit checks   false_block   bare retry passed on identical SHA cccc... in run 104</text>
+    <text x="24" y="312" fill="#fde68a">run 106  bbbb...  style checks  unattributed  flagged_change_without_validating_success</text>
+
+    <text x="24" y="346" fill="#93c5fd" font-weight="700">Emitted artifacts</text>
+    <text x="24" y="368" fill="#d6d3d1">out/ledger.json (catchledger-ledger/1)  |  out/report.md</text>
+    <text x="24" y="390" fill="#38bdf8">out/packs/001-style-checks.json  |  out/packs/002-unit-checks.json (catchledger-pack/1)</text>
+  </g>
+</svg>

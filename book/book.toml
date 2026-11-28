@@ -1,0 +1,16 @@
+[book]
+title = "catchledger Documentation"
+authors = ["David Engelmann"]
+description = "Conservative per-check CI scorecard attributing true catches, false blocks, flake rate, runtime, and cost per catch from local CI and Git history"
+language = "en"
+src = "src"
+
+[build]
+build-dir = "build"
+create-missing = false
+
+[output.html]
+default-theme = "coal"
+preferred-dark-theme = "ayu"
+site-url = "/catchledger/"
+git-repository-url = "https://github.com/david-engelmann/catchledger"
