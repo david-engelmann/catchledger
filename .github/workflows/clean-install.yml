@@ -48,16 +48,20 @@ jobs:
           set -eu
           TARGET_VER="${REQUESTED_VERSION:-}"
           if [ "$EVENT_NAME" = "workflow_run" ] && [ -n "${UPSTREAM_RUN_ID:-}" ]; then
+            REL_CONCLUSION="$(gh api "repos/$GH_REPO/actions/runs/$UPSTREAM_RUN_ID/jobs" --jq '.jobs[] | select(.name == "github-release") | .conclusion // "none"' | head -n 1)"
+            if [ "$REL_CONCLUSION" = "skipped" ]; then
+              echo "Upstream Release run skipped github-release, skipping clean-install check"
+              exit 0
+            fi
             ART_DIR="$(mktemp -d)"
-            if gh run download "$UPSTREAM_RUN_ID" -n published-release-tag -D "$ART_DIR" 2>/dev/null && [ -s "$ART_DIR/tag.txt" ]; then
+            gh run download "$UPSTREAM_RUN_ID" -n published-release-tag -D "$ART_DIR"
+            if [ -s "$ART_DIR/tag.txt" ]; then
               TARGET_VER="$(tr -d '[:space:]' < "$ART_DIR/tag.txt")"
-            elif case "${UPSTREAM_BRANCH:-}" in v[0-9]*) true ;; *) false ;; esac; then
-              TARGET_VER="$UPSTREAM_BRANCH"
             fi
             rm -rf "$ART_DIR"
             if [ -z "$TARGET_VER" ]; then
-              echo "Upstream Release run did not publish a release tag, skipping clean-install check"
-              exit 0
+              echo "clean-install error, published-release-tag artifact was empty" >&2
+              exit 1
             fi
           fi
           TARGET_VER="${TARGET_VER:-latest}"

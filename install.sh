@@ -126,6 +126,10 @@ fi
 
 tar -xzf "${TMP_DIR}/${ARCHIVE}" -C "$TMP_DIR"
 mkdir -p "$INSTALL_DIR"
+if [ -d "${INSTALL_DIR}/${BIN}" ]; then
+    echo "catchledger install error, destination ${INSTALL_DIR}/${BIN} exists and is a directory" >&2
+    exit 1
+fi
 STAGE_BIN="${INSTALL_DIR}/.${BIN}.tmp.$$"
 cp "${TMP_DIR}/${BIN}" "$STAGE_BIN"
 chmod 0755 "$STAGE_BIN"

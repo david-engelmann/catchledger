@@ -49,7 +49,7 @@ Dashboards total runs and failures, and no tool anywhere computes which of a tea
 
 ## Install
 
-Install from source with Cargo (Rust `1.70` or newer on Linux and macOS) or install verified prebuilt archives via `install.sh` or `cargo-binstall` once release archives are attached (`v0.37.0` and `v0.38.0` onward).
+Install from source with Cargo (Rust `1.70` or newer on Linux and macOS), install checksum-verified prebuilt archives via `install.sh`, or download prebuilt archives via `cargo-binstall` once release archives are attached (`v0.37.0` and `v0.38.0` onward).
 
 ```sh
 cargo install --git https://github.com/david-engelmann/catchledger --locked
@@ -109,8 +109,8 @@ Catchledger makes zero network calls. Export paginated GitHub Actions workflow r
 (
   set -eu
   REPO="owner/repo"
-  gh api --paginate "repos/$REPO/actions/runs?per_page=100" \
-    | jq -s --arg repo "$REPO" '{repo: $repo, workflow_runs: map(.workflow_runs[])}' > runs.json
+  gh api --paginate "repos/$REPO/actions/runs?per_page=100" > runs-pages.json
+  jq -s --arg repo "$REPO" '{repo: $repo, workflow_runs: map(.workflow_runs[])}' runs-pages.json > runs.json
   git --no-pager log --reverse --topo-order --no-show-signature -M \
     --pretty='format:commit %H%nparents %P%ndate %cI%nsubject %s' --name-status > git-log.txt
   catchledger \

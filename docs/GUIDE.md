@@ -14,7 +14,7 @@ cargo install --git https://github.com/david-engelmann/catchledger --locked
 
 ### Prebuilt Release Archives
 
-On Linux and macOS (`x86_64` and `aarch64`), install verified prebuilt archives via `install.sh` or `cargo-binstall` once release assets are attached (`v0.37.0` and `v0.38.0` onward).
+On Linux and macOS (`x86_64` and `aarch64`), install checksum-verified prebuilt archives via `install.sh` or download prebuilt archives via `cargo-binstall` once release assets are attached (`v0.37.0` and `v0.38.0` onward).
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/david-engelmann/catchledger/main/install.sh | sh
@@ -55,9 +55,11 @@ Every successful run exits `0` in silence. Usage errors, malformed JSON, duplica
 
 ## Quickstart Over Synthetic Examples
 
-Run `catchledger` against the synthetic fixtures under `examples/`.
+Clone the repository and run `catchledger` against the synthetic fixtures under `examples/`.
 
 ```sh
+git clone https://github.com/david-engelmann/catchledger.git
+cd catchledger
 mkdir -p /tmp/cl-demo
 catchledger \
   --ci-history examples/synthetic-runs.json \
@@ -100,9 +102,9 @@ Catchledger never calls the GitHub API over the network. Export workflow runs wi
   REPO="owner/repo"
   CLONE_DIR="."
 
-  gh api --paginate "repos/$REPO/actions/runs?per_page=100" \
-    | jq -s --arg repo "$REPO" '{repo: $repo, workflow_runs: map(.workflow_runs[])}' \
-    > runs.json
+  gh api --paginate "repos/$REPO/actions/runs?per_page=100" > runs-pages.json
+  jq -s --arg repo "$REPO" '{repo: $repo, workflow_runs: map(.workflow_runs[])}' \
+    runs-pages.json > runs.json
 
   git -C "$CLONE_DIR" --no-pager log --reverse --topo-order --no-show-signature -M \
     --pretty='format:commit %H%nparents %P%ndate %cI%nsubject %s' \
